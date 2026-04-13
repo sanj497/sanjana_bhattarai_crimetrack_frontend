@@ -1,277 +1,247 @@
 import { useEffect, useState } from "react";
 import React from "react";
+import { 
+  Shield, 
+  Search, 
+  MapPin, 
+  Clock, 
+  ChevronRight, 
+  CheckCircle2, 
+  XCircle, 
+  AlertCircle,
+  Activity,
+  CheckSquare,
+  ClipboardList
+} from "lucide-react";
 
 const Policereport = () => {
   const [crimes, setCrimes] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [filter, setFilter] = useState("All");
+  const [searchTerm, setSearchTerm] = useState("");
+  const [updatingId, setUpdatingId] = useState(null);
+
+  const API_BASE = `${import.meta.env.VITE_BACKEND_URL}/api/report`;
+
+  const fetchCrimes = async () => {
+    try {
+      const token = localStorage.getItem("token");
+      if (!token) {
+        setError("Session expired. Please re-authenticate.");
+        setLoading(false);
+        return;
+      }
+
+      const res = await fetch(API_BASE, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || "Data bridge failure");
+      
+      setCrimes(Array.isArray(data.crimes) ? data.crimes : []);
+    } catch (err) {
+      console.error(err);
+      setError(err.message);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
-    const fetchCrimes = async () => {
-      try {
-        const token = localStorage.getItem("token");
-
-        if (!token) {
-          setError("Please login first");
-          setCrimes([]);
-          setLoading(false);
-          return;
-        }
-
-        const res = await fetch(`${import.meta.env.VITE_BACKEND_URL}/api/report`, {
-          headers: { Authorization: `Bearer ${token}` },
-        });
-
-        if (res.status === 401) {
-          setError("Unauthorized access");
-          setCrimes([]);
-          setLoading(false);
-          return;
-        }
-
-        const data = await res.json();
-        setCrimes(Array.isArray(data.crimes) ? data.crimes : []);
-      } catch (err) {
-        console.error(err);
-        setError("Failed to load reports");
-        setCrimes([]);
-      } finally {
-        setLoading(false);
-      }
-    };
-
     fetchCrimes();
   }, []);
 
   const updateStatus = async (id, status) => {
+    setUpdatingId(id);
     try {
       const token = localStorage.getItem("token");
-
-      await fetch(`https://sanjana-bhattarai-crimetrack-backend.onrender.com/api/report/${id}/status`, {
+      const res = await fetch(`${API_BASE}/${id}/status`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
         },
-        body: JSON.stringify({ status }),
+        body: JSON.stringify({ status, adminNotes: `Status updated by Field Office: ${status}` }),
       });
+
+      if (!res.ok) throw new Error("Status transmission failed");
 
       setCrimes((prev) =>
         prev.map((crime) => (crime._id === id ? { ...crime, status } : crime))
       );
     } catch (error) {
-      console.error("Status update failed");
+      console.error(error);
+      alert("Failed to update status on secure ledger.");
+    } finally {
+      setUpdatingId(null);
     }
   };
 
-  const getStatusColor = (status) => {
-    switch (status) {
-      case "Accepted":
-        return "#10b981";
-      case "Rejected":
-        return "#ef4444";
-      case "Pending":
-        return "#f59e0b";
-      default:
-        return "#6b7280";
-    }
+  const statusConfig = {
+    Pending: { color: "text-amber-500", bg: "bg-amber-500/10", border: "border-amber-500/20", icon: <Clock size={12} /> },
+    Verified: { color: "text-emerald-500", bg: "bg-emerald-500/10", border: "border-emerald-500/20", icon: <CheckCircle2 size={12} /> },
+    Rejected: { color: "text-rose-500", bg: "bg-rose-500/10", border: "border-rose-500/20", icon: <XCircle size={12} /> },
+    ForwardedToPolice: { color: "text-blue-500", bg: "bg-blue-500/10", border: "border-blue-500/20", icon: <Shield size={12} /> },
+    UnderInvestigation: { color: "text-indigo-500", bg: "bg-indigo-500/10", border: "border-indigo-500/20", icon: <Activity size={12} /> },
+    Resolved: { color: "text-cyan-500", bg: "bg-cyan-500/10", border: "border-cyan-500/20", icon: <CheckSquare size={12} /> }
   };
 
-  const getCrimeTypeIcon = (type) => {
-    const icons = {
-      Theft: "🔓",
-      Assault: "⚠️",
-      Vandalism: "🔨",
-      Fraud: "💳",
-      Burglary: "🏠",
-      "Drug-related": "💊",
-      Other: "📋",
-    };
-    return icons[type] || "📋";
-  };
+  const filteredCrimes = crimes
+    .filter(c => filter === "All" || c.status === filter)
+    .filter(c => c.title.toLowerCase().includes(searchTerm.toLowerCase()) || c.description.toLowerCase().includes(searchTerm.toLowerCase()));
 
-  const filteredCrimes =
-    filter === "All"
-      ? crimes
-      : crimes.filter((crime) => crime.status === filter);
-
-  const stats = {
-    total: crimes.length,
-    pending: crimes.filter((c) => c.status === "Pending").length,
-    accepted: crimes.filter((c) => c.status === "Accepted").length,
-    rejected: crimes.filter((c) => c.status === "Rejected").length,
-  };
-
-  if (loading)
-    return (
-      <div style={styles.loadingContainer}>
-        <div style={styles.spinner}></div>
-        <p style={styles.loadingText}>Loading reports...</p>
-      </div>
-    );
-
-  if (error)
-    return (
-      <div style={styles.errorContainer}>
-        <div style={styles.errorIcon}>⚠️</div>
-        <p style={styles.errorText}>{error}</p>
-      </div>
-    );
+  if (loading) return (
+    <div className="min-h-screen bg-[#020617] flex flex-col items-center justify-center gap-4">
+      <div className="h-10 w-10 border-4 border-slate-800 border-t-blue-500 rounded-full animate-spin" />
+      <span className="text-[10px] font-black text-slate-500 uppercase tracking-[4px]">Accessing Field Intelligence...</span>
+    </div>
+  );
 
   return (
-    <div style={styles.container}>
-      {/* Header */}
-      <div style={styles.header}>
+    <div className="min-h-screen bg-[#020617] p-8 lg:p-12 font-sans text-slate-300">
+      {/* Header section */}
+      <div className="max-w-7xl mx-auto mb-12 flex flex-col md:flex-row justify-between items-start md:items-center gap-8">
         <div>
-          <h1 style={styles.title}>Police Dashboard</h1>
-          <p style={styles.subtitle}>Manage and review crime reports</p>
+          <div className="flex items-center gap-2 text-blue-500 mb-2">
+            <Shield size={18} />
+            <span className="text-[10px] font-black uppercase tracking-[3px]">Police Intelligence Bureau</span>
+          </div>
+          <h1 className="text-4xl font-black text-white tracking-tighter uppercase leading-none">Command Center</h1>
+        </div>
+
+        <div className="flex items-center gap-4 bg-slate-900/50 p-2 rounded-2xl border border-slate-800/50 backdrop-blur-xl w-full md:w-auto">
+          <div className="relative flex-1 md:w-64">
+            <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500" size={16} />
+            <input 
+              type="text" 
+              placeholder="Search reports..." 
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="w-full bg-transparent pl-12 pr-4 py-3 text-xs font-bold outline-none text-white placeholder:text-slate-600"
+            />
+          </div>
         </div>
       </div>
 
-      {/* Stats Cards */}
-      <div style={styles.statsGrid}>
-        <div style={{ ...styles.statCard, borderLeft: "4px solid #3b82f6" }}>
-          <div style={styles.statLabel}>Total Reports</div>
-          <div style={styles.statValue}>{stats.total}</div>
-        </div>
-        <div style={{ ...styles.statCard, borderLeft: "4px solid #f59e0b" }}>
-          <div style={styles.statLabel}>Pending</div>
-          <div style={styles.statValue}>{stats.pending}</div>
-        </div>
-        <div style={{ ...styles.statCard, borderLeft: "4px solid #10b981" }}>
-          <div style={styles.statLabel}>Accepted</div>
-          <div style={styles.statValue}>{stats.accepted}</div>
-        </div>
-        <div style={{ ...styles.statCard, borderLeft: "4px solid #ef4444" }}>
-          <div style={styles.statLabel}>Rejected</div>
-          <div style={styles.statValue}>{stats.rejected}</div>
-        </div>
+      {/* Stats row */}
+      <div className="max-w-7xl mx-auto grid grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
+        {[
+          { label: "Total Reports", value: crimes.length, icon: <ClipboardList />, color: "blue" },
+          { label: "Assigned Cases", value: crimes.filter(c => c.status === "ForwardedToPolice").length, icon: <Shield />, color: "amber" },
+          { label: "Investigations", value: crimes.filter(c => c.status === "UnderInvestigation").length, icon: <Activity />, color: "indigo" },
+          { label: "Case Resolved", value: crimes.filter(c => c.status === "Resolved").length, icon: <CheckSquare />, color: "emerald" },
+        ].map((stat, i) => (
+          <div key={i} className="bg-slate-900/40 border border-slate-800/50 p-6 rounded-[32px] group hover:border-blue-500/30 transition-all">
+            <div className={`p-3 rounded-2xl w-fit mb-4 bg-${stat.color}-500/10 text-${stat.color}-500`}>
+              {stat.icon}
+            </div>
+            <div className="text-2xl font-black text-white">{stat.value}</div>
+            <div className="text-[10px] font-black text-slate-500 uppercase tracking-widest">{stat.label}</div>
+          </div>
+        ))}
       </div>
 
       {/* Filter Tabs */}
-      <div style={styles.filterContainer}>
-        {["All", "Pending", "Accepted", "Rejected"].map((status) => (
+      <div className="max-w-7xl mx-auto flex gap-3 mb-8 overflow-x-auto pb-4 no-scrollbar">
+        {["All", "ForwardedToPolice", "UnderInvestigation", "Resolved", "Rejected"].map((s) => (
           <button
-            key={status}
-            onClick={() => setFilter(status)}
-            style={{
-              ...styles.filterButton,
-              ...(filter === status ? styles.filterButtonActive : {}),
-            }}
+            key={s}
+            onClick={() => setFilter(s)}
+            className={`px-6 py-2.5 rounded-full text-[10px] font-black uppercase tracking-widest transition-all whitespace-nowrap border-2 ${filter === s ? 'bg-blue-600 border-blue-600 text-white shadow-lg shadow-blue-600/20' : 'bg-transparent border-slate-800 text-slate-500 hover:border-slate-700'}`}
           >
-            {status}
+            {s === "ForwardedToPolice" ? "New Assignments" : s}
           </button>
         ))}
       </div>
 
-      {/* Reports List */}
-      <div style={styles.reportsList}>
-        {filteredCrimes.length === 0 ? (
-          <div style={styles.emptyState}>
-            <div style={styles.emptyIcon}>📭</div>
-            <p style={styles.emptyText}>No reports found</p>
+      {/* Reports Grid */}
+      <div className="max-w-7xl mx-auto grid grid-cols-1 xl:grid-cols-2 gap-8">
+        {error ? (
+          <div className="col-span-full py-20 text-center bg-rose-500/5 border border-rose-500/10 rounded-[48px]">
+            <AlertCircle size={48} className="text-rose-500 mx-auto mb-4" />
+            <h3 className="text-white font-black uppercase tracking-widest mb-2">Access Denied</h3>
+            <p className="text-slate-500 text-sm max-w-md mx-auto">{error}</p>
+          </div>
+        ) : filteredCrimes.length === 0 ? (
+          <div className="col-span-full py-20 text-center bg-slate-900/40 border border-slate-800/50 rounded-[48px]">
+             <ClipboardList size={48} className="text-slate-700 mx-auto mb-4" />
+             <h3 className="text-slate-500 font-black uppercase tracking-widest">No Intelligence Available</h3>
+             <p className="text-slate-600 text-xs">Awaiting new case assignments for your district.</p>
           </div>
         ) : (
           filteredCrimes.map((crime) => (
-            <div key={crime._id} style={styles.reportCard}>
-              {/* Status Badge */}
-              <div
-                style={{
-                  ...styles.statusBadge,
-                  backgroundColor: getStatusColor(crime.status) + "20",
-                  color: getStatusColor(crime.status),
-                }}
-              >
+            <div key={crime._id} className="bg-slate-900/40 border border-slate-800/50 rounded-[48px] p-10 hover:border-blue-500/20 transition-all group relative overflow-hidden">
+              {/* Status Ribbon */}
+              <div className={`absolute top-0 right-0 px-6 py-2 rounded-bl-3xl border-l border-b ${statusConfig[crime.status]?.bg} ${statusConfig[crime.status]?.border} ${statusConfig[crime.status]?.color} text-[10px] font-black uppercase tracking-[2px] flex items-center gap-2`}>
+                {statusConfig[crime.status]?.icon}
                 {crime.status}
               </div>
 
-              {/* Report Header */}
-              <div style={styles.reportHeader}>
-                <div style={styles.crimeIcon}>
-                  {getCrimeTypeIcon(crime.crimeType)}
+              <div className="flex items-start gap-6 mb-8">
+                <div className="h-14 w-14 bg-slate-950 rounded-2xl flex items-center justify-center text-blue-500 border border-slate-800 shadow-xl group-hover:scale-110 transition-transform">
+                  <Shield size={24} />
                 </div>
-                <div style={styles.reportTitle}>
-                  <h3 style={styles.title3}>{crime.title}</h3>
-                  <span style={styles.crimeType}>{crime.crimeType}</span>
-                </div>
-              </div>
-
-              {/* Description */}
-              <p style={styles.description}>{crime.description}</p>
-
-              {/* Details Grid */}
-              <div style={styles.detailsGrid}>
-                <div style={styles.detailItem}>
-                  <span style={styles.detailIcon}>📍</span>
-                  <div>
-                    <div style={styles.detailLabel}>Location</div>
-                    <div style={styles.detailValue}>
-                      {crime.location
-                        ? crime.location.address
-                        : "Unknown location"}
-                    </div>
-                    {crime.location && (
-                      <div style={styles.coordinates}>
-                        {crime.location.lat.toFixed(4)},{" "}
-                        {crime.location.lng.toFixed(4)}
-                      </div>
-                    )}
-                  </div>
-                </div>
-
-                <div style={styles.detailItem}>
-                  <span style={styles.detailIcon}>👤</span>
-                  <div>
-                    <div style={styles.detailLabel}>Reported By</div>
-                    <div style={styles.detailValue}>
-                      {crime.userId?.email || "Anonymous"}
-                    </div>
-                  </div>
+                <div className="flex-1 pr-24">
+                  <div className="text-[10px] font-black text-blue-500 uppercase tracking-[3px] mb-1">{crime.crimeType}</div>
+                  <h3 className="text-xl font-black text-white tracking-tight uppercase group-hover:text-blue-400 transition-colors line-clamp-1">{crime.title}</h3>
                 </div>
               </div>
 
-              {/* Action Buttons */}
-              <div style={styles.actionButtons}>
-                <button
-                  onClick={() => updateStatus(crime._id, "Accepted")}
-                  disabled={crime.status === "Accepted"}
-                  style={{
-                    ...styles.button,
-                    ...styles.acceptButton,
-                    ...(crime.status === "Accepted"
-                      ? styles.buttonDisabled
-                      : {}),
-                  }}
-                >
-                  ✓ Accept
-                </button>
+              <div className="bg-slate-950/50 p-6 rounded-3xl border border-slate-800/30 mb-8">
+                <p className="text-slate-400 text-sm leading-relaxed line-clamp-3">"{crime.description}"</p>
+              </div>
 
-                <button
-                  onClick={() => updateStatus(crime._id, "Pending")}
-                  disabled={crime.status === "Pending"}
-                  style={{
-                    ...styles.button,
-                    ...styles.pendingButton,
-                    ...(crime.status === "Pending" ? styles.buttonDisabled : {}),
-                  }}
-                >
-                  ⏱ Pending
-                </button>
+              <div className="grid grid-cols-2 gap-4 mb-8">
+                 <div className="flex items-center gap-3">
+                   <MapPin size={16} className="text-slate-600" />
+                   <div>
+                      <div className="text-[9px] font-black text-slate-500 uppercase">Incident Location</div>
+                      <div className="text-xs font-bold text-white line-clamp-1">{crime.location?.address}</div>
+                   </div>
+                 </div>
+                 <div className="flex items-center gap-3">
+                   <Clock size={16} className="text-slate-600" />
+                   <div>
+                      <div className="text-[9px] font-black text-slate-500 uppercase">Received At</div>
+                      <div className="text-xs font-bold text-white">{new Date(crime.createdAt).toLocaleDateString()}</div>
+                   </div>
+                 </div>
+              </div>
 
-                <button
-                  onClick={() => updateStatus(crime._id, "Rejected")}
-                  disabled={crime.status === "Rejected"}
-                  style={{
-                    ...styles.button,
-                    ...styles.rejectButton,
-                    ...(crime.status === "Rejected"
-                      ? styles.buttonDisabled
-                      : {}),
-                  }}
-                >
-                  ✕ Reject
-                </button>
+              {/* Actions */}
+              <div className="flex flex-wrap gap-3 pt-4 border-t border-slate-800/50">
+                {crime.status === "ForwardedToPolice" && (
+                   <button 
+                    onClick={() => updateStatus(crime._id, "UnderInvestigation")}
+                    disabled={updatingId === crime._id}
+                    className="flex-1 bg-blue-600 hover:bg-blue-500 text-white py-4 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all disabled:opacity-50 flex items-center justify-center gap-2 shadow-lg shadow-blue-600/10"
+                   >
+                     {updatingId === crime._id ? "Processing..." : "Accept & Investigate"}
+                     <ChevronRight size={14} />
+                   </button>
+                )}
+
+                {crime.status === "UnderInvestigation" && (
+                   <>
+                     <button 
+                      onClick={() => updateStatus(crime._id, "Resolved")}
+                      disabled={updatingId === crime._id}
+                      className="flex-1 bg-emerald-600 hover:bg-emerald-500 text-white py-4 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all disabled:opacity-50 flex items-center justify-center gap-2"
+                     >
+                        Confirm Resolution
+                        <CheckCircle2 size={14} />
+                     </button>
+                     <button 
+                      onClick={() => updateStatus(crime._id, "Rejected")}
+                      disabled={updatingId === crime._id}
+                      className="bg-rose-950/50 hover:bg-rose-900 border border-rose-500/30 text-rose-500 px-6 py-4 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all disabled:opacity-50"
+                     >
+                        False Alarm
+                     </button>
+                   </>
+                )}
               </div>
             </div>
           ))
@@ -280,273 +250,5 @@ const Policereport = () => {
     </div>
   );
 };
-
-const styles = {
-  container: {
-    minHeight: "100vh",
-    backgroundColor: "#0f172a",
-    padding: "20px",
-    fontFamily: "'Inter', -apple-system, BlinkMacSystemFont, sans-serif",
-  },
-  loadingContainer: {
-    display: "flex",
-    flexDirection: "column",
-    alignItems: "center",
-    justifyContent: "center",
-    minHeight: "100vh",
-    backgroundColor: "#0f172a",
-  },
-  spinner: {
-    width: "50px",
-    height: "50px",
-    border: "4px solid #1e293b",
-    borderTop: "4px solid #3b82f6",
-    borderRadius: "50%",
-    animation: "spin 1s linear infinite",
-  },
-  loadingText: {
-    marginTop: "20px",
-    color: "#94a3b8",
-    fontSize: "16px",
-  },
-  errorContainer: {
-    display: "flex",
-    flexDirection: "column",
-    alignItems: "center",
-    justifyContent: "center",
-    minHeight: "100vh",
-    backgroundColor: "#0f172a",
-    padding: "20px",
-  },
-  errorIcon: {
-    fontSize: "64px",
-    marginBottom: "20px",
-  },
-  errorText: {
-    color: "#ef4444",
-    fontSize: "18px",
-    textAlign: "center",
-  },
-  header: {
-    marginBottom: "30px",
-    display: "flex",
-    justifyContent: "space-between",
-    alignItems: "center",
-  },
-  title: {
-    fontSize: "32px",
-    fontWeight: "700",
-    color: "#ffffff",
-    margin: "0 0 8px 0",
-  },
-  subtitle: {
-    fontSize: "16px",
-    color: "#94a3b8",
-    margin: 0,
-  },
-  statsGrid: {
-    display: "grid",
-    gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))",
-    gap: "20px",
-    marginBottom: "30px",
-  },
-  statCard: {
-    backgroundColor: "#1e293b",
-    padding: "20px",
-    borderRadius: "12px",
-    boxShadow: "0 1px 3px rgba(0,0,0,0.3)",
-  },
-  statLabel: {
-    fontSize: "14px",
-    color: "#94a3b8",
-    marginBottom: "8px",
-    fontWeight: "500",
-  },
-  statValue: {
-    fontSize: "32px",
-    fontWeight: "700",
-    color: "#ffffff",
-  },
-  filterContainer: {
-    display: "flex",
-    gap: "10px",
-    marginBottom: "30px",
-    flexWrap: "wrap",
-  },
-  filterButton: {
-    padding: "10px 20px",
-    backgroundColor: "#1e293b",
-    color: "#94a3b8",
-    border: "1px solid #334155",
-    borderRadius: "8px",
-    cursor: "pointer",
-    fontSize: "14px",
-    fontWeight: "500",
-    transition: "all 0.2s",
-  },
-  filterButtonActive: {
-    backgroundColor: "#3b82f6",
-    color: "#ffffff",
-    borderColor: "#3b82f6",
-  },
-  reportsList: {
-    display: "flex",
-    flexDirection: "column",
-    gap: "20px",
-  },
-  reportCard: {
-    backgroundColor: "#1e293b",
-    borderRadius: "12px",
-    padding: "24px",
-    boxShadow: "0 1px 3px rgba(0,0,0,0.3)",
-    position: "relative",
-    transition: "transform 0.2s, box-shadow 0.2s",
-    border: "1px solid #334155",
-  },
-  statusBadge: {
-    position: "absolute",
-    top: "20px",
-    right: "20px",
-    padding: "6px 12px",
-    borderRadius: "20px",
-    fontSize: "12px",
-    fontWeight: "600",
-    textTransform: "uppercase",
-  },
-  reportHeader: {
-    display: "flex",
-    alignItems: "flex-start",
-    gap: "15px",
-    marginBottom: "16px",
-  },
-  crimeIcon: {
-    fontSize: "32px",
-    backgroundColor: "#334155",
-    width: "50px",
-    height: "50px",
-    borderRadius: "10px",
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  reportTitle: {
-    flex: 1,
-  },
-  title3: {
-    fontSize: "20px",
-    fontWeight: "600",
-    color: "#ffffff",
-    margin: "0 0 6px 0",
-  },
-  crimeType: {
-    fontSize: "14px",
-    color: "#94a3b8",
-    backgroundColor: "#334155",
-    padding: "4px 10px",
-    borderRadius: "6px",
-  },
-  description: {
-    color: "#cbd5e1",
-    fontSize: "15px",
-    lineHeight: "1.6",
-    marginBottom: "20px",
-  },
-  detailsGrid: {
-    display: "grid",
-    gridTemplateColumns: "repeat(auto-fit, minmax(250px, 1fr))",
-    gap: "20px",
-    marginBottom: "20px",
-    padding: "20px",
-    backgroundColor: "#0f172a",
-    borderRadius: "8px",
-  },
-  detailItem: {
-    display: "flex",
-    gap: "12px",
-    alignItems: "flex-start",
-  },
-  detailIcon: {
-    fontSize: "20px",
-  },
-  detailLabel: {
-    fontSize: "12px",
-    color: "#94a3b8",
-    marginBottom: "4px",
-    textTransform: "uppercase",
-    fontWeight: "600",
-  },
-  detailValue: {
-    fontSize: "14px",
-    color: "#e2e8f0",
-    fontWeight: "500",
-  },
-  coordinates: {
-    fontSize: "12px",
-    color: "#64748b",
-    marginTop: "2px",
-  },
-  actionButtons: {
-    display: "flex",
-    gap: "10px",
-    flexWrap: "wrap",
-  },
-  button: {
-    padding: "10px 20px",
-    border: "none",
-    borderRadius: "8px",
-    cursor: "pointer",
-    fontSize: "14px",
-    fontWeight: "600",
-    transition: "all 0.2s",
-    flex: "1",
-    minWidth: "120px",
-  },
-  acceptButton: {
-    backgroundColor: "#10b981",
-    color: "#ffffff",
-  },
-  pendingButton: {
-    backgroundColor: "#f59e0b",
-    color: "#ffffff",
-  },
-  rejectButton: {
-    backgroundColor: "#ef4444",
-    color: "#ffffff",
-  },
-  buttonDisabled: {
-    opacity: 0.5,
-    cursor: "not-allowed",
-  },
-  emptyState: {
-    textAlign: "center",
-    padding: "60px 20px",
-    backgroundColor: "#1e293b",
-    borderRadius: "12px",
-  },
-  emptyIcon: {
-    fontSize: "64px",
-    marginBottom: "20px",
-  },
-  emptyText: {
-    fontSize: "18px",
-    color: "#94a3b8",
-  },
-};
-
-// Add CSS for spinner animation
-const styleSheet = document.createElement("style");
-styleSheet.textContent = `
-  @keyframes spin {
-    0% { transform: rotate(0deg); }
-    100% { transform: rotate(360deg); }
-  }
-  
-  @media (max-width: 768px) {
-    .reportCard:hover {
-      transform: none;
-    }
-  }
-`;
-document.head.appendChild(styleSheet);
 
 export default Policereport;

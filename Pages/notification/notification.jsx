@@ -10,6 +10,11 @@ export default function NotificationCenter() {
 
   useEffect(() => {
     fetchNotifications();
+
+    // LISTEN FOR REAL-TIME UPDATES VIA SOCKET CUSTOM EVENT
+    const handleNotify = () => fetchNotifications();
+    window.addEventListener("new-notification-received", handleNotify);
+    return () => window.removeEventListener("new-notification-received", handleNotify);
   }, []);
 
   const fetchNotifications = async () => {

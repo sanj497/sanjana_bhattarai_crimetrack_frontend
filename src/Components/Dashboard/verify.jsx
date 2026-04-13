@@ -28,6 +28,10 @@ const Verify = () => {
   const [report, setReport] = useState(null);
   const [fetching, setFetching] = useState(true);
   const [error, setError] = useState(null);
+  const [nearbyPolice, setNearbyPolice] = useState([]);
+  const [selectedOfficer, setSelectedOfficer] = useState(null);
+  const [fetchingPolice, setFetchingPolice] = useState(false);
+  const [isForwarding, setIsForwarding] = useState(false);
 
   // Fetch the specific report details
   useEffect(() => {
@@ -74,6 +78,70 @@ const Verify = () => {
       fetchReport();
     }
   }, [id, navigate]);
+
+  // Fetch nearby police officers
+  useEffect(() => {
+    const fetchNearbyPolice = async () => {
+      const token = localStorage.getItem("token");
+      if (!token || !id || !report) return;
+
+      setFetchingPolice(true);
+      try {
+        const response = await fetch(`${API_BASE}/${id}/nearby-police`, {
+          headers: { "Authorization": `Bearer ${token}` }
+        });
+        const data = await response.json();
+        if (data.success) {
+          setNearbyPolice(data.policeOfficers);
+        }
+      } catch (err) {
+        console.error("Error fetching nearby police:", err);
+      } finally {
+        setFetchingPolice(false);
+      }
+    };
+
+    if (report && report.status === "Verified") {
+      fetchNearbyPolice();
+    }
+  }, [id, report]);
+
+  const handleForwardToPolice = async () => {
+    if (!selectedOfficer) {
+      alert("Please select a police officer to forward the case.");
+      return;
+    }
+
+    setIsForwarding(true);
+    const token = localStorage.getItem("token");
+
+    try {
+      const response = await fetch(`${API_BASE}/${id}/forward`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          assignedOfficerId: selectedOfficer._id
+        }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || "Forwarding failed");
+      }
+
+      alert(`Case successfully forwarded to ${selectedOfficer.name}`);
+      navigate("/admin");
+    } catch (err) {
+      console.error("Forward error:", err);
+      alert(`Forwarding Error: ${err.message}`);
+    } finally {
+      setIsForwarding(false);
+    }
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -311,6 +379,64 @@ const Verify = () => {
                   </div>
                   {!report.isAnonymous && <div className="text-[10px] text-slate-500 font-bold">{report.userId?.email}</div>}
                </div>
+
+               {/* FORWARD TO POLICE SECTION */}
+               {report.status === "Verified" && (
+                  <div className="bg-blue-600 rounded-[40px] p-8 shadow-2xl shadow-blue-600/20 space-y-6">
+                    <div className="flex items-center gap-3 text-white">
+                      <ShieldAlert size={20} className="animate-pulse" />
+                      <h3 className="text-lg font-black tracking-tighter uppercase leading-none">Forward to Police</h3>
+                    </div>
+                    
+                    <p className="text-blue-100 text-[11px] font-bold leading-relaxed">
+                      Verification complete. Select the nearest deployment unit in <span className="underline decoration-2 underline-offset-4">{report.location?.address}</span> to initialize Field Investigation.
+                    </p>
+
+                    <div className="space-y-3">
+                      <label className="text-[9px] font-black text-blue-200 uppercase tracking-widest block">Nearest Units Identified</label>
+                      
+                      {fetchingPolice ? (
+                        <div className="py-8 flex flex-col items-center justify-center gap-2">
+                           <div className="h-5 w-5 border-2 border-blue-400 border-t-white rounded-full animate-spin" />
+                           <span className="text-[9px] font-black text-blue-200 uppercase tracking-widest">Scanning Jurisdictions...</span>
+                        </div>
+                      ) : nearbyPolice.length > 0 ? (
+                        <div className="space-y-2">
+                          {nearbyPolice.map(officer => (
+                            <button
+                              key={officer._id}
+                              onClick={() => setSelectedOfficer(officer)}
+                              className={`w-full p-4 rounded-2xl flex items-center justify-between transition-all border-2 ${selectedOfficer?._id === officer._id ? 'bg-white border-white scale-[1.02]' : 'bg-blue-700/50 border-blue-500/30 hover:bg-blue-700'}`}
+                            >
+                              <div className="text-left">
+                                <div className={`text-xs font-black uppercase tracking-tight ${selectedOfficer?._id === officer._id ? 'text-blue-700' : 'text-white'}`}>
+                                  {officer.name || officer.username}
+                                </div>
+                                <div className={`text-[10px] font-bold ${selectedOfficer?._id === officer._id ? 'text-blue-500' : 'text-blue-200'}`}>
+                                  Station: {officer.stationDistrict || "Unknown Sector"}
+                                </div>
+                              </div>
+                              {selectedOfficer?._id === officer._id && <CheckCircle2 size={18} className="text-blue-600" />}
+                            </button>
+                          ))}
+                        </div>
+                      ) : (
+                        <div className="p-4 bg-blue-700/50 rounded-2xl border border-blue-500/30 text-[10px] font-bold text-blue-200 text-center">
+                          No matching units found for this zone.
+                        </div>
+                      )}
+                    </div>
+
+                    <button 
+                      onClick={handleForwardToPolice}
+                      disabled={!selectedOfficer || isForwarding}
+                      className="w-full py-5 bg-white text-blue-700 rounded-3xl text-xs font-black uppercase tracking-[2px] shadow-xl hover:bg-slate-100 transition-all active:scale-95 disabled:opacity-30 flex items-center justify-center gap-2"
+                    >
+                      {isForwarding ? "Deploying..." : "Initialize Field Assignment"}
+                      <ChevronRight size={16} />
+                    </button>
+                  </div>
+               )}
             </div>
          </div>
       </div>

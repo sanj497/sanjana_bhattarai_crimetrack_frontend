@@ -220,16 +220,16 @@ export default function AdminReport() {
                         {crime.status === "Pending" && (
                             <>
                                 <button 
-                                    onClick={() => handleAction(crime._id, "Verified")}
-                                    className="px-4 py-3 bg-emerald-600 text-white rounded-xl text-[10px] font-black uppercase tracking-widest flex items-center justify-center gap-2 hover:bg-emerald-500 transition-all shadow-lg shadow-emerald-600/20"
+                                    onClick={() => navigate(`/admin/verify/${crime._id}`)}
+                                    className="col-span-2 px-4 py-4 bg-emerald-600 text-white rounded-xl text-[10px] font-black uppercase tracking-widest flex items-center justify-center gap-2 hover:bg-emerald-500 transition-all shadow-lg shadow-emerald-600/20"
                                 >
-                                    <CheckCircle size={14} /> Verify
+                                    <CheckCircle size={14} /> Review & Verify
                                 </button>
                                 <button 
                                     onClick={() => handleAction(crime._id, "Rejected")}
-                                    className="px-4 py-3 bg-red-600 text-white rounded-xl text-[10px] font-black uppercase tracking-widest flex items-center justify-center gap-2 hover:bg-red-500 transition-all shadow-lg shadow-red-600/20"
+                                    className="px-4 py-2 border border-red-200 text-red-600 rounded-xl text-[10px] font-black uppercase tracking-widest flex items-center justify-center gap-2 hover:bg-red-50 hover:border-red-300 transition-all"
                                 >
-                                    <XCircle size={14} /> Reject
+                                    <XCircle size={14} /> Quick Reject
                                 </button>
                             </>
                         )}
@@ -237,8 +237,8 @@ export default function AdminReport() {
                             <button 
                                 onClick={() => navigate(`/admin/verify/${crime._id}`)}
                                 className="col-span-2 px-4 py-4 bg-blue-600 text-white rounded-xl text-[10px] font-black uppercase tracking-widest flex items-center justify-center gap-2 hover:bg-blue-500 transition-all shadow-lg shadow-blue-600/20"
-                            >
-                                <Send size={14} /> Initiate Escalation
+                             >
+                                <Send size={14} /> Deploy to Police
                             </button>
                         )}
                         {crime.status !== "Pending" && crime.status !== "Verified" && (
@@ -246,7 +246,7 @@ export default function AdminReport() {
                                 onClick={() => navigate(`/admin/verify/${crime._id}`)}
                                 className="col-span-2 px-4 py-4 bg-slate-900 text-white rounded-xl text-[10px] font-black uppercase tracking-widest flex items-center justify-center gap-2 hover:bg-slate-800 transition-all"
                             >
-                                <Eye size={14} /> Review Audit Log
+                                <Eye size={14} /> View Details
                             </button>
                         )}
                     </div>
