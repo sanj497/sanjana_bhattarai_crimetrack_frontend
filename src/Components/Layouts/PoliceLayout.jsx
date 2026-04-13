@@ -16,6 +16,7 @@ export default function PoliceLayout() {
     { name: 'Reports', icon: FileText, path: '/police/reports' },
     { name: 'Forwarded', icon: Send, path: '/police/forward' },
     { name: 'SOS Alerts', icon: Siren, path: '/police/sos', badge: '3' },
+    { name: 'Notifications', icon: Bell, path: '/notifications' },
     { name: 'Emergency', icon: PhoneCall, path: '/police/emergency' },
   ];
 

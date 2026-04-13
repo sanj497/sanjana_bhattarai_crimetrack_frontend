@@ -34,6 +34,14 @@ import Users from "../Pages/Citizendashboard/user.jsx";
 import SOSList from "./Components/Policedashboard/SOSlist.jsx";
 import CommunityBoard from "../Pages/Citizendashboard/CommunityBoard.jsx";
 import TransparencyHub from "../Pages/Citizendashboard/TransparencyHub.jsx";
+import { ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+import { useSocket } from "./hooks/useSocket.js";
+
+function SocketWrapper({ children }) {
+  useSocket();
+  return <>{children}</>;
+}
 
 // Helper: redirect already-logged-in users away from auth pages
 function GuestOnlyRoute({ children }) {
@@ -55,7 +63,9 @@ function GuestOnlyRoute({ children }) {
 function App() {
   return (
     <BrowserRouter>
-      <Routes>
+      <SocketWrapper>
+        <ToastContainer />
+        <Routes>
         {/* ── PUBLIC ROUTES ─────────────────────────────────────────── */}
         <Route path="/" element={<CrimeReportingHome />} />
         <Route path="/forgot-password" element={<ForgotPassword />} />
@@ -77,6 +87,7 @@ function App() {
           <Route path="/admin/verify/:id" element={<Verify />} />
           <Route path="/admin/performance" element={<TransparencyHub />} />
           <Route path="/admin/map" element={<CrimeMap />} />
+          <Route path="/notifications" element={<Notifications />} />
         </Route>
 
         {/* ── POLICE ROUTES (role: police) ──────────────────────────── */}
@@ -86,6 +97,7 @@ function App() {
           <Route path="/police/forward" element={<ForwardToPolice />} />
           <Route path="/police/sos" element={<SOSList />} />
           <Route path="/police/emergency" element={<EmergencyContactsApp />} />
+          <Route path="/notifications" element={<Notifications />} />
         </Route>
 
         {/* ── CITIZEN ROUTES (role: user) ────────────────────────────── */}
@@ -105,6 +117,7 @@ function App() {
         {/* ── CATCH-ALL ─────────────────────────────────────────────── */}
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
+      </SocketWrapper>
     </BrowserRouter>
   );
 }

@@ -34,6 +34,7 @@ export default function AdminLayout() {
             { name: "User Directory",icon: <Users size={20} />,           path: "/user"      },
             { name: "Case Tracker",  icon: <Send size={20} />,            path: "/forward-admin" },
             { name: "Complaints",    icon: <Settings size={20} />,        path: "/admin/complaints"      },
+            { name: "Notifications", icon: <Bell size={20} />,            path: "/notifications" },
             { name: "Feedback",      icon: <MessageSquare size={20} />,   path: "/admin/feedback" },
             { name: "Performance",   icon: <BarChart3 size={20} />,       path: "/admin/performance" },
         ],
