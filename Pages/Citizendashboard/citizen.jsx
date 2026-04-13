@@ -29,13 +29,13 @@ export default function CitizenDashboard() {
               <Activity className="h-4 w-4" /> Identity Verified
             </div>
             <h1 className="text-3xl md:text-4xl font-bold mb-2 leading-tight" style={{ fontFamily: "Poppins, sans-serif" }}>
-              Welcome back, <span className="text-[#00B8D9]">{user.username || 'Citizen'}</span>
+               Welcome back, <span className="text-[#00B8D9]">{user.username || 'Citizen'}</span>
             </h1>
             <p className="text-gray-400 max-w-lg leading-relaxed">
-              You are securely connected to the central intelligence hub. Manage your active alerts, review intelligence, and collaborate with your local dispatch unit.
+               You are securely connected to the central intelligence hub. Manage your active alerts, review intelligence, and collaborate with your local dispatch unit.
             </p>
             <div className="mt-6">
-                <Link to="/Report" className="inline-flex items-center justify-center gap-2 bg-[#E63946] text-white px-6 py-3 rounded-[10px] font-bold hover:bg-red-700 transition shadow-[0_4px_14px_0_rgba(230,57,70,0.39)]">
+                <Link to="/report" className="inline-flex items-center justify-center gap-2 bg-[#E63946] text-white px-6 py-3 rounded-[10px] font-bold hover:bg-red-700 transition shadow-[0_4px_14px_0_rgba(230,57,70,0.39)]">
                    File New Report <ChevronRight className="h-4 w-4" />
                 </Link>
             </div>

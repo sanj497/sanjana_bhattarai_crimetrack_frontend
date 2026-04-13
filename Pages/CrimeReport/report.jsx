@@ -1,5 +1,6 @@
 import { useState } from "react";
 import React from "react";
+import { useNavigate, useLocation } from "react-router-dom";
 
 const crimeTypes = [
   "Theft", "Assault", "Burglary", "Fraud", "Vandalism",
@@ -7,6 +8,10 @@ const crimeTypes = [
 ];
 
 const ReportCrime = () => {
+  const navigate = useNavigate();
+  const location = useLocation();
+  const isLoggedIn = !!localStorage.getItem("token");
+
   const [form, setForm] = useState({
     title: "", description: "", crimeType: "",
     address: "", lat: "", lng: "", isAnonymous: false,
