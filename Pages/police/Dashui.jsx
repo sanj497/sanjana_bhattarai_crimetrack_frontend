@@ -72,7 +72,7 @@ export default function NewBoard() {
         </div>
         
         <Link
-          to="/sos"
+          to="/police/sos"
           className="flex items-center gap-3 bg-red-600 hover:bg-red-700 text-white font-black uppercase text-xs tracking-widest px-10 py-5 rounded-2xl transition-all shadow-xl shadow-red-600/20 active:scale-95"
         >
           <span className="relative flex h-2.5 w-2.5">
@@ -90,7 +90,7 @@ export default function NewBoard() {
              <Siren className="text-blue-500" size={24} />
              Priority Response Queue
           </h3>
-          <Link to="/complain" className="text-xs font-bold text-blue-500 hover:text-blue-400 uppercase tracking-widest">Full Case Log</Link>
+          <Link to="/police/reports" className="text-xs font-bold text-blue-500 hover:text-blue-400 uppercase tracking-widest">Full Case Log</Link>
         </div>
         <div className="overflow-x-auto">
           <table className="w-full">
@@ -122,7 +122,5 @@ export default function NewBoard() {
         </div>
       </div>
     </div>
-  );
-}
   );
 }
