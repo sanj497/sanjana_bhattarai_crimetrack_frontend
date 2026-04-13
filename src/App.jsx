@@ -71,21 +71,21 @@ function App() {
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/adReport" element={<AdminReport />} />
           <Route path="/user" element={<Users />} />
-          <Route path="/Comp" element={<AdminApp />} />
+          <Route path="/admin/complaints" element={<AdminApp />} />
           <Route path="/forward-admin" element={<ForwardToPolice />} />
           <Route path="/admin/feedback" element={<AdminFeedback />} />
           <Route path="/admin/verify/:id" element={<Verify />} />
           <Route path="/admin/performance" element={<TransparencyHub />} />
-          <Route path="/Map" element={<CrimeMap />} />
+          <Route path="/admin/map" element={<CrimeMap />} />
         </Route>
 
         {/* ── POLICE ROUTES (role: police) ──────────────────────────── */}
         <Route element={<PoliceRoute><PoliceLayout /></PoliceRoute>}>
-          <Route path="/bar" element={<NewBoard />} />
-          <Route path="/complain" element={<Policereport />} />
-          <Route path="/forward" element={<ForwardToPolice />} />
-          <Route path="/sos" element={<SOSList />} />
-          <Route path="/emergency-police" element={<EmergencyContactsApp />} />
+          <Route path="/police/dashboard" element={<NewBoard />} />
+          <Route path="/police/reports" element={<Policereport />} />
+          <Route path="/police/forward" element={<ForwardToPolice />} />
+          <Route path="/police/sos" element={<SOSList />} />
+          <Route path="/police/emergency" element={<EmergencyContactsApp />} />
         </Route>
 
         {/* ── CITIZEN ROUTES (role: user) ────────────────────────────── */}
@@ -96,7 +96,7 @@ function App() {
           <Route path="/notifications" element={<Notifications />} />
           <Route path="/feedback" element={<SendFeedback />} />
           <Route path="/report" element={<ReportCrime />} />
-          <Route path="/Co" element={<UserApp />} />
+          <Route path="/complaints" element={<UserApp />} />
           <Route path="/map-citizen" element={<CrimeMap />} />
           <Route path="/emergency" element={<EmergencyContactsApp />} />
           <Route path="/citizen/settings" element={<CitizenSettings />} />
