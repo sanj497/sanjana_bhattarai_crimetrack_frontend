@@ -66,6 +66,7 @@ const ReportCrime = () => {
 
   const fileIcon = (name) => {
     if (name.match(/\.(jpg|jpeg|png)$/i)) return "🖼️";
+    if (name.match(/\.(mp4|mov|mkv|webm)$/i)) return "🎥";
     if (name.match(/\.pdf$/i)) return "📄";
     return "📎";
   };
@@ -461,17 +462,17 @@ const ReportCrime = () => {
                   </div>
                 </div>
                 <div className="rc-field">
-                  <label className="rc-label">Evidence Files <span style={{color:"#9aa3b5",fontSize:"11px",textTransform:"none",letterSpacing:0}}>— up to 5 files (jpg, png, pdf)</span></label>
+                  <label className="rc-label">Evidence Files <span style={{color:"#9aa3b5",fontSize:"11px",textTransform:"none",letterSpacing:0}}>— up to 5 files (jpg, png, pdf, mp4, mov)</span></label>
                   <div
                     className={`rc-dropzone ${dragOver ? "over" : ""}`}
                     onDragOver={(e) => { e.preventDefault(); setDragOver(true); }}
                     onDragLeave={() => setDragOver(false)}
                     onDrop={onDrop}
                   >
-                    <input type="file" multiple accept=".jpg,.jpeg,.png,.pdf" onChange={onFilesChange} />
+                    <input type="file" multiple accept=".jpg,.jpeg,.png,.pdf,.mp4,.mov,.mkv,.webm" onChange={onFilesChange} />
                     <div className="rc-dropzone-icon">📁</div>
                     <div className="rc-dropzone-title">Drag & drop files here</div>
-                    <div className="rc-dropzone-sub">or click to browse · max 5 files</div>
+                    <div className="rc-dropzone-sub">or click to browse · max 5 files (up to 50MB each)</div>
                   </div>
                   {files.length > 0 && (
                     <div className="rc-file-list">

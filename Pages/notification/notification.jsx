@@ -1,492 +1,159 @@
-import React, { useEffect, useState, useCallback } from "react";
+import React, { useState, useEffect } from "react";
+import { Bell, Check, Trash2, ShieldAlert, FileText, CheckCircle2, MoreHorizontal, Filter } from "lucide-react";
 
-const Notifications = () => {
+const API_BASE = "http://localhost:5000/api/notifications";
+
+export default function NotificationCenter() {
   const [notifications, setNotifications] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
-  const [filter, setFilter] = useState("all");
-
-  const fetchNotifications = useCallback(async () => {
-    setLoading(true);
-    setError(null);
-
-    const token = localStorage.getItem("token");
-
-    if (!token) {
-      setError("You are not logged in. Please log in to view notifications.");
-      setLoading(false);
-      return;
-    }
-
-    try {
-      const res = await fetch("http://localhost:5000/api/notifications", {
-        method: "GET",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-      });
-
-      if (res.status === 401) {
-        setError("Session expired. Please log in again.");
-        setLoading(false);
-        return;
-      }
-
-      if (res.status === 403) {
-        setError("You do not have permission to view notifications.");
-        setLoading(false);
-        return;
-      }
-
-      if (!res.ok) {
-        throw new Error(`Server error: ${res.status}`);
-      }
-
-      const data = await res.json();
-      // Handle both array response and { notifications: [...] } shaped response
-      setNotifications(Array.isArray(data) ? data : (Array.isArray(data.notifications) ? data.notifications : []));
-    } catch (err) {
-      if (err.name === "TypeError" && err.message.includes("fetch")) {
-        setError("Cannot connect to server. Please check your connection.");
-      } else {
-        setError(err.message || "Failed to fetch notifications.");
-      }
-    } finally {
-      setLoading(false);
-    }
-  }, []);
+  const [filter, setFilter] = useState("all"); // "all" | "unread"
 
   useEffect(() => {
     fetchNotifications();
-  }, [fetchNotifications]);
+  }, []);
 
-  const filtered =
-    filter === "all"
-      ? notifications
-      : filter === "unread"
-      ? notifications.filter((n) => !n.isRead)
-      : notifications.filter((n) => n.isRead);
+  const fetchNotifications = async () => {
+    try {
+      const token = localStorage.getItem("token");
+      const res = await fetch(API_BASE, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      const data = await res.json();
+      if (data.success) setNotifications(data.notifications);
+    } catch (err) {
+      console.error("Notification fetch failed:", err);
+    } finally {
+      setLoading(false);
+    }
+  };
 
-  const unreadCount = notifications.filter((n) => !n.isRead).length;
+  const handleMarkRead = async (id) => {
+    try {
+      const token = localStorage.getItem("token");
+      const res = await fetch(`${API_BASE}/${id}/read`, {
+        method: "PATCH",
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      if (res.ok) {
+        setNotifications(prev => prev.map(n => n._id === id ? { ...n, isRead: true } : n));
+      }
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  const handleReadAll = async () => {
+    try {
+      const token = localStorage.getItem("token");
+      const res = await fetch(`${API_BASE}/read-all`, {
+        method: "PATCH",
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      if (res.ok) {
+        setNotifications(prev => prev.map(n => ({ ...n, isRead: true })));
+      }
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  const filtered = filter === "all" ? notifications : notifications.filter(n => !n.isRead);
+
+  // Helper for icons based on message content
+  const getIcon = (msg) => {
+    if (msg.includes("verified")) return <CheckCircle2 className="text-green-500" size={18} />;
+    if (msg.includes("forwarded") || msg.includes("police")) return <FileText className="text-blue-500" size={18} />;
+    if (msg.includes("SOS") || msg.includes("emergency")) return <ShieldAlert className="text-red-500" size={18} />;
+    return <Bell className="text-slate-400" size={18} />;
+  };
+
+  if (loading) return (
+    <div className="flex items-center justify-center min-h-[400px]">
+      <div className="w-8 h-8 border-4 border-blue-100 border-t-blue-600 rounded-full animate-spin"></div>
+    </div>
+  );
 
   return (
-    <>
-      <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Mono:wght@300;400;500&display=swap');
-
-        * { box-sizing: border-box; margin: 0; padding: 0; }
-
-        .notif-root {
-          min-height: 100vh;
-          background: #0a0a0f;
-          font-family: 'Syne', sans-serif;
-          color: #e8e6f0;
-          padding: 48px 24px;
-          position: relative;
-          overflow: hidden;
-        }
-
-        .notif-root::before {
-          content: '';
-          position: fixed;
-          top: -200px; right: -200px;
-          width: 600px; height: 600px;
-          background: radial-gradient(circle, rgba(139,92,246,0.12) 0%, transparent 70%);
-          pointer-events: none;
-        }
-
-        .notif-root::after {
-          content: '';
-          position: fixed;
-          bottom: -200px; left: -100px;
-          width: 500px; height: 500px;
-          background: radial-gradient(circle, rgba(20,184,166,0.08) 0%, transparent 70%);
-          pointer-events: none;
-        }
-
-        .notif-container {
-          max-width: 680px;
-          margin: 0 auto;
-          position: relative;
-          z-index: 1;
-        }
-
-        .notif-header {
-          display: flex;
-          align-items: flex-start;
-          justify-content: space-between;
-          margin-bottom: 40px;
-        }
-
-        .notif-eyebrow {
-          font-family: 'DM Mono', monospace;
-          font-size: 11px;
-          font-weight: 400;
-          letter-spacing: 0.18em;
-          color: #8b5cf6;
-          text-transform: uppercase;
-          margin-bottom: 8px;
-        }
-
-        .notif-title {
-          font-size: 36px;
-          font-weight: 800;
-          letter-spacing: -0.02em;
-          line-height: 1;
-          color: #f0eeff;
-        }
-
-        .notif-badge {
-          background: linear-gradient(135deg, #8b5cf6, #6d28d9);
-          color: #fff;
-          font-family: 'DM Mono', monospace;
-          font-size: 13px;
-          font-weight: 500;
-          padding: 6px 14px;
-          border-radius: 100px;
-          margin-top: 4px;
-          display: inline-block;
-          box-shadow: 0 4px 20px rgba(139,92,246,0.35);
-        }
-
-        .notif-filters {
-          display: flex;
-          gap: 4px;
-          margin-bottom: 28px;
-          background: rgba(255,255,255,0.04);
-          padding: 4px;
-          border-radius: 12px;
-          width: fit-content;
-          border: 1px solid rgba(255,255,255,0.06);
-        }
-
-        .filter-btn {
-          font-family: 'Syne', sans-serif;
-          font-size: 13px;
-          font-weight: 600;
-          padding: 8px 18px;
-          border-radius: 8px;
-          border: none;
-          cursor: pointer;
-          transition: all 0.2s ease;
-          background: transparent;
-          color: #6b7280;
-          letter-spacing: 0.02em;
-        }
-
-        .filter-btn.active {
-          background: rgba(139,92,246,0.2);
-          color: #c4b5fd;
-          border: 1px solid rgba(139,92,246,0.3);
-        }
-
-        .filter-btn:hover:not(.active) {
-          color: #9ca3af;
-          background: rgba(255,255,255,0.04);
-        }
-
-        .notif-list {
-          display: flex;
-          flex-direction: column;
-          gap: 10px;
-        }
-
-        .notif-item {
-          background: rgba(255,255,255,0.035);
-          border: 1px solid rgba(255,255,255,0.07);
-          border-radius: 16px;
-          padding: 20px 24px;
-          display: grid;
-          grid-template-columns: 1fr auto;
-          gap: 12px;
-          align-items: start;
-          transition: all 0.2s ease;
-          position: relative;
-          overflow: hidden;
-          animation: slideIn 0.3s ease both;
-        }
-
-        @keyframes slideIn {
-          from { opacity: 0; transform: translateY(10px); }
-          to { opacity: 1; transform: translateY(0); }
-        }
-
-        .notif-item:hover {
-          background: rgba(255,255,255,0.055);
-          border-color: rgba(139,92,246,0.2);
-          transform: translateY(-1px);
-          box-shadow: 0 8px 32px rgba(0,0,0,0.3);
-        }
-
-        .notif-item.unread::before {
-          content: '';
-          position: absolute;
-          left: 0; top: 0; bottom: 0;
-          width: 3px;
-          background: linear-gradient(180deg, #8b5cf6, #14b8a6);
-          border-radius: 3px 0 0 3px;
-        }
-
-        .notif-item.unread {
-          background: rgba(139,92,246,0.06);
-          border-color: rgba(139,92,246,0.15);
-        }
-
-        .notif-message {
-          font-size: 15px;
-          font-weight: 600;
-          color: #e8e6f0;
-          line-height: 1.5;
-          letter-spacing: -0.01em;
-        }
-
-        .notif-item.read .notif-message {
-          color: #9ca3af;
-          font-weight: 400;
-        }
-
-        .notif-date {
-          font-family: 'DM Mono', monospace;
-          font-size: 11px;
-          color: #4b5563;
-          margin-top: 6px;
-          letter-spacing: 0.04em;
-        }
-
-        .notif-meta {
-          display: flex;
-          flex-direction: column;
-          align-items: flex-end;
-          gap: 8px;
-          flex-shrink: 0;
-        }
-
-        .status-chip {
-          font-family: 'DM Mono', monospace;
-          font-size: 10px;
-          font-weight: 500;
-          letter-spacing: 0.12em;
-          text-transform: uppercase;
-          padding: 4px 10px;
-          border-radius: 6px;
-        }
-
-        .status-chip.unread {
-          background: rgba(139,92,246,0.15);
-          color: #a78bfa;
-          border: 1px solid rgba(139,92,246,0.25);
-        }
-
-        .status-chip.read {
-          background: rgba(255,255,255,0.05);
-          color: #4b5563;
-          border: 1px solid rgba(255,255,255,0.06);
-        }
-
-        /* Empty / Loading / Error */
-        .notif-center {
-          text-align: center;
-          padding: 80px 24px;
-        }
-
-        .notif-center-icon {
-          font-size: 48px;
-          margin-bottom: 16px;
-          opacity: 0.4;
-          display: block;
-        }
-
-        .notif-center-title {
-          font-size: 16px;
-          font-weight: 600;
-          color: #6b7280;
-          margin-bottom: 6px;
-        }
-
-        .notif-center-sub {
-          font-family: 'DM Mono', monospace;
-          font-size: 12px;
-          color: #374151;
-        }
-
-        /* Error state */
-        .notif-error-box {
-          background: rgba(239,68,68,0.08);
-          border: 1px solid rgba(239,68,68,0.2);
-          border-radius: 14px;
-          padding: 20px 24px;
-          display: flex;
-          align-items: center;
-          gap: 14px;
-          animation: slideIn 0.3s ease both;
-        }
-
-        .notif-error-icon {
-          font-size: 22px;
-          flex-shrink: 0;
-        }
-
-        .notif-error-msg {
-          font-size: 14px;
-          color: #fca5a5;
-          line-height: 1.5;
-          flex: 1;
-        }
-
-        .retry-btn {
-          font-family: 'Syne', sans-serif;
-          font-size: 12px;
-          font-weight: 700;
-          letter-spacing: 0.06em;
-          padding: 7px 16px;
-          border-radius: 8px;
-          border: 1px solid rgba(239,68,68,0.3);
-          background: rgba(239,68,68,0.1);
-          color: #fca5a5;
-          cursor: pointer;
-          transition: all 0.2s;
-          flex-shrink: 0;
-        }
-
-        .retry-btn:hover {
-          background: rgba(239,68,68,0.18);
-          border-color: rgba(239,68,68,0.45);
-        }
-
-        /* Loading dots */
-        .loading-dots {
-          display: flex;
-          justify-content: center;
-          gap: 6px;
-          margin-bottom: 16px;
-        }
-
-        .loading-dot {
-          width: 8px; height: 8px;
-          border-radius: 50%;
-          background: #8b5cf6;
-          animation: pulse 1.2s ease-in-out infinite;
-        }
-
-        .loading-dot:nth-child(2) { animation-delay: 0.2s; }
-        .loading-dot:nth-child(3) { animation-delay: 0.4s; }
-
-        @keyframes pulse {
-          0%, 80%, 100% { opacity: 0.2; transform: scale(0.8); }
-          40% { opacity: 1; transform: scale(1); }
-        }
-
-        .divider {
-          height: 1px;
-          background: linear-gradient(90deg, transparent, rgba(255,255,255,0.06), transparent);
-          margin-bottom: 28px;
-        }
-      `}</style>
-
-      <div className="notif-root">
-        <div className="notif-container">
-
-          {/* Header */}
-          <div className="notif-header">
-            <div>
-              <div className="notif-eyebrow">— Inbox</div>
-              <div className="notif-title">Notifications</div>
-            </div>
-            {!loading && !error && unreadCount > 0 && (
-              <div className="notif-badge">{unreadCount} new</div>
-            )}
-          </div>
-
-          <div className="divider" />
-
-          {/* Loading */}
-          {loading && (
-            <div className="notif-center">
-              <div className="loading-dots">
-                <div className="loading-dot" />
-                <div className="loading-dot" />
-                <div className="loading-dot" />
-              </div>
-              <div className="notif-center-sub">fetching notifications…</div>
-            </div>
-          )}
-
-          {/* Error */}
-          {!loading && error && (
-            <div className="notif-error-box">
-              <span className="notif-error-icon">⚠️</span>
-              <div className="notif-error-msg">{error}</div>
-              <button className="retry-btn" onClick={fetchNotifications}>
-                Retry
-              </button>
-            </div>
-          )}
-
-          {/* Empty */}
-          {!loading && !error && notifications.length === 0 && (
-            <div className="notif-center">
-              <span className="notif-center-icon">◎</span>
-              <div className="notif-center-title">All clear</div>
-              <div className="notif-center-sub">No notifications to show</div>
-            </div>
-          )}
-
-          {/* List */}
-          {!loading && !error && notifications.length > 0 && (
-            <>
-              <div className="notif-filters">
-                {["all", "unread", "read"].map((f) => (
-                  <button
-                    key={f}
-                    className={`filter-btn ${filter === f ? "active" : ""}`}
-                    onClick={() => setFilter(f)}
-                  >
-                    {f.charAt(0).toUpperCase() + f.slice(1)}
-                  </button>
-                ))}
-              </div>
-
-              <div className="notif-list">
-                {filtered.length === 0 ? (
-                  <div className="notif-center">
-                    <div className="notif-center-title">Nothing here</div>
-                    <div className="notif-center-sub">No {filter} notifications</div>
-                  </div>
-                ) : (
-                  filtered.map((n, i) => (
-                    <div
-                      key={n._id || i}
-                      className={`notif-item ${n.isRead ? "read" : "unread"}`}
-                      style={{ animationDelay: `${i * 0.05}s` }}
-                    >
-                      <div>
-                        <div className="notif-message">{n.message}</div>
-                        <div className="notif-date">
-                          {new Date(n.createdAt).toLocaleString(undefined, {
-                            month: "short",
-                            day: "numeric",
-                            hour: "2-digit",
-                            minute: "2-digit",
-                          })}
-                        </div>
-                      </div>
-                      <div className="notif-meta">
-                        <span className={`status-chip ${n.isRead ? "read" : "unread"}`}>
-                          {n.isRead ? "Read" : "New"}
-                        </span>
-                      </div>
-                    </div>
-                  ))
-                )}
-              </div>
-            </>
-          )}
-
+    <div className="p-8 max-w-4xl mx-auto font-sans">
+      <div className="flex items-center justify-between mb-10">
+        <div>
+          <h1 className="text-3xl font-black text-slate-900 tracking-tight">Notification Hub</h1>
+          <p className="text-slate-500 mt-1 font-medium text-sm">Real-time updates on your reports and community safety.</p>
         </div>
+        <button 
+          onClick={handleReadAll}
+          disabled={!notifications.some(n => !n.isRead)}
+          className="px-6 py-2.5 bg-slate-50 text-slate-600 border border-slate-100 rounded-2xl text-[10px] font-black uppercase tracking-widest hover:bg-slate-100 transition-all active:scale-95 disabled:opacity-30 disabled:cursor-not-allowed"
+        >
+          Mark all as read
+        </button>
       </div>
-    </>
-  );
-};
 
-export default Notifications;
+      <div className="flex gap-2 border-b border-slate-50 mb-8 overflow-x-auto pb-4">
+         {[
+           { id: "all", label: "All Activity", icon: <Bell size={14} /> },
+           { id: "unread", label: "Unread Only", icon: <AlertTriangle size={14} /> },
+         ].map(f => (
+           <button 
+             key={f.id}
+             onClick={() => setFilter(f.id)}
+             className={`px-6 py-3 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all flex items-center gap-2 border ${filter === f.id ? 'bg-[#0B1F3B] text-white border-[#0B1F3B] shadow-xl shadow-blue-900/10' : 'bg-white text-slate-400 border-slate-100'}`}
+           >
+             {f.label}
+           </button>
+         ))}
+      </div>
+
+      <div className="space-y-4">
+        {filtered.map((n) => (
+          <div 
+            key={n._id}
+            className={`p-6 rounded-[32px] border transition-all flex items-start gap-5 relative overflow-hidden group ${n.isRead ? 'bg-white border-slate-50' : 'bg-white border-blue-100 shadow-xl shadow-blue-500/5'}`}
+          >
+            {!n.isRead && <span className="absolute left-0 top-0 bottom-0 w-1 bg-blue-600" />}
+            
+            <div className={`h-12 w-12 rounded-2xl flex items-center justify-center shrink-0 ${n.isRead ? 'bg-slate-50' : 'bg-blue-50'}`}>
+               {getIcon(n.message)}
+            </div>
+
+            <div className="flex-1 pr-12">
+               <div className="flex items-center gap-3 mb-1">
+                  <span className={`text-[9px] font-black uppercase tracking-widest ${n.isRead ? 'text-slate-400' : 'text-blue-600'}`}>
+                    {n.crimeId?.crimeType || 'System Alert'}
+                  </span>
+                  <span className="text-slate-300">•</span>
+                  <span className="text-[9px] text-slate-400 font-bold uppercase">{new Date(n.createdAt).toLocaleTimeString()}</span>
+               </div>
+               <p className={`text-sm font-black tracking-tight mb-2 ${n.isRead ? 'text-slate-500' : 'text-slate-900'}`}>
+                 {n.message}
+               </p>
+               <div className="flex items-center gap-4 text-[11px] font-bold text-slate-400 italic">
+                  <span>@{n.crimeId?.title || 'Crime Track Central'}</span>
+               </div>
+            </div>
+
+            <div className="flex flex-col gap-2">
+               {!n.isRead && (
+                 <button 
+                   onClick={() => handleMarkRead(n._id)}
+                   className="h-10 w-10 bg-blue-50 text-blue-600 rounded-xl flex items-center justify-center hover:bg-blue-600 hover:text-white transition-all"
+                   title="Mark as read"
+                 >
+                   <Check size={18} />
+                 </button>
+               )}
+            </div>
+          </div>
+        ))}
+
+        {filtered.length === 0 && (
+          <div className="py-24 text-center">
+             <Bell className="mx-auto text-slate-100 mb-6" size={64} />
+             <h3 className="text-xl font-black text-slate-200 uppercase tracking-tighter">Everything clear</h3>
+             <p className="text-slate-300 text-xs font-medium mt-1">No new notifications to show you.</p>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}

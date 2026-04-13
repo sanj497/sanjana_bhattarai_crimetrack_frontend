@@ -39,74 +39,90 @@ export default function AdminFeedback() {
 
   if (loading)
     return (
-      <div className="flex items-center justify-center min-h-screen">
-        <p className="text-gray-400 text-sm tracking-wide animate-pulse">Loading feedbacks...</p>
+      <div style={{ display: "flex", alignItems: "center", justifyContent: "center", minHeight: "300px", color: "#64748b" }}>
+        <p style={{ fontSize: "14px", fontWeight: 600, animate: "pulse 2s infinite" }}>Gathering community insights...</p>
       </div>
     );
 
   return (
-    <div className="max-w-2xl mx-auto px-4 py-10">
-      {/* Header */}
-      <div className="mb-8 text-center">
-        <h2 className="text-2xl font-bold text-gray-800 tracking-tight">
-          📋 All Feedback
-        </h2>
-        <p className="text-sm text-gray-400 mt-1">
-          {feedbacks.length} response{feedbacks.length !== 1 ? "s" : ""} collected
-        </p>
+    <div style={{ padding: "40px", background: "#0b0f1a", minHeight: "calc(100vh - 80px)", color: "#e5e7eb", fontFamily: "Inter, system-ui, sans-serif" }}>
+      <div style={{ maxWidth: "800px", margin: "0 auto" }}>
+        {/* Header */}
+        <div style={{ marginBottom: "32px" }}>
+          <h2 style={{ fontSize: "28px", fontWeight: 900, color: "#fff", margin: 0 }}>📋 User Feedback</h2>
+          <p style={{ fontSize: "14px", color: "#94a3b8", marginTop: "8px" }}>
+            {feedbacks.length} response{feedbacks.length !== 1 ? "s" : ""} collected from citizens
+          </p>
+        </div>
+
+        {/* Empty State */}
+        {feedbacks.length === 0 ? (
+          <div style={{ textAlign: "center", padding: "80px", color: "#4b5563", background: "#111827", borderRadius: "20px", border: "1px solid #1f2937" }}>
+            <p style={{ fontSize: "48px", marginBottom: "16px" }}>💬</p>
+            <p style={{ fontWeight: 600 }}>No feedback records found.</p>
+          </div>
+        ) : (
+          <div style={{ display: "flex", flexDirection: "column", gap: "20px" }}>
+            {feedbacks.map((f) => (
+              <div
+                key={f._id}
+                style={{
+                  background: "rgba(17, 24, 39, 0.7)", backdropFilter: "blur(12px)",
+                  borderRadius: "20px", padding: "24px", border: "1px solid #1f2937",
+                  transition: "all 0.3s ease", boxShadow: "0 10px 30px rgba(0,0,0,0.15)"
+                }}
+              >
+                {/* Card Header */}
+                <div style={{ display: "flex", alignItems: "center", justifySpaceBetween: "space-between", marginBottom: "16px" }}>
+                  <div style={{ flex: 1 }}>
+                    <span style={{ fontWeight: 800, fontSize: "16px", color: "#fff" }}>
+                      {f.name || f.userId?.email?.split("@")[0] || "Anonymous User"}
+                    </span>
+                    <div style={{ fontSize: "12px", color: "#6b7280", marginTop: "2px" }}>{f.userId?.email || "No email provided"}</div>
+                  </div>
+                  <div style={{ display: "flex", alignItems: "center", gap: "4px" }}>
+                    {[...Array(5)].map((_, i) => (
+                      <span key={i} style={{ color: i < (f.rating || 0) ? "#fbbf24" : "#1f2937", fontSize: "14px" }}>★</span>
+                    ))}
+                    <span style={{ fontSize: "12px", color: "#4b5563", marginLeft: "6px" }}>({f.rating || 0}/5)</span>
+                  </div>
+                </div>
+
+                {/* Message */}
+                <div style={{ background: "rgba(0,0,0,0.2)", padding: "16px", borderRadius: "12px", border: "1px solid #1f2937" }}>
+                   <p style={{ fontSize: "14px", color: "#cbd5e1", lineHeight: "1.6", fontStyle: "italic", margin: 0 }}>
+                    "{f.message}"
+                  </p>
+                </div>
+
+                {/* Card Footer */}
+                <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginTop: "20px", paddingTop: "16px", borderTop: "1px solid rgba(255,255,255,0.03)" }}>
+                  <div style={{ fontSize: "11px", color: "#4b5563", fontWeight: 600, letterSpacing: "0.5px" }}>
+                    {new Date(f.createdAt).toLocaleDateString("en-US", {
+                      year: "numeric",
+                      month: "long",
+                      day: "numeric",
+                    })}
+                  </div>
+                  <button
+                    onClick={() => handleDelete(f._id)}
+                    style={{
+                      display: "flex", alignItems: "center", gap: "8px",
+                      background: "rgba(239, 68, 68, 0.1)", color: "#f87171", border: "1px solid rgba(239, 68, 68, 0.2)",
+                      fontSize: "12px", fontWeight: 700, padding: "8px 16px", borderRadius: "8px", cursor: "pointer",
+                      transition: "all 0.2s"
+                    }}
+                    onMouseEnter={e => { e.currentTarget.style.background = "#ef4444"; e.currentTarget.style.color = "#fff"; }}
+                    onMouseLeave={e => { e.currentTarget.style.background = "rgba(239, 68, 68, 0.1)"; e.currentTarget.style.color = "#f87171"; }}
+                  >
+                    🗑 DELETE
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
       </div>
-
-      {/* Empty State */}
-      {feedbacks.length === 0 ? (
-        <div className="text-center py-16 text-gray-400">
-          <p className="text-4xl mb-3">💬</p>
-          <p className="text-sm">No feedback yet.</p>
-        </div>
-      ) : (
-        <div className="flex flex-col gap-4">
-          {feedbacks.map((f) => (
-            <div
-              key={f._id}
-              className="bg-white border border-gray-100 rounded-xl p-5 shadow-sm hover:shadow-md transition-shadow duration-200"
-            >
-              {/* Card Header */}
-              <div className="flex items-center justify-between mb-3">
-                <span className="font-semibold text-gray-800 text-sm">
-                  {f.name || f.userId?.email || "Anonymous"}
-                </span>
-                <span className="text-amber-400 text-sm font-medium">
-                  {"⭐".repeat(f.rating || 0)}{" "}
-                  <span className="text-gray-400">
-                    {f.rating ? `(${f.rating}/5)` : "No rating"}
-                  </span>
-                </span>
-              </div>
-
-              {/* Message */}
-              <p className="text-gray-600 text-sm leading-relaxed border-l-2 border-gray-100 pl-3 italic">
-                {f.message}
-              </p>
-
-              {/* Card Footer */}
-              <div className="flex items-center justify-between mt-4 pt-3 border-t border-gray-50">
-                <small className="text-xs text-gray-400">
-                  {new Date(f.createdAt).toLocaleDateString("en-US", {
-                    year: "numeric",
-                    month: "short",
-                    day: "numeric",
-                  })}
-                </small>
-                <button
-                  onClick={() => handleDelete(f._id)}
-                  className="flex items-center gap-1.5 bg-red-50 hover:bg-red-500 text-red-500 hover:text-white text-xs font-medium px-3 py-1.5 rounded-lg transition-all duration-200 border border-red-100 hover:border-red-500"
-                >
-                  🗑 Delete
-                </button>
-              </div>
-            </div>
-          ))}
-        </div>
-      )}
     </div>
   );
-}
+}

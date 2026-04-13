@@ -1,12 +1,12 @@
 import { useEffect, useState } from "react";
 import React from "react";
-import { 
-  Camera, 
-  AlertTriangle, 
-  BarChart3, 
-  Clock, 
-  CheckCircle, 
-  XCircle, 
+import {
+  Camera,
+  AlertTriangle,
+  BarChart3,
+  Clock,
+  CheckCircle,
+  XCircle,
   MapPin,
   Lock,
   AlertCircle,
@@ -15,43 +15,154 @@ import {
   Home,
   Pill,
   FileText,
-  Inbox
+  Inbox,
+  Send,
+  Bell,
+  RefreshCw,
+  Eye
 } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
 const API_URL = "http://localhost:5000/api/report";
+const SOCKET_URL = "http://localhost:5000";
+
+import { io } from "socket.io-client";
 
 export default function AdminReport() {
   const [crimes, setCrimes] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [filter, setFilter] = useState("All");
+  const [notifications, setNotifications] = useState([]);
+  const [unreadCount, setUnreadCount] = useState(0);
+  const [showNotifications, setShowNotifications] = useState(false);
+  const [socket, setSocket] = useState(null);
+  const navigate = useNavigate();
 
-  useEffect(() => {
+  const fetchReports = async () => {
     const token = localStorage.getItem("token");
-    async function fetchReports() {
-      try {
-        const res = await fetch(API_URL, {
-          headers: {
-            "Content-Type": "application/json",
-            ...(token && { Authorization: `Bearer ${token}` }),
-          },
-        });
-        if (!res.ok) throw new Error("Unauthorized or failed request");
-        const data = await res.json();
-        setCrimes(Array.isArray(data.crimes) ? data.crimes : []);
-      } catch (err) {
-        setError(err.message);
-      } finally {
-        setLoading(false);
-      }
+    try {
+      const res = await fetch(API_URL, {
+        headers: {
+          "Content-Type": "application/json",
+          ...(token && { Authorization: `Bearer ${token}` }),
+        },
+      });
+      if (!res.ok) throw new Error("Unauthorized or failed request");
+      const data = await res.json();
+      setCrimes(Array.isArray(data.crimes) ? data.crimes : []);
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setLoading(false);
     }
+  };
+
+  // Fetch reports on mount
+  useEffect(() => {
     fetchReports();
   }, []);
 
+  // Setup Socket.io connection for real-time notifications (optional)
+  useEffect(() => {
+    const userData = JSON.parse(localStorage.getItem("user") || "{}");
+    const token = localStorage.getItem("token");
+
+    // Only setup socket if io is available
+    if (io && token && userData.role) {
+      try {
+        const newSocket = io(SOCKET_URL, {
+          auth: { token },
+          transports: ["websocket", "polling"]
+        });
+
+        // Authenticate socket connection
+        newSocket.on("connect", () => {
+          console.log("Socket connected:", newSocket.id);
+          newSocket.emit("authenticate", {
+            userId: userData._id || userData.id,
+            role: userData.role
+          });
+        });
+
+        // Listen for new notifications
+        newSocket.on("new_notification", (notification) => {
+          console.log("New notification received:", notification);
+          setNotifications(prev => [notification, ...prev].slice(0, 50)); // Keep last 50
+          setUnreadCount(prev => prev + 1);
+
+          // Auto-refresh reports if new crime report
+          if (notification.type === "crime_report") {
+            fetchReports();
+          }
+
+          // Show browser notification if supported
+          if ("Notification" in window && Notification.permission === "granted") {
+            new Notification(notification.message, {
+              icon: "/favicon.ico",
+              badge: "/favicon.ico"
+            });
+          }
+        });
+
+        setSocket(newSocket);
+
+        // Request notification permission
+        if ("Notification" in window && Notification.permission === "default") {
+          Notification.requestPermission();
+        }
+
+        return () => {
+          newSocket.close();
+        };
+      } catch (err) {
+        console.warn("Socket connection failed:", err);
+      }
+    } else {
+      console.log("Socket.io not available - using polling only");
+    }
+  }, []);
+
+  const markNotificationRead = (index) => {
+    setNotifications(prev => prev.map((n, i) =>
+      i === index ? { ...n, read: true } : n
+    ));
+    setUnreadCount(prev => Math.max(0, prev - 1));
+  };
+
+  const clearAllNotifications = () => {
+    setNotifications([]);
+    setUnreadCount(0);
+  };
+
+  const handleAction = async (id, status) => {
+    const token = localStorage.getItem("token");
+    try {
+      const res = await fetch(`http://localhost:5000/api/report/${id}/status`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ status })
+      });
+      if (res.ok) {
+        alert(`Report ${status} successfully`);
+        fetchReports();
+      } else {
+        const data = await res.json();
+        alert(data.error || "Action failed");
+      }
+    } catch (err) {
+      alert("Server error");
+    }
+  };
+
   const statusColor = (status) => {
     if (status === "Pending") return "#f59e0b";
-    if (status === "Approved" || status === "Accepted") return "#10b981";
+    if (status === "Verified" || status === "Accepted") return "#10b981";
     if (status === "Rejected") return "#ef4444";
+    if (status === "ForwardedToPolice") return "#3b82f6";
     return "#64748b";
   };
 
@@ -70,89 +181,43 @@ export default function AdminReport() {
   const filteredCrimes =
     filter === "All" ? crimes : crimes.filter((c) => c.status === filter);
 
-  const stats = {
-    total: crimes.length,
-    pending: crimes.filter((c) => c.status === "Pending").length,
-    approved: crimes.filter(
-      (c) => c.status === "Approved" || c.status === "Accepted"
-    ).length,
-    rejected: crimes.filter((c) => c.status === "Rejected").length,
-  };
-
   if (loading)
     return (
       <div style={s.center}>
         <div style={s.spinner}></div>
-        <div style={s.loadText}>Loading...</div>
-      </div>
-    );
-
-  if (error)
-    return (
-      <div style={s.center}>
-        <AlertTriangle size={48} color="#ef4444" />
-        <div style={s.loadText}>{error}</div>
+        <div style={s.loadText}>Loading reports...</div>
       </div>
     );
 
   return (
     <div style={s.container}>
-      <h1 style={s.title}>Admin Dashboard</h1>
+      {/* Filters and Actions Bar */}
+      <div style={s.topBar}>
+        <div style={s.filters}>
+          {["All", "Pending", "Verified", "ForwardedToPolice", "Rejected"].map((f) => (
+            <button
+              key={f}
+              onClick={() => setFilter(f)}
+              style={{
+                ...s.filterBtn,
+                ...(filter === f ? s.filterActive : {}),
+              }}
+            >
+              {f}
+            </button>
+          ))}
+        </div>
 
-      {/* Stats */}
-      <div style={s.statsGrid}>
-        <div style={s.stat}>
-          <BarChart3 size={32} color="#3b82f6" />
-          <div>
-            <div style={{ fontSize: "12px", color: "#94a3b8" }}>Total</div>
-            <div style={{ fontSize: "24px", fontWeight: "700" }}>
-              {stats.total}
-            </div>
-          </div>
-        </div>
-        <div style={s.stat}>
-          <Clock size={32} color="#f59e0b" />
-          <div>
-            <div style={{ fontSize: "12px", color: "#94a3b8" }}>Pending</div>
-            <div style={{ fontSize: "24px", fontWeight: "700" }}>
-              {stats.pending}
-            </div>
-          </div>
-        </div>
-        <div style={s.stat}>
-          <CheckCircle size={32} color="#10b981" />
-          <div>
-            <div style={{ fontSize: "12px", color: "#94a3b8" }}>Approved</div>
-            <div style={{ fontSize: "24px", fontWeight: "700" }}>
-              {stats.approved}
-            </div>
-          </div>
-        </div>
-        <div style={s.stat}>
-          <XCircle size={32} color="#ef4444" />
-          <div>
-            <div style={{ fontSize: "12px", color: "#94a3b8" }}>Rejected</div>
-            <div style={{ fontSize: "24px", fontWeight: "700" }}>
-              {stats.rejected}
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* Filters */}
-      <div style={s.filters}>
-        {["All", "Pending", "Approved", "Rejected"].map((f) => (
-          <button
-            key={f}
-            onClick={() => setFilter(f)}
-            style={{
-              ...s.filterBtn,
-              ...(filter === f ? s.filterActive : {}),
-            }}
+        <div style={s.actionsRight}>
+           <button
+            style={s.refreshBtn}
+            onClick={fetchReports}
+            title="Refresh reports"
           >
-            {f}
+            <RefreshCw size={18} />
+            <span>Sync Data</span>
           </button>
-        ))}
+        </div>
       </div>
 
       {/* Reports Grid */}
@@ -161,7 +226,6 @@ export default function AdminReport() {
           const CrimeIcon = getCrimeIcon(crime.crimeType);
           return (
             <div key={i} style={s.card}>
-              {/* Status Badge */}
               <div
                 style={{
                   ...s.badge,
@@ -171,7 +235,6 @@ export default function AdminReport() {
                 {crime.status}
               </div>
 
-              {/* Evidence */}
               {crime.evidence?.[0]?.url ? (
                 <img
                   src={crime.evidence[0].url}
@@ -185,7 +248,6 @@ export default function AdminReport() {
                 </div>
               )}
 
-              {/* Content */}
               <div style={s.content}>
                 <div style={s.typeTag}>
                   <CrimeIcon size={14} />
@@ -193,20 +255,34 @@ export default function AdminReport() {
                 </div>
                 <h3 style={s.cardTitle}>{crime.title || "Untitled"}</h3>
                 <p style={s.desc}>
-                  {crime.description?.substring(0, 100)}
-                  {crime.description?.length > 100 ? "..." : ""}
+                  {crime.description?.substring(0, 80)}
+                  {crime.description?.length > 80 ? "..." : ""}
                 </p>
                 <div style={s.location}>
                   <MapPin size={16} color="#3b82f6" />
-                  <div>
-                    <div>{crime.location?.address || "Unknown"}</div>
-                    {crime.location?.lat && (
-                      <div style={{ fontSize: "11px", color: "#64748b" }}>
-                        {crime.location.lat.toFixed(4)},{" "}
-                        {crime.location.lng.toFixed(4)}
-                      </div>
-                    )}
-                  </div>
+                  <span style={{ fontSize: 12 }}>{crime.location?.address || "Unknown"}</span>
+                </div>
+
+                {/* ADMIM ACTIONS */}
+                <div style={s.actions}>
+                  {crime.status === "Pending" && (
+                    <>
+                      <button onClick={() => handleAction(crime._id, "Verified")} style={{ ...s.actionBtn, background: "#10b98120", color: "#10b981", borderColor: "#10b98140" }}>
+                        <CheckCircle size={14} /> Verify
+                      </button>
+                      <button onClick={() => handleAction(crime._id, "Rejected")} style={{ ...s.actionBtn, background: "#ef444420", color: "#ef4444", borderColor: "#ef444440" }}>
+                        <XCircle size={14} /> Reject
+                      </button>
+                    </>
+                  )}
+                  {crime.status === "Verified" && (
+                    <button onClick={() => handleAction(crime._id, "ForwardedToPolice")} style={{ ...s.actionBtn, background: "#3b82f620", color: "#3b82f6", borderColor: "#3b82f640", width: "100%" }}>
+                      <Send size={14} /> Forward to Police
+                    </button>
+                  )}
+                  <button onClick={() => navigate(`/admin/verify/${crime._id}`)} style={{ ...s.actionBtn, background: "#1e293b", color: "#94a3b8", borderColor: "#334155", flex: 1 }}>
+                    Review
+                  </button>
                 </div>
               </div>
             </div>
@@ -217,170 +293,144 @@ export default function AdminReport() {
       {filteredCrimes.length === 0 && (
         <div style={s.empty}>
           <Inbox size={64} color="#64748b" />
-          <div style={{ marginTop: "16px", fontSize: "18px" }}>
-            No reports found
-          </div>
+          <div style={{ marginTop: "16px", fontSize: "16px" }}>No reports in this category</div>
         </div>
       )}
     </div>
   );
 }
-
 const s = {
-  container: {
-    minHeight: "100vh",
-    backgroundColor: "#0f172a",
-    padding: "24px",
-    color: "#fff",
-    fontFamily: "system-ui, -apple-system, sans-serif",
-  },
-  center: {
+  container: { padding: "40px", minHeight: "calc(100vh - 80px)", background: "transparent", fontFamily: "Inter, system-ui, sans-serif" },
+  center: { display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", minHeight: "400px", color: "#64748b" },
+  spinner: { width: "40px", height: "40px", border: "3px solid rgba(59, 130, 246, 0.2)", borderTopColor: "#3b82f6", borderRadius: "50%", animation: "spin 1s linear infinite", marginBottom: "16px" },
+  loadText: { fontSize: "14px", fontWeight: "600", letterSpacing: "0.5px" },
+
+  topBar: {
     display: "flex",
-    flexDirection: "column",
+    justifyContent: "space-between",
     alignItems: "center",
-    justifyContent: "center",
-    minHeight: "100vh",
-    backgroundColor: "#0f172a",
+    marginBottom: "32px",
+    background: "#fff",
+    padding: "16px 24px",
+    borderRadius: "16px",
+    border: "1px solid rgba(0,0,0,0.05)",
+    boxShadow: "0 4px 20px rgba(0,0,0,0.03)"
   },
-  spinner: {
-    width: "50px",
-    height: "50px",
-    border: "4px solid #1e293b",
-    borderTop: "4px solid #3b82f6",
-    borderRadius: "50%",
-    animation: "spin 1s linear infinite",
+
+  filters: { display: "flex", gap: "10px", flexWrap: "wrap" },
+  filterBtn: { 
+    padding: "10px 20px", 
+    backgroundColor: "rgba(255,255,255,0.03)", 
+    color: "#94a3b8", 
+    border: "1px solid #1f2937", 
+    borderRadius: "12px", 
+    cursor: "pointer", 
+    fontSize: "13px", 
+    fontWeight: "600", 
+    transition: "all 0.2s" 
   },
-  loadText: {
-    marginTop: "20px",
-    color: "#94a3b8",
-  },
-  title: {
-    fontSize: "32px",
-    fontWeight: "700",
-    marginBottom: "30px",
-  },
-  statsGrid: {
-    display: "grid",
-    gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))",
-    gap: "20px",
-    marginBottom: "30px",
-  },
-  stat: {
-    backgroundColor: "#1e293b",
-    padding: "20px",
-    borderRadius: "12px",
-    display: "flex",
-    alignItems: "center",
-    gap: "15px",
-  },
-  filters: {
-    display: "flex",
-    gap: "10px",
-    marginBottom: "30px",
-    flexWrap: "wrap",
-  },
-  filterBtn: {
-    padding: "10px 20px",
-    backgroundColor: "#1e293b",
-    color: "#94a3b8",
-    border: "1px solid #334155",
-    borderRadius: "8px",
-    cursor: "pointer",
-    fontSize: "14px",
-    fontWeight: "500",
-  },
-  filterActive: {
-    backgroundColor: "#3b82f6",
-    color: "#fff",
+  filterActive: { 
+    backgroundColor: "#3b82f6", 
+    color: "#fff", 
     borderColor: "#3b82f6",
+    boxShadow: "0 4px 12px rgba(59, 130, 246, 0.3)"
   },
-  grid: {
-    display: "grid",
-    gridTemplateColumns: "repeat(auto-fill, minmax(320px, 1fr))",
-    gap: "24px",
-  },
-  card: {
-    backgroundColor: "#1e293b",
+
+  actionsRight: { display: "flex", alignItems: "center", gap: "12px" },
+  refreshBtn: {
+    background: "rgba(59, 130, 246, 0.1)",
+    border: "1px solid rgba(59, 130, 246, 0.2)",
     borderRadius: "12px",
-    overflow: "hidden",
-    border: "1px solid #334155",
-    position: "relative",
-    transition: "transform 0.2s",
-  },
-  badge: {
-    position: "absolute",
-    top: "12px",
-    right: "12px",
-    padding: "6px 12px",
-    borderRadius: "20px",
-    fontSize: "11px",
-    fontWeight: "700",
-    textTransform: "uppercase",
-    zIndex: 10,
-  },
-  img: {
-    width: "100%",
-    height: "200px",
-    objectFit: "cover",
-  },
-  noImg: {
-    height: "200px",
-    backgroundColor: "#0f172a",
-    display: "flex",
-    flexDirection: "column",
-    alignItems: "center",
-    justifyContent: "center",
-    color: "#64748b",
-  },
-  content: {
-    padding: "16px",
-  },
-  typeTag: {
-    display: "inline-flex",
-    alignItems: "center",
-    gap: "6px",
-    padding: "6px 12px",
-    borderRadius: "6px",
-    fontSize: "12px",
-    fontWeight: "600",
-    backgroundColor: "#3b82f620",
+    padding: "10px 20px",
     color: "#3b82f6",
-    marginBottom: "12px",
-  },
-  cardTitle: {
-    fontSize: "18px",
-    fontWeight: "600",
-    margin: "0 0 8px 0",
-  },
-  desc: {
-    fontSize: "14px",
-    color: "#cbd5e1",
-    lineHeight: "1.6",
-    marginBottom: "12px",
-  },
-  location: {
+    cursor: "pointer",
     display: "flex",
-    gap: "10px",
-    padding: "12px",
-    backgroundColor: "#0f172a",
-    borderRadius: "8px",
+    alignItems: "center",
+    gap: "8px",
     fontSize: "13px",
+    fontWeight: "600",
+    transition: "all 0.2s"
   },
-  empty: {
-    textAlign: "center",
-    padding: "80px 20px",
-    backgroundColor: "#1e293b",
-    borderRadius: "12px",
-    color: "#94a3b8",
+
+  grid: { display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(320px, 1fr))", gap: "24px" },
+  card: { 
+    backgroundColor: "#111827", 
+    borderRadius: "20px", 
+    overflow: "hidden", 
+    border: "1px solid #1f2937", 
+    position: "relative", 
+    display: "flex", 
+    flexDirection: "column",
+    transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
+    boxShadow: "0 4px 20px rgba(0,0,0,0.15)"
   },
+  badge: { 
+    position: "absolute", 
+    top: "16px", 
+    right: "16px", 
+    padding: "6px 12px", 
+    borderRadius: "8px", 
+    fontSize: "11px", 
+    fontWeight: "800", 
+    textTransform: "uppercase", 
+    zIndex: 5, 
+    color: "#fff",
+    letterSpacing: "0.5px"
+  },
+  img: { width: "100%", height: "180px", objectFit: "cover" },
+  noImg: { 
+    height: "180px", 
+    backgroundColor: "#0b0f1a", 
+    display: "flex", 
+    flexDirection: "column", 
+    alignItems: "center", 
+    justifyContent: "center", 
+    color: "#4b5563" 
+  },
+  content: { padding: "20px", flex: 1, display: "flex", flexDirection: "column" },
+  typeTag: { 
+    display: "inline-flex", 
+    alignItems: "center", 
+    gap: "8px", 
+    padding: "6px 14px", 
+    borderRadius: "8px", 
+    fontSize: "12px", 
+    fontWeight: "700", 
+    backgroundColor: "rgba(59, 130, 246, 0.1)", 
+    color: "#3b82f6", 
+    marginBottom: "12px", 
+    alignSelf: "flex-start" 
+  },
+  cardTitle: { fontSize: "18px", fontWeight: "800", margin: "0 0 10px 0", color: "#fff" },
+  desc: { fontSize: "14px", color: "#94a3b8", lineHeight: "1.6", marginBottom: "16px", height: "45px", overflow: "hidden" },
+  location: { 
+    display: "flex", 
+    gap: "8px", 
+    padding: "12px", 
+    backgroundColor: "#0b0f1a", 
+    borderRadius: "12px", 
+    color: "#cbd5e1", 
+    marginBottom: "20px",
+    border: "1px solid #1f2937"
+  },
+  actions: { display: "flex", gap: "10px", marginTop: "auto", flexWrap: "wrap" },
+  actionBtn: { 
+    display: "flex", 
+    alignItems: "center", 
+    justifyContent: "center", 
+    gap: "8px", 
+    padding: "10px 14px", 
+    borderRadius: "12px", 
+    border: "1px solid transparent", 
+    fontSize: "13px", 
+    fontWeight: "700", 
+    cursor: "pointer", 
+    transition: "all 0.2s", 
+    flex: 1 
+  },
+  empty: { textAlign: "center", padding: "80px 20px", color: "#4b5563" },
 };
 
-// Add animation
 const style = document.createElement("style");
-style.textContent = `
-  @keyframes spin {
-    0% { transform: rotate(0deg); }
-    100% { transform: rotate(360deg); }
-  }
-`;
+style.textContent = `@keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }`;
 document.head.appendChild(style);

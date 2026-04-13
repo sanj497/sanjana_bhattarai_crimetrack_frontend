@@ -1,9 +1,10 @@
 import React, { useState } from 'react';
-import { Shield, Users, AlertTriangle, FileText, MapPin, Bell, Search, Menu, X } from 'lucide-react';
+import { Shield, Users, AlertTriangle, FileText, MapPin, Bell, Search, Menu, X, Siren, LogOut } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 
 export default function NewBoard() {
-
-const [sidebarOpen, setSidebarOpen] = useState(true);
+  const [sidebarOpen, setSidebarOpen] = useState(true);
+  const navigate = useNavigate();
 
   const stats = [
     { label: 'Active Cases', value: '342', icon: FileText, color: 'bg-blue-500' },
@@ -18,27 +19,49 @@ const [sidebarOpen, setSidebarOpen] = useState(true);
     { id: 3, type: 'Disturbance', location: 'Park Rd', time: '12:00 PM', status: 'Active' }
   ];
 
+  const navItems = ['Dashboard', 'Cases', 'Officers', 'Reports', 'Map', 'Settings'];
+
   return (
     <div className="flex h-screen bg-gray-100">
       {/* Sidebar */}
       <div className={`${sidebarOpen ? 'w-64' : 'w-0'} bg-blue-900 text-white transition-all duration-300 overflow-hidden`}>
-        <div className="p-6">
+        <div className="p-6 flex flex-col h-full">
           <div className="flex items-center gap-2 mb-8">
             <Shield size={32} />
             <h1 className="text-xl font-bold">Police HQ</h1>
           </div>
-          <nav className="space-y-2">
-  {['Dashboard', 'Cases', 'Officers', 'Reports', 'Map', 'Settings'].map(item => (
-    <a
-      key={item}
-      href={item === 'Cases' ? '/complain' : '#'}
-      className="block py-2 px-4 rounded hover:bg-blue-800 transition"
-    >
-      {item}
-    </a>
-  ))}
-</nav>
+          <nav className="space-y-2 flex-1">
+            {navItems.map(item => (
+              <a
+                key={item}
+                href={item === 'Cases' ? '/complain' : '#'}
+                className="block py-2 px-4 rounded hover:bg-blue-800 transition"
+              >
+                {item}
+              </a>
+            ))}
+          </nav>
 
+          {/* SOS Nav Item */}
+          <a
+            href="/sos"
+            className="flex items-center gap-3 py-2 px-4 rounded bg-red-600 hover:bg-red-700 transition font-semibold text-white mt-4"
+          >
+            <span className="relative flex h-2.5 w-2.5">
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-white opacity-75"></span>
+              <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-white"></span>
+            </span>
+            SOS
+          </a>
+
+          {/* Logout Button */}
+          <button
+            onClick={() => navigate('/logout')}
+            className="flex items-center gap-3 py-2 px-4 rounded bg-blue-800 hover:bg-red-600 transition font-semibold text-white mt-4"
+          >
+            <LogOut size={20} />
+            Logout
+          </button>
         </div>
       </div>
 
@@ -61,10 +84,11 @@ const [sidebarOpen, setSidebarOpen] = useState(true);
           </div>
         </div>
 
-        {/* Stats Grid */}
         <div className="p-6">
           <h2 className="text-2xl font-bold mb-6">Dashboard Overview</h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+
+          {/* Stats Grid */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
             {stats.map((stat, i) => (
               <div key={i} className="bg-white rounded-lg shadow p-6">
                 <div className="flex items-center justify-between">
@@ -78,6 +102,28 @@ const [sidebarOpen, setSidebarOpen] = useState(true);
                 </div>
               </div>
             ))}
+          </div>
+
+          {/* SOS Banner */}
+          <div className="bg-white rounded-lg shadow border border-red-200 p-5 mb-6 flex items-center justify-between">
+            <div>
+              <div className="flex items-center gap-2 mb-1">
+                <AlertTriangle size={18} className="text-red-600" />
+                <h3 className="text-lg font-bold text-red-600">Emergency SOS</h3>
+              </div>
+              <p className="text-gray-500 text-sm">Broadcast an emergency alert to all available units immediately.</p>
+            </div>
+            
+            <a
+              href="/sos"
+              className="flex items-center gap-2 bg-red-600 hover:bg-red-700 text-white font-semibold px-6 py-3 rounded-lg transition"
+            >
+              <span className="relative flex h-2.5 w-2.5">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-white opacity-75"></span>
+                <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-white"></span>
+              </span>
+              Trigger SOS
+            </a>
           </div>
 
           {/* Recent Incidents */}
