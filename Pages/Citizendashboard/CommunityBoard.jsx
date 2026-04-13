@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { MessageSquare, Users, Shield, MapPin, Clock, Search, Send, UserCircle2, AlertCircle, Share2, Info } from 'lucide-react';
 
-const API_BASE = "http://localhost:5000/api/report";
+const API_BASE = `${import.meta.env.VITE_BACKEND_URL}/api/report`;
 
 export default function CommunityBoard() {
   const [reports, setReports] = useState([]);

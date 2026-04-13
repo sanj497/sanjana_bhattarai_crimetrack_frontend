@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import React from "react";
 
-const API = "http://localhost:5000/api";
+const API = `${import.meta.env.VITE_BACKEND_URL}/api`;
 const CATEGORIES = ["Theft", "Assault", "Vandalism", "Fraud", "Other"];
 
 const STATUS_COLORS = {
