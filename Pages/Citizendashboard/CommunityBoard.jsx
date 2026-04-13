@@ -191,8 +191,8 @@ export default function CommunityBoard() {
                        <Share2 size={20} />
                     </button>
                  </div>
-                 <h2 className="text-2xl font-black mb-2 leading-none uppercase tracking-tighter">{selectedReport.title}</h2>
-                 <p className="text-blue-400 text-[10px] font-black uppercase tracking-[4px]">Verification ID: {selectedReport._id.slice(-8).toUpperCase()}</p>
+                 <h2 className="text-2xl font-black mb-2 leading-none uppercase tracking-tighter">{selectedReport.title || "Subject Intelligence"}</h2>
+                 <p className="text-blue-400 text-[10px] font-black uppercase tracking-[4px]">Verification ID: {(selectedReport._id || "XXXXXXXX").slice(-8).toUpperCase()}</p>
               </div>
               
               <div className="p-10 overflow-y-auto flex-1 bg-gradient-to-b from-slate-50/50 to-white">
