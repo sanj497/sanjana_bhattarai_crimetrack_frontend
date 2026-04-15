@@ -24,7 +24,7 @@ export default function CrimeReportingHome() {
   const getDashboardLink = () => {
     if (!user) return "/dashboard";
     if (user.role === "admin") return "/dashboard";
-    if (user.role === "police") return "/bar";
+    if (user.role === "police") return "/police/dashboard";
     if (user.role === "user") return "/citizen";
     return "/dashboard";
   };

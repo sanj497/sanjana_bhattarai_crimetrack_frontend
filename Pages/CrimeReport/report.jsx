@@ -3,6 +3,7 @@ import React from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
+import { toast } from "react-toastify";
 
 const crimeTypes = [
   "Theft", "Assault", "Burglary", "Fraud", "Vandalism",
@@ -208,13 +209,24 @@ const ReportCrime = () => {
         throw new Error(data?.error || data?.msg || data?.details || `Request failed with status ${res.status}`);
       }
       
-      setMsg(data.msg || "Reported successfully!");
+      const successMessage = data.msg || "Reported successfully!";
+      setMsg(successMessage);
+      toast.success(successMessage, {
+        position: "top-right",
+        autoClose: 3500,
+        theme: "colored",
+      });
       setForm({ title: "", description: "", crimeType: "", address: "", lat: "", lng: "", isAnonymous: false });
       setFiles([]);
       setStep(1);
     } catch (err) {
       console.error("❌ Submission error:", err);
       setError(err.message);
+      toast.error(err.message || "Failed to submit report", {
+        position: "top-right",
+        autoClose: 4500,
+        theme: "colored",
+      });
     } finally {
       setLoading(false);
     }
