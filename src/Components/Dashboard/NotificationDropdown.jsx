@@ -99,17 +99,23 @@ export default function NotificationDropdown({ isOpen, onClose }) {
       if (!userStr) return;
       const user = JSON.parse(userStr);
       const role = user.role;
-      const pathSuffix = n.message.toLowerCase().includes("complain") ? "complain" : "reports";
+      const msg = n.message.toLowerCase();
 
       if (role === "admin") {
-        if (n.message.toLowerCase().includes("complain")) navigate("/dashboard/complain");
+        if (msg.includes("complain")) navigate("/admin/complaints");
+        else if (msg.includes("forward") || msg.includes("verif") || msg.includes("reported")) navigate("/adReport");
+        else if (msg.includes("feedback")) navigate("/admin/feedback");
         else navigate("/dashboard"); 
       } else if (role === "police") {
-        if (n.message.toLowerCase().includes("sos")) navigate("/police/sos");
-        else navigate("/police/reports");
+        if (msg.includes("sos") || msg.includes("emergency")) navigate("/police/sos");
+        else if (msg.includes("case") || msg.includes("assigned") || msg.includes("forward")) navigate("/police/reports");
+        else navigate("/police/dashboard");
       } else {
-        if (n.message.toLowerCase().includes("complain")) navigate("/citizen/complain");
-        else navigate("/citizen"); // General citizen dashboard where tracking is shown
+        // Citizen
+        if (msg.includes("complain")) navigate("/complaints");
+        else if (msg.includes("verified") || msg.includes("forward") || msg.includes("investigation")) navigate("/citizen");
+        else if (msg.includes("safe alert")) navigate("/map-citizen");
+        else navigate("/citizen");
       }
     } catch (e) {
       console.error("Navigation error", e);
