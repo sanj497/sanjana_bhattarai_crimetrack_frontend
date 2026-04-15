@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Shield, AlertTriangle, FileText, MapPin, Bell, Search, Menu, X, Siren, LogOut, LayoutDashboard, PhoneCall } from 'lucide-react';
 import { useNavigate, Outlet, Link, useLocation } from 'react-router-dom';
+import NotificationDropdown from '../Dashboard/NotificationDropdown';
 
 const getUser = () => {
   try { return JSON.parse(localStorage.getItem("user")) || {}; } catch { return {}; }
@@ -9,6 +10,7 @@ const getUser = () => {
 export default function PoliceLayout() {
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [unreadCount, setUnreadCount] = useState(0);
+  const [notifOpen, setNotifOpen] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -73,7 +75,11 @@ export default function PoliceLayout() {
               {sidebarOpen && (
                 <div className="flex-1 flex items-center justify-between">
                   <span className="font-medium">{item.name}</span>
-                  {item.badge && <span className="bg-red-500 text-[10px] px-1.5 py-0.5 rounded-full">{item.badge}</span>}
+                  {(item.name === 'Notifications' && unreadCount > 0) ? (
+                    <span className="bg-red-500 text-[10px] px-1.5 py-0.5 rounded-full">{unreadCount}</span>
+                  ) : item.badge && (
+                    <span className="bg-red-500 text-[10px] px-1.5 py-0.5 rounded-full">{item.badge}</span>
+                  )}
                 </div>
               )}
             </Link>
@@ -94,12 +100,12 @@ export default function PoliceLayout() {
       {/* Main Content */}
       <div className="flex-1 flex flex-col overflow-hidden bg-slate-950">
         {/* Header */}
-        <header className="h-16 bg-slate-800 border-b border-slate-700 flex items-center justify-between px-6 z-10 shrink-0">
+        <header className="h-16 bg-slate-800 border-b border-slate-700 flex items-center justify-between px-6 z-30 shrink-0 sticky top-0">
           <div className="flex items-center gap-4">
             <h1 className="text-xl font-bold text-white">{currentPage}</h1>
           </div>
           
-          <div className="flex items-center gap-6">
+          <div className="flex items-center gap-6 relative">
             <div className="relative hidden md:block">
               <input 
                 type="text" 
@@ -109,15 +115,21 @@ export default function PoliceLayout() {
               <Search className="absolute left-3 top-2 text-slate-500" size={16} />
             </div>
             
-            <div className="flex items-center gap-4 border-l border-slate-700 pl-6">
-              <Link to="/notifications" className="relative text-slate-400 hover:text-white transition-colors">
-                <Bell size={20} />
-                {unreadCount > 0 && (
-                  <span className="absolute -top-1 -right-1 bg-red-500 w-4 h-4 rounded-full flex items-center justify-center text-[8px] font-bold ring-2 ring-slate-800">
-                    {unreadCount}
-                  </span>
-                )}
-              </Link>
+            <div className="flex items-center gap-4 border-l border-slate-700 pl-6 relative">
+              <div className="relative">
+                <button 
+                  onClick={() => setNotifOpen(!notifOpen)}
+                  className={`p-2 rounded-xl transition-all duration-300 ${notifOpen ? 'bg-slate-700 text-white' : 'text-slate-400 hover:text-white hover:bg-slate-700'}`}
+                >
+                  <Bell size={20} className={unreadCount > 0 && !notifOpen ? "animate-[swing_2s_ease-in-out_infinite] origin-top" : ""} />
+                  {unreadCount > 0 && (
+                    <span className="absolute top-1.5 right-1.5 bg-red-500 w-4 h-4 rounded-full flex items-center justify-center text-[8px] font-bold ring-2 ring-slate-800">
+                      {unreadCount}
+                    </span>
+                  )}
+                </button>
+                <NotificationDropdown isOpen={notifOpen} onClose={() => setNotifOpen(false)} />
+              </div>
               {(() => {
                 const u = getUser();
                 const initials = u.username ? u.username.split(" ").map(w => w[0]).join("").toUpperCase().slice(0,2) : "P";
@@ -143,3 +155,4 @@ export default function PoliceLayout() {
     </div>
   );
 }
+

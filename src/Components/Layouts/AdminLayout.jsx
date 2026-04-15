@@ -1,5 +1,6 @@
 import React, { useState, useMemo, useEffect } from "react";
 import { Link, useNavigate, Outlet, useLocation } from "react-router-dom";
+import NotificationDropdown from "../Dashboard/NotificationDropdown";
 
 const getUser = () => {
   try { return JSON.parse(localStorage.getItem("user")) || {}; } catch { return {}; }
@@ -26,6 +27,7 @@ export default function AdminLayout() {
     const location = useLocation();
     const [sidebarOpen, setSidebarOpen] = useState(true);
     const [unreadCount, setUnreadCount] = useState(0);
+    const [notifOpen, setNotifOpen] = useState(false);
 
     const fetchUnreadCount = async () => {
         try {
@@ -105,15 +107,27 @@ export default function AdminLayout() {
                     
                     {menu.map((item) => {
                         const isActive = location.pathname === item.path || (item.path !== "/dashboard" && location.pathname.startsWith(item.path));
+                        const hasBadge = item.name === "Notifications" && unreadCount > 0;
+
                         return (
                             <Link 
                                 key={item.name} 
                                 to={item.path} 
                                 title={!sidebarOpen ? item.name : ""} 
-                                className={`flex items-center gap-3 px-3 py-3 rounded-[10px] transition-all ${isActive ? "bg-[#1E5EFF]/10 text-[#00B8D9] font-semibold" : "hover:bg-[#112445] hover:text-white"}`}
+                                className={`flex items-center gap-3 px-3 py-3 rounded-[10px] transition-all relative ${isActive ? "bg-[#1E5EFF]/10 text-[#00B8D9] font-semibold" : "hover:bg-[#112445] hover:text-white"}`}
                             >
-                                <div className="flex items-center justify-center min-w-[20px]">{item.icon}</div>
+                                <div className="flex items-center justify-center min-w-[20px]">
+                                   {item.icon}
+                                   {hasBadge && !sidebarOpen && (
+                                      <div className="absolute top-2 right-2 h-1.5 w-1.5 bg-red-500 rounded-full ring-1 ring-[#0B1F3B]" />
+                                   )}
+                                </div>
                                 {sidebarOpen && <span className="truncate text-sm">{item.name}</span>}
+                                {hasBadge && sidebarOpen && (
+                                   <span className="ml-auto bg-red-500 text-white text-[9px] font-black px-1.5 py-0.5 rounded-md min-w-[18px] text-center">
+                                     {unreadCount}
+                                   </span>
+                                )}
                             </Link>
                         );
                     })}
@@ -132,23 +146,29 @@ export default function AdminLayout() {
             </aside>
 
             {/* MAIN CONTENT */}
-            <main className="flex-1 flex flex-col min-w-0 overflow-hidden relative">
+            <main className="flex-1 flex flex-col min-w-0 overflow-hidden relative text-left">
                 {/* HEADER */}
-                <header className="h-20 bg-white border-b border-gray-100 flex items-center justify-between px-8 shrink-0 z-10 sticky top-0 shadow-sm">
+                <header className="h-20 bg-white border-b border-gray-100 flex items-center justify-between px-8 shrink-0 z-30 sticky top-0 shadow-sm">
                     <div>
                         <div className="text-[10px] text-gray-400 font-bold uppercase tracking-widest mb-0.5">Administrator Portal</div>
                         <h2 className="text-xl font-extrabold text-[#0B1F3B] tracking-tight">{activeItem}</h2>
                     </div>
 
-                    <div className="flex items-center gap-6">
-                        <Link to="/notifications" className="relative p-2 text-gray-400 hover:text-[#1E5EFF] transition-colors">
-                            <Bell size={22} />
-                            {unreadCount > 0 && (
-                                <span className="absolute top-1.5 right-1.5 flex h-4 w-4 items-center justify-center rounded-full bg-red-500 text-[10px] font-bold text-white ring-2 ring-white">
-                                    {unreadCount}
-                                </span>
-                            )}
-                        </Link>
+                    <div className="flex items-center gap-6 relative">
+                        <div className="relative">
+                            <button 
+                              onClick={() => setNotifOpen(!notifOpen)}
+                              className={`p-2 rounded-xl transition-all duration-300 ${notifOpen ? 'bg-blue-50 text-blue-600' : 'text-gray-400 hover:text-[#1E5EFF] hover:bg-slate-50'}`}
+                            >
+                                <Bell size={22} className={unreadCount > 0 && !notifOpen ? "animate-[swing_2s_ease-in-out_infinite] origin-top" : ""} />
+                                {unreadCount > 0 && (
+                                    <span className="absolute top-1.5 right-1.5 flex h-4.5 w-4.5 items-center justify-center rounded-full bg-red-500 text-[10px] font-black text-white ring-2 ring-white">
+                                        {unreadCount}
+                                    </span>
+                                )}
+                            </button>
+                            <NotificationDropdown isOpen={notifOpen} onClose={() => setNotifOpen(false)} />
+                        </div>
 
                         <div className="h-8 w-px bg-gray-100 hidden md:block" />
                         {(() => {
@@ -171,7 +191,7 @@ export default function AdminLayout() {
 
                 {/* CONTENT AREA */}
                 <div className="flex-1 overflow-y-auto bg-[#F7F9FC]">
-                    <div className="p-0">
+                    <div className="p-0 text-left">
                         <Outlet />
                     </div>
                 </div>
@@ -179,3 +199,4 @@ export default function AdminLayout() {
         </div>
     );
 }
+

@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { Link, useLocation, Outlet } from "react-router-dom";
 import { LayoutDashboard, FileText, Bell, MessageSquare, Settings, AlertTriangle, ShieldAlert, LogOut, ChevronLeft, ChevronRight, Shield, Users, BarChart3, MapPin } from "lucide-react";
+import NotificationDropdown from "../Dashboard/NotificationDropdown";
 
 const getUser = () => {
   try { return JSON.parse(localStorage.getItem("user")) || {}; } catch { return {}; }
@@ -20,6 +21,7 @@ const navItems = [
 export default function CitizenLayout() {
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [unreadCount, setUnreadCount] = useState(0);
+  const [notifOpen, setNotifOpen] = useState(false);
   const location = useLocation();
 
   const fetchUnreadCount = async () => {
@@ -84,10 +86,22 @@ export default function CitizenLayout() {
           
           {navItems.map((item) => {
             const isActive = location.pathname === item.path;
+            const hasBadge = item.label === "Notifications" && unreadCount > 0;
+
             return (
-              <Link key={item.label} to={item.path} title={!sidebarOpen ? item.label : ""} className={`flex items-center gap-3 px-3 py-3 rounded-[10px] transition-colors ${isActive ? "bg-[#1E5EFF]/10 text-[#00B8D9] font-semibold" : "hover:bg-[#112445] hover:text-white"}`}>
-                <div className="flex items-center justify-center">{item.icon}</div>
+              <Link key={item.label} to={item.path} title={!sidebarOpen ? item.label : ""} className={`flex items-center gap-3 px-3 py-3 rounded-[10px] transition-colors relative ${isActive ? "bg-[#1E5EFF]/10 text-[#00B8D9] font-semibold" : "hover:bg-[#112445] hover:text-white"}`}>
+                <div className="flex items-center justify-center">
+                   {item.icon}
+                   {hasBadge && !sidebarOpen && (
+                      <div className="absolute top-2 right-2 h-2 w-2 bg-red-500 rounded-full ring-1 ring-[#0B1F3B]" />
+                   )}
+                </div>
                 {sidebarOpen && <span className="truncate">{item.label}</span>}
+                {hasBadge && sidebarOpen && (
+                   <span className="ml-auto bg-red-500 text-white text-[9px] font-black px-1.5 py-0.5 rounded-md min-w-[18px] text-center">
+                     {unreadCount}
+                   </span>
+                )}
               </Link>
             )
           })}
@@ -122,21 +136,27 @@ export default function CitizenLayout() {
       {/* MAIN CONTENT AREA */}
       <main className="flex-1 flex flex-col min-w-0 overflow-hidden relative">
         {/* HEADER */}
-        <header className="h-20 bg-white border-b border-gray-100 flex items-center justify-between px-8 shrink-0 z-10 sticky top-0 shadow-sm">
+        <header className="h-20 bg-white border-b border-gray-100 flex items-center justify-between px-8 shrink-0 z-30 sticky top-0 shadow-sm">
           <div>
             <div className="text-xs text-gray-500 font-semibold uppercase tracking-wider mb-1">Citizen Portal Dashboard</div>
             <h2 className="text-xl font-bold text-[#0B1F3B]" style={{ fontFamily: "Poppins, sans-serif" }}>{pageTitle}</h2>
           </div>
-          <div className="flex items-center gap-4">
-             <Link to="/notifications" className="relative p-2 text-gray-400 hover:text-[#1E5EFF] transition-colors">
-               <Bell size={22} />
-               {unreadCount > 0 && (
-                 <span className="absolute top-1.5 right-1.5 flex h-4 w-4 items-center justify-center rounded-full bg-red-500 text-[10px] font-bold text-white ring-2 ring-white">
-                   {unreadCount}
-                 </span>
-               )}
-             </Link>
-             <div className="h-8 w-px bg-gray-100 hidden sm:block" />
+          <div className="flex items-center gap-4 relative">
+             <div className="relative">
+                <button 
+                  onClick={() => setNotifOpen(!notifOpen)}
+                  className={`p-2 rounded-xl transition-all duration-300 ${notifOpen ? 'bg-blue-50 text-blue-600' : 'text-gray-400 hover:text-[#1E5EFF] hover:bg-slate-50'}`}
+                >
+                  <Bell size={22} className={unreadCount > 0 && !notifOpen ? "animate-[swing_2s_ease-in-out_infinite] origin-top" : ""} />
+                  {unreadCount > 0 && (
+                    <span className="absolute top-1.5 right-1.5 flex h-4.5 w-4.5 items-center justify-center rounded-full bg-red-500 text-[10px] font-black text-white ring-2 ring-white">
+                      {unreadCount}
+                    </span>
+                  )}
+                </button>
+                <NotificationDropdown isOpen={notifOpen} onClose={() => setNotifOpen(false)} />
+             </div>
+             <div className="h-8 w-px bg-gray-100 hidden sm:block mx-1" />
              <div className="hidden sm:block text-sm text-[#1E5EFF] bg-[#1E5EFF]/10 px-4 py-2 rounded-full font-semibold border border-[#1E5EFF]/20">
                {new Date().toLocaleDateString("en-US", { weekday: "long", year: "numeric", month: "long", day: "numeric" })}
              </div>
