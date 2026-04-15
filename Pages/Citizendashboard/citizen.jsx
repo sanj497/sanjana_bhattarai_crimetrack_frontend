@@ -28,6 +28,14 @@ export default function CitizenDashboard() {
         const parsedUser = JSON.parse(storedUser);
         setUser(parsedUser);
         fetchMyReports(parsedUser._id);
+        
+        // Real-time listener
+        const handleNotification = () => {
+          console.log("Citizen dashboard refreshing...");
+          fetchMyReports(parsedUser._id);
+        };
+        window.addEventListener("new-notification-received", handleNotification);
+        return () => window.removeEventListener("new-notification-received", handleNotification);
       } catch (e) {
         console.error("User parsing failed");
       }

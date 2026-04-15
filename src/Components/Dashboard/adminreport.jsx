@@ -59,6 +59,14 @@ export default function AdminReport() {
 
   useEffect(() => {
     fetchReports();
+
+    // Listen for socket events
+    const handleNotification = () => {
+        console.log("Admin reports refreshing...");
+        fetchReports();
+    };
+    window.addEventListener("new-notification-received", handleNotification);
+    return () => window.removeEventListener("new-notification-received", handleNotification);
   }, []);
 
   const handleAction = async (id, status) => {

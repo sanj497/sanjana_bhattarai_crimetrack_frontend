@@ -45,9 +45,22 @@ export default function Dashboard() {
 
     useEffect(() => {
         fetchDashboardData();
-        // Dynamic refresh every 2 minutes
+        
+        // Listen for socket events dispatched by useSocket hook
+        const handleNotification = () => {
+            console.log("Dashboard refreshing due to new notification...");
+            fetchDashboardData();
+        };
+        
+        window.addEventListener("new-notification-received", handleNotification);
+
+        // Dynamic refresh every 2 minutes as fallback
         const interval = setInterval(fetchDashboardData, 120000);
-        return () => clearInterval(interval);
+        
+        return () => {
+            clearInterval(interval);
+            window.removeEventListener("new-notification-received", handleNotification);
+        };
     }, []);
 
     const menu = useMemo(
