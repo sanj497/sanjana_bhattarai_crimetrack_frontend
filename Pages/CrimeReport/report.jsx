@@ -45,24 +45,64 @@ const ReportCrime = () => {
   const submit = async (e) => {
     e.preventDefault();
     setMsg(""); setError(""); setLoading(true);
+    
     try {
       const token = localStorage.getItem("token");
       if (!token) throw new Error("No token found. Please login first.");
+      
+      // Validate required fields
+      if (!form.title || !form.description || !form.crimeType) {
+        throw new Error("Please fill in all required fields (Title, Description, Crime Type)");
+      }
+      
+      if (!form.address || form.address.trim() === "") {
+        throw new Error("Please provide the location address");
+      }
+      
+      // Validate coordinates
+      const lat = parseFloat(form.lat);
+      const lng = parseFloat(form.lng);
+      if (isNaN(lat) || isNaN(lng)) {
+        throw new Error("Invalid location coordinates. Please use the map to select a location or enter valid coordinates.");
+      }
+      
+      console.log("📝 Submitting crime report...", {
+        title: form.title,
+        crimeType: form.crimeType,
+        hasAddress: !!form.address,
+        lat: lat,
+        lng: lng,
+        filesCount: files.length
+      });
+      
       const fd = new FormData();
       Object.entries(form).forEach(([k, v]) => fd.append(k, String(v)));
       files.forEach((f) => fd.append("evidence", f));
+      
+      console.log("🌐 Sending request to:", `${import.meta.env.VITE_BACKEND_URL}/api/report/report`);
+      
       const res = await fetch(`${import.meta.env.VITE_BACKEND_URL}/api/report/report`, {
         method: "POST",
         headers: { Authorization: `Bearer ${token}` },
         body: fd,
       });
+      
+      console.log("📡 Response status:", res.status);
+      
       const data = await res.json();
-      if (!res.ok) throw new Error(data?.error || data?.msg || "Request failed");
+      console.log("📦 Response data:", data);
+      
+      if (!res.ok) {
+        console.error("❌ Server error:", data);
+        throw new Error(data?.error || data?.msg || data?.details || `Request failed with status ${res.status}`);
+      }
+      
       setMsg(data.msg || "Reported successfully!");
       setForm({ title: "", description: "", crimeType: "", address: "", lat: "", lng: "", isAnonymous: false });
       setFiles([]);
       setStep(1);
     } catch (err) {
+      console.error("❌ Submission error:", err);
       setError(err.message);
     } finally {
       setLoading(false);
