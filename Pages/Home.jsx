@@ -1,14 +1,16 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { Link } from "react-router-dom";
 import { 
-  AlertCircle, Shield, Phone, MapPin, FileText, 
-  Users, ChevronRight, Menu, X, LogOut, Lock, Clock, Bell, Activity, LayoutDashboard 
+  AlertCircle, Shield, Phone, MapPin, FileText, Siren,
+  Users, ChevronRight, Menu, X, LogOut, Lock, Clock, Bell, Activity, LayoutDashboard, Radio
 } from "lucide-react";
 
 export default function CrimeReportingHome() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [user, setUser] = useState(null);
+  const [liveAlerts, setLiveAlerts] = useState([]);
+  const tickerRef = useRef(null);
 
   const checkAuth = () => {
     const token = localStorage.getItem("token");
@@ -39,10 +41,80 @@ export default function CrimeReportingHome() {
     };
   }, []);
 
+  // Fetch live public crime alerts (no auth required)
+  useEffect(() => {
+    const fetchAlerts = async () => {
+      try {
+        const res = await fetch(`${import.meta.env.VITE_BACKEND_URL}/api/report/community`);
+        if (!res.ok) return;
+        const data = await res.json();
+        if (data.success && data.reports?.length > 0) {
+          setLiveAlerts(data.reports.slice(0, 8));
+        }
+      } catch (e) {
+        // Silently fail - ticker just won't show
+      }
+    };
+    fetchAlerts();
+    const interval = setInterval(fetchAlerts, 60000); // Refresh every minute
+    return () => clearInterval(interval);
+  }, []);
+
   return (
     <div className="min-h-screen bg-[#F7F9FC] font-sans text-[#111827]">
       {/* Navigation */}
       <nav className="bg-white shadow-sm border-b border-gray-100 sticky top-0 z-50">
+        {/* Live Crime Alert Ticker */}
+        {liveAlerts.length > 0 && (
+          <div className="bg-[#0B1F3B] border-b border-[#1E5EFF]/20 overflow-hidden">
+            <div className="flex items-center">
+              {/* Label */}
+              <div className="flex-shrink-0 flex items-center gap-2 bg-[#E63946] px-4 py-2 text-white font-bold text-xs uppercase tracking-widest">
+                <div className="w-2 h-2 rounded-full bg-white animate-pulse" />
+                <Siren className="h-3.5 w-3.5" />
+                <span>LIVE ALERTS</span>
+              </div>
+              {/* Scrolling Ticker */}
+              <div className="flex-1 overflow-hidden relative">
+                <div
+                  ref={tickerRef}
+                  className="flex gap-16 animate-marquee whitespace-nowrap py-2 px-4"
+                  style={{
+                    animation: "marquee 35s linear infinite",
+                  }}
+                >
+                  {[...liveAlerts, ...liveAlerts].map((alert, i) => (
+                    <span key={i} className="inline-flex items-center gap-2 text-xs text-gray-300">
+                      <span className={`inline-block w-2 h-2 rounded-full flex-shrink-0 ${
+                        alert.priority === 'Critical' ? 'bg-red-500' :
+                        alert.priority === 'High' ? 'bg-orange-400' :
+                        'bg-yellow-400'
+                      }`} />
+                      <span className="text-[#E63946] font-bold">[{alert.crimeType}]</span>
+                      <span className="font-medium text-white">{alert.title}</span>
+                      <span className="text-gray-500">—</span>
+                      <MapPin className="h-3 w-3 text-gray-500 flex-shrink-0" />
+                      <span className="text-gray-400">{alert.location?.address || 'Unknown Location'}</span>
+                      <span className="text-gray-600 mx-2">•••</span>
+                    </span>
+                  ))}
+                </div>
+              </div>
+              {/* Time */}
+              <div className="flex-shrink-0 flex items-center gap-1.5 px-4 text-gray-500 text-[10px] font-bold uppercase tracking-wider border-l border-white/10">
+                <Clock className="h-3 w-3" />
+                <span>LIVE</span>
+              </div>
+            </div>
+          </div>
+        )}
+        <style>{`
+          @keyframes marquee {
+            0% { transform: translateX(0); }
+            100% { transform: translateX(-50%); }
+          }
+          .animate-marquee { display: flex; }
+        `}</style>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-20">
             <div className="flex items-center space-x-3">
