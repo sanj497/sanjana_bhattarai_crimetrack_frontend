@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
 import { Bell, Check, Clock, ShieldAlert, FileText, CheckCircle2, ChevronRight, X } from "lucide-react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
 const API_BASE = `${import.meta.env.VITE_BACKEND_URL}/api/notifications`;
 
@@ -56,9 +56,9 @@ export default function NotificationDropdown({ isOpen, onClose }) {
     }
   };
 
-  const handleMarkRead = async (e, id) => {
-    e.preventDefault();
-    e.stopPropagation();
+  const navigate = useNavigate();
+
+  const handleMarkRead = async (id) => {
     try {
       const token = localStorage.getItem("token");
       await fetch(`${API_BASE}/${id}/read`, {
@@ -70,6 +70,34 @@ export default function NotificationDropdown({ isOpen, onClose }) {
       window.dispatchEvent(new Event("new-notification-received"));
     } catch (err) {
       console.error(err);
+    }
+  };
+
+  const handleNotificationClick = async (n) => {
+    if (!n.isRead) {
+       await handleMarkRead(n._id);
+    }
+    onClose();
+
+    try {
+      const userStr = localStorage.getItem("user");
+      if (!userStr) return;
+      const user = JSON.parse(userStr);
+      const role = user.role;
+      const pathSuffix = n.message.toLowerCase().includes("complain") ? "complain" : "reports";
+
+      if (role === "admin") {
+        if (n.message.toLowerCase().includes("complain")) navigate("/dashboard/complain");
+        else navigate("/dashboard"); 
+      } else if (role === "police") {
+        if (n.message.toLowerCase().includes("sos")) navigate("/police/sos");
+        else navigate("/police/reports");
+      } else {
+        if (n.message.toLowerCase().includes("complain")) navigate("/citizen/complain");
+        else navigate("/citizen"); // General citizen dashboard where tracking is shown
+      }
+    } catch (e) {
+      console.error("Navigation error", e);
     }
   };
 
@@ -120,6 +148,7 @@ export default function NotificationDropdown({ isOpen, onClose }) {
             {notifications.map((n) => (
               <div 
                 key={n._id}
+                onClick={() => handleNotificationClick(n)}
                 className={`p-4 hover:bg-slate-50 transition-colors relative group cursor-pointer ${!n.isRead ? 'bg-blue-50/30' : ''}`}
               >
                 <div className="flex gap-3">
@@ -138,7 +167,7 @@ export default function NotificationDropdown({ isOpen, onClose }) {
                     </p>
                     {!n.isRead && (
                        <button 
-                         onClick={(e) => handleMarkRead(e, n._id)}
+                         onClick={(e) => { e.stopPropagation(); handleMarkRead(n._id); }}
                          className="text-[9px] font-black text-blue-600 uppercase tracking-widest hover:text-blue-800 transition-colors"
                        >
                          Acknowledge
