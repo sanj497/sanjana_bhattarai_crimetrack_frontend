@@ -2,7 +2,6 @@ import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import React from "react";
 import { Mail, Lock, ArrowRight, Shield, Activity, ChevronLeft, User, MapPin, Briefcase, BadgeCheck } from "lucide-react";
-import StationMapPicker from "../src/Components/StationMapPicker";
 
 const Register = () => {
   const navigate = useNavigate();
@@ -19,8 +18,6 @@ const Register = () => {
     stationDistrict: "",
     badgeNumber: "",
     department: "",
-    stationLat: "",
-    stationLng: "",
   });
 
   const [otp, setOtp] = useState("");
@@ -44,7 +41,7 @@ const Register = () => {
       return;
     }
 
-    if (form.role === "police" && (!form.stationDistrict || !form.badgeNumber || !form.department || !form.stationLat || !form.stationLng)) {
+    if (form.role === "police" && (!form.stationDistrict || !form.badgeNumber || !form.department)) {
       setMessage("Please complete all police verification details.");
       setError(true);
       return;
@@ -243,7 +240,7 @@ const Register = () => {
                 </div>
 
                 <div className="space-y-1">
-                  <label className="text-sm font-semibold text-[#0B1F3B]">Primary Hub Location (Address)</label>
+                  <label className="text-sm font-semibold text-[#0B1F3B]">Location / Address</label>
                   <div className="relative">
                      <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
                        <MapPin className="h-5 w-5 text-gray-400" />
@@ -258,18 +255,6 @@ const Register = () => {
                       required
                     />
                   </div>
-                </div>
-
-                <div className="space-y-1">
-                   <label className="text-sm font-semibold text-[#0B1F3B]">Set Location on Map (Required for Nearby Alerts)</label>
-                   <StationMapPicker
-                     latitude={form.stationLat ? Number(form.stationLat) : null}
-                     longitude={form.stationLng ? Number(form.stationLng) : null}
-                     onLocationSelect={(lat, lng) => {
-                       setForm(prev => ({ ...prev, stationLat: lat.toString(), stationLng: lng.toString() }));
-                     }}
-                     height="300px"
-                   />
                 </div>
 
                 {form.role === "police" && (
