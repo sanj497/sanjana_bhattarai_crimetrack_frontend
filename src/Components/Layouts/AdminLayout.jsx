@@ -25,6 +25,33 @@ export default function AdminLayout() {
     const navigate = useNavigate();
     const location = useLocation();
     const [sidebarOpen, setSidebarOpen] = useState(true);
+    const [unreadCount, setUnreadCount] = useState(0);
+
+    const fetchUnreadCount = async () => {
+        try {
+            const token = localStorage.getItem("token");
+            const res = await fetch(`${import.meta.env.VITE_BACKEND_URL}/api/notifications`, {
+                headers: { "Authorization": `Bearer ${token}` }
+            });
+            const data = await res.json();
+            if (data.success) {
+                setUnreadCount(data.unreadCount || 0);
+            }
+        } catch (err) {
+            console.error("Failed to fetch unread count", err);
+        }
+    };
+
+    useEffect(() => {
+        fetchUnreadCount();
+        
+        const handleNewNotification = () => {
+            fetchUnreadCount();
+        };
+
+        window.addEventListener("new-notification-received", handleNewNotification);
+        return () => window.removeEventListener("new-notification-received", handleNewNotification);
+    }, []);
 
     const menu = useMemo(
         () => [
@@ -32,7 +59,7 @@ export default function AdminLayout() {
             { name: "Live Map",      icon: <MapIcon size={20} />,         path: "/admin/map"       },
             { name: "Report Desk",   icon: <FileText size={20} />,        path: "/adReport"  },
             { name: "User Directory",icon: <Users size={20} />,           path: "/user"      },
-            { name: "Case Tracker",  icon: <Send size={20} />,            path: "/forward-admin" },
+            { name: "Forward Queue", icon: <Send size={20} />,            path: "/forward-admin" },
             { name: "Complaints",    icon: <Settings size={20} />,        path: "/admin/complaints"      },
             { name: "Notifications", icon: <Bell size={20} />,            path: "/notifications" },
             { name: "Feedback",      icon: <MessageSquare size={20} />,   path: "/admin/feedback" },
@@ -114,6 +141,16 @@ export default function AdminLayout() {
                     </div>
 
                     <div className="flex items-center gap-6">
+                        <Link to="/notifications" className="relative p-2 text-gray-400 hover:text-[#1E5EFF] transition-colors">
+                            <Bell size={22} />
+                            {unreadCount > 0 && (
+                                <span className="absolute top-1.5 right-1.5 flex h-4 w-4 items-center justify-center rounded-full bg-red-500 text-[10px] font-bold text-white ring-2 ring-white">
+                                    {unreadCount}
+                                </span>
+                            )}
+                        </Link>
+
+                        <div className="h-8 w-px bg-gray-100 hidden md:block" />
                         {(() => {
                           const u = getUser();
                           const initials = u.username ? u.username.split(" ").map(w => w[0]).join("").toUpperCase().slice(0,2) : "A";

@@ -21,6 +21,7 @@ import CrimeMap from "../Pages/Citizendashboard/CrimeMap.jsx";
 import UserApp from "../Pages/Complainfeature/Userapp.jsx";
 import AdminApp from "../Pages/Complainfeature/Adminapp.jsx";
 import Verify from "./Components/Dashboard/verify.jsx";
+import ForwardQueue from "./Components/Dashboard/ForwardQueue.jsx";
 import ForwardToPolice from "./Components/Policedashboard/Forwardtopolice.jsx";
 import EmergencyContactsApp from "./Components/Policedashboard/Emergencycontacts.jsx";
 import AdminLayout from "./Components/Layouts/AdminLayout.jsx";
@@ -82,7 +83,7 @@ function App() {
           <Route path="/adReport" element={<AdminReport />} />
           <Route path="/user" element={<Users />} />
           <Route path="/admin/complaints" element={<AdminApp />} />
-          <Route path="/forward-admin" element={<ForwardToPolice />} />
+          <Route path="/forward-admin" element={<ForwardQueue />} />
           <Route path="/admin/feedback" element={<AdminFeedback />} />
           <Route path="/admin/verify/:id" element={<Verify />} />
           <Route path="/admin/performance" element={<TransparencyHub />} />

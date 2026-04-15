@@ -8,8 +8,31 @@ const getUser = () => {
 
 export default function PoliceLayout() {
   const [sidebarOpen, setSidebarOpen] = useState(true);
+  const [unreadCount, setUnreadCount] = useState(0);
   const navigate = useNavigate();
   const location = useLocation();
+
+  const fetchUnreadCount = async () => {
+    try {
+      const token = localStorage.getItem("token");
+      const res = await fetch(`${import.meta.env.VITE_BACKEND_URL}/api/notifications`, {
+        headers: { "Authorization": `Bearer ${token}` }
+      });
+      const data = await res.json();
+      if (data.success) {
+        setUnreadCount(data.unreadCount || 0);
+      }
+    } catch (err) {
+      console.error("Failed to fetch unread count", err);
+    }
+  };
+
+  React.useEffect(() => {
+    fetchUnreadCount();
+    const handleNewNotification = () => fetchUnreadCount();
+    window.addEventListener("new-notification-received", handleNewNotification);
+    return () => window.removeEventListener("new-notification-received", handleNewNotification);
+  }, []);
 
   const menuItems = [
     { name: 'Dashboard', icon: LayoutDashboard, path: '/police/dashboard' },
@@ -88,10 +111,14 @@ export default function PoliceLayout() {
             </div>
             
             <div className="flex items-center gap-4 border-l border-slate-700 pl-6">
-              <button className="relative text-slate-400 hover:text-white">
+              <Link to="/notifications" className="relative text-slate-400 hover:text-white transition-colors">
                 <Bell size={20} />
-                <span className="absolute -top-1 -right-1 bg-red-500 w-2 h-2 rounded-full"></span>
-              </button>
+                {unreadCount > 0 && (
+                  <span className="absolute -top-1 -right-1 bg-red-500 w-4 h-4 rounded-full flex items-center justify-center text-[8px] font-bold ring-2 ring-slate-800">
+                    {unreadCount}
+                  </span>
+                )}
+              </Link>
               {(() => {
                 const u = getUser();
                 const initials = u.username ? u.username.split(" ").map(w => w[0]).join("").toUpperCase().slice(0,2) : "P";

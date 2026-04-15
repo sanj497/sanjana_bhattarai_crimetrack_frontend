@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Link, useLocation, Outlet } from "react-router-dom";
 import { LayoutDashboard, FileText, Bell, MessageSquare, Settings, AlertTriangle, ShieldAlert, LogOut, ChevronLeft, ChevronRight, Shield, Users, BarChart3, MapPin } from "lucide-react";
 
@@ -18,7 +18,28 @@ const navItems = [
 
 export default function CitizenLayout() {
   const [sidebarOpen, setSidebarOpen] = useState(true);
+  const [unreadCount, setUnreadCount] = useState(0);
   const location = useLocation();
+
+  const fetchUnreadCount = async () => {
+    try {
+      const token = localStorage.getItem("token");
+      const res = await fetch(`${import.meta.env.VITE_BACKEND_URL}/api/notifications`, {
+        headers: { "Authorization": `Bearer ${token}` }
+      });
+      const data = await res.json();
+      if (data.success) setUnreadCount(data.unreadCount || 0);
+    } catch (err) {
+      console.error("Failed to fetch unread count", err);
+    }
+  };
+
+  useEffect(() => {
+    fetchUnreadCount();
+    const handler = () => fetchUnreadCount();
+    window.addEventListener("new-notification-received", handler);
+    return () => window.removeEventListener("new-notification-received", handler);
+  }, []);
 
   const getPageTitle = () => {
     const item = navItems.find(i => i.path === location.pathname);
@@ -106,6 +127,15 @@ export default function CitizenLayout() {
             <h2 className="text-xl font-bold text-[#0B1F3B]" style={{ fontFamily: "Poppins, sans-serif" }}>{pageTitle}</h2>
           </div>
           <div className="flex items-center gap-4">
+             <Link to="/notifications" className="relative p-2 text-gray-400 hover:text-[#1E5EFF] transition-colors">
+               <Bell size={22} />
+               {unreadCount > 0 && (
+                 <span className="absolute top-1.5 right-1.5 flex h-4 w-4 items-center justify-center rounded-full bg-red-500 text-[10px] font-bold text-white ring-2 ring-white">
+                   {unreadCount}
+                 </span>
+               )}
+             </Link>
+             <div className="h-8 w-px bg-gray-100 hidden sm:block" />
              <div className="hidden sm:block text-sm text-[#1E5EFF] bg-[#1E5EFF]/10 px-4 py-2 rounded-full font-semibold border border-[#1E5EFF]/20">
                {new Date().toLocaleDateString("en-US", { weekday: "long", year: "numeric", month: "long", day: "numeric" })}
              </div>

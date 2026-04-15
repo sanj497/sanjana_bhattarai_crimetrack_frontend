@@ -15,6 +15,7 @@ export const useSocket = () => {
     // Initialize socket
     socketRef.current = io(SOCKET_URL, {
       withCredentials: true,
+      transports: ["polling", "websocket"],
     });
 
     // Authenticate with server to join rooms
