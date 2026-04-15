@@ -2,7 +2,7 @@ import { useEffect, useState, useCallback } from "react";
 import axios from "axios";
 import React from "react";
 import { useSocket } from "../../hooks/useSocket.js";
-import { AlertTriangle, MapPin, Clock, User, Phone, CheckCircle, XCircle, Shield, Navigation, Activity, Bell } from "lucide-react";
+import { AlertTriangle, MapPin, Clock, User, Phone, CheckCircle, XCircle, Shield, Navigation, Activity, Bell, Siren } from "lucide-react";
 
 const SOSList = () => {
   const [sosData, setSosData] = useState([]);
@@ -15,8 +15,10 @@ const SOSList = () => {
   
   const fetchSOS = useCallback(async () => {
     try {
+      const token = localStorage.getItem("token");
       const res = await axios.get(
-        `${import.meta.env.VITE_BACKEND_URL}/api/emergency/sos`
+        `${import.meta.env.VITE_BACKEND_URL}/api/emergency/sos`,
+        { headers: { Authorization: `Bearer ${token}` } }
       );
 
       const data = res.data.data;
