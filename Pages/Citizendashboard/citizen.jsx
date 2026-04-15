@@ -11,10 +11,100 @@ import {
   MapPin,
   ShieldCheck,
   Search,
-  Eye
+  Eye,
+  MessageSquare,
+  Star
 } from "lucide-react";
 import { Link } from "react-router-dom";
 import { toast } from "react-toastify";
+
+function FeedbackModal({ crime, onClose, onSubmit }) {
+  const [rating, setRating] = useState(5);
+  const [message, setMessage] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const handleSubmit = async () => {
+    if (!message) return toast.error("Please provide your feedback message.");
+    if (!crime?.workflow?.assignedToOfficer?._id) {
+      return toast.error("Feedback can be submitted after a police officer is assigned to the case.");
+    }
+    setIsSubmitting(true);
+    try {
+      const token = localStorage.getItem("token");
+      const res = await fetch(`${import.meta.env.VITE_BACKEND_URL}/api/feedback/auth`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+        body: JSON.stringify({
+          message,
+          rating,
+          crimeId: crime._id,
+          policeId: crime.workflow.assignedToOfficer._id,
+        })
+      });
+      const data = await res.json();
+      if (data.success) {
+        toast.success("Feedback submitted successfully. Thank you!");
+        onSubmit();
+        onClose();
+      } else {
+        throw new Error(data.error || "Failed to submit feedback");
+      }
+    } catch (err) {
+      toast.error(err.message);
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm">
+      <div className="bg-white rounded-[32px] p-8 w-full max-w-md shadow-2xl relative overflow-hidden">
+        <div className="flex justify-between items-center mb-6">
+          <h2 className="text-xl font-black text-slate-900 uppercase tracking-tighter">Submit Feedback</h2>
+          <button onClick={onClose} className="text-slate-400 hover:text-slate-700 font-bold p-2">✕</button>
+        </div>
+        
+        <div className="mb-6 bg-slate-50 p-4 rounded-2xl border border-slate-100">
+          <p className="text-[10px] font-black text-blue-500 uppercase tracking-widest mb-1">Incident Reference</p>
+          <p className="font-bold text-slate-700">{crime.title}</p>
+          <p className="text-xs text-slate-500 mt-1">
+            Assigned Officer: {crime.workflow?.assignedToOfficer?.username || "Not assigned yet"}
+          </p>
+        </div>
+
+        <div className="mb-6">
+          <label className="block text-[10px] font-black text-slate-500 uppercase tracking-widest mb-3">Rate the Investigation</label>
+          <div className="flex gap-2">
+            {[1,2,3,4,5].map(star => (
+              <button key={star} onClick={() => setRating(star)} className="focus:outline-none transition-transform hover:scale-110">
+                <Star className={`h-8 w-8 ${rating >= star ? "fill-amber-400 text-amber-400" : "text-slate-200"}`} />
+              </button>
+            ))}
+          </div>
+        </div>
+
+        <div className="mb-8">
+          <label className="block text-[10px] font-black text-slate-500 uppercase tracking-widest mb-3">Your Comments</label>
+          <textarea
+             rows={4}
+             value={message}
+             onChange={(e) => setMessage(e.target.value)}
+             placeholder="How was your experience with this investigation?"
+             className="w-full bg-slate-50 border border-slate-200 rounded-2xl p-4 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 resize-none"
+          />
+        </div>
+
+        <button 
+          onClick={handleSubmit} 
+          disabled={isSubmitting}
+          className="w-full py-4 bg-blue-600 text-white rounded-2xl font-black uppercase tracking-widest text-[10px] hover:bg-blue-500 active:scale-95 transition-all shadow-xl shadow-blue-600/20 disabled:opacity-50"
+        >
+          {isSubmitting ? "Submitting..." : "Submit Feedback"}
+        </button>
+      </div>
+    </div>
+  );
+}
 
 export default function CitizenDashboard() {
   const [user, setUser] = useState({});
@@ -72,8 +162,17 @@ export default function CitizenDashboard() {
     Rejected: { label: "Invalid Report", color: "rose", icon: <AlertCircle size={16} /> }
   };
 
+  const [feedbackCrime, setFeedbackCrime] = useState(null);
+
   return (
     <div className="p-6 md:p-10 font-sans min-h-full bg-[#f8fafc]">
+      {feedbackCrime && (
+         <FeedbackModal 
+           crime={feedbackCrime} 
+           onClose={() => setFeedbackCrime(null)} 
+           onSubmit={() => fetchMyReports()} 
+         />
+      )}
       {/* Welcome Banner */}
       <div className="mb-8 p-8 md:p-12 rounded-[32px] bg-[#020617] text-white relative overflow-hidden shadow-2xl shadow-blue-900/10 border border-slate-800">
         <div className="absolute inset-0 z-0 opacity-20">
@@ -198,6 +297,11 @@ export default function CitizenDashboard() {
                             <button className="px-8 py-4 bg-white border border-slate-200 text-slate-600 rounded-2xl text-[10px] font-black uppercase tracking-widest flex items-center gap-2 hover:bg-slate-50 transition-all">
                                 <Activity size={14} /> Live Support
                             </button>
+                            {currentStep >= 3 && crime.workflow?.assignedToOfficer?._id && (
+                               <button onClick={() => setFeedbackCrime(crime)} className="px-8 py-4 bg-amber-50 text-amber-600 border border-amber-200 rounded-2xl text-[10px] font-black uppercase tracking-widest flex items-center gap-2 hover:bg-amber-100 transition-all">
+                                   <MessageSquare size={14} /> Provide Feedback
+                               </button>
+                            )}
                         </div>
                     </div>
                   </div>

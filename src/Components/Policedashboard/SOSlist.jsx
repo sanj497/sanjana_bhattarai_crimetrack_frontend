@@ -136,6 +136,19 @@ const SOSList = () => {
     return null;
   };
 
+  const getCoordinates = (alert) => {
+    const latitude = alert?.latitude ?? alert?.location?.latitude;
+    const longitude = alert?.longitude ?? alert?.location?.longitude;
+    const hasValidCoordinates =
+      Number.isFinite(latitude) && Number.isFinite(longitude);
+
+    return {
+      latitude,
+      longitude,
+      hasValidCoordinates,
+    };
+  };
+
   if (loading) return (
     <div className="flex items-center justify-center h-64">
       <div className="flex flex-col items-center gap-4">
@@ -207,6 +220,10 @@ const SOSList = () => {
               acknowledged: "blue",
               resolved: "emerald"
             }[item.status] || "slate";
+            const { latitude, longitude, hasValidCoordinates } = getCoordinates(item);
+            const mapsUrl = hasValidCoordinates
+              ? `https://maps.google.com/?q=${latitude},${longitude}`
+              : null;
 
             return (
               <div 
@@ -224,7 +241,7 @@ const SOSList = () => {
                         {getStatusIcon(item.status)}
                       </div>
                       <div>
-                        <div className="text-[10px] font-black text-blue-500 uppercase tracking-widest mb-1">Authenticated Citizen</div>
+                        <div className="text-[10px] font-black text-blue-500 uppercase tracking-widest mb-1">Verified Citizen</div>
                         <h3 className="text-2xl font-black text-white uppercase tracking-tight group-hover:text-blue-400 transition-colors">
                           {item.userId?.name || 'Unknown Operator'}
                         </h3>
@@ -248,12 +265,12 @@ const SOSList = () => {
                     <div className="p-6 bg-slate-950/50 rounded-3xl border border-slate-800/50">
                       <div className="flex items-center gap-3 text-slate-500 mb-2">
                         <MapPin size={16} />
-                        <span className="text-[10px] font-black uppercase tracking-widest">Geolocation</span>
+                        <span className="text-[10px] font-black uppercase tracking-widest">Reported Location</span>
                       </div>
                       <p className="text-lg font-black text-white italic tracking-tighter">
-                        {item.latitude && item.longitude ? 
-                          `${item.latitude.toFixed(6)}, ${item.longitude.toFixed(6)}` : 
-                          'COORDS REDACTED'
+                        {hasValidCoordinates
+                          ? `${latitude.toFixed(6)}, ${longitude.toFixed(6)}`
+                          : "Location unavailable"
                         }
                       </p>
                       {item.accuracy && (
@@ -307,21 +324,31 @@ const SOSList = () => {
                       </button>
                     )}
                     
-                    <a
-                      href={`https://maps.google.com/?q=${item.latitude},${item.longitude}`}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="px-8 py-4 bg-slate-800 text-slate-300 rounded-2xl hover:bg-slate-700 transition-all text-[10px] font-black uppercase tracking-widest flex items-center gap-3 italic"
-                    >
-                      <MapPin className="h-4 w-4" /> Intel Map View
-                    </a>
+                    {mapsUrl ? (
+                      <a
+                        href={mapsUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="px-8 py-4 bg-slate-800 text-slate-300 rounded-2xl hover:bg-slate-700 transition-all text-[10px] font-black uppercase tracking-widest flex items-center gap-3 italic"
+                      >
+                        <MapPin className="h-4 w-4" /> View Reported Location
+                      </a>
+                    ) : (
+                      <button
+                        type="button"
+                        disabled
+                        className="px-8 py-4 bg-slate-900 text-slate-500 rounded-2xl border border-slate-800 transition-all text-[10px] font-black uppercase tracking-widest flex items-center gap-3 cursor-not-allowed"
+                      >
+                        <MapPin className="h-4 w-4" /> Location Not Available
+                      </button>
+                    )}
                     
                     {item.userId?.phone && (
                       <a
                         href={`tel:${item.userId.phone}`}
                         className="px-8 py-4 bg-slate-800 text-blue-500 rounded-2xl hover:bg-slate-700 transition-all text-[10px] font-black uppercase tracking-widest flex items-center gap-3 italic"
                       >
-                        <Phone className="h-4 w-4" /> Established Comms
+                        <Phone className="h-4 w-4" /> Contact Citizen
                       </a>
                     )}
                   </div>

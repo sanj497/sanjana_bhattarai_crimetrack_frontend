@@ -3,7 +3,6 @@ import React, { useState, useEffect } from "react";
 import Login from "../Pages/Login";
 import Register from "../Pages/Register";
 import RegisterAdmin from "../Pages/RegisterAdmin.jsx";
-import RegisterPolice from "../Pages/RegisterPolice.jsx";
 import CrimeReportingHome from "../Pages/Home";
 import ReportCrime from "../Pages/CrimeReport/report.jsx";
 
@@ -101,7 +100,6 @@ function App() {
         <Route path="/login" element={<GuestOnlyRoute><Login /></GuestOnlyRoute>} />
         <Route path="/register" element={<GuestOnlyRoute><Register /></GuestOnlyRoute>} />
         <Route path="/register-admin" element={<GuestOnlyRoute><RegisterAdmin /></GuestOnlyRoute>} />
-        <Route path="/register-police" element={<GuestOnlyRoute><RegisterPolice /></GuestOnlyRoute>} />
 
         {/* ── PUBLIC EMERGENCY ROUTE ─────────────────────────────── */}
         <Route path="/emergency" element={<EmergencyContactsApp />} />

@@ -37,7 +37,7 @@ const Users = () => {
       const token = localStorage.getItem("token");
 
       await axios.put(
-        `https://sanjana-bhattarai-crimetrack-backend.onrender.com/api/auth/update-role/${id}`,
+        `${import.meta.env.VITE_BACKEND_URL}/api/auth/update-role/${id}`,
         { role: "police" },
         {
           headers: {
@@ -58,7 +58,7 @@ const Users = () => {
       const token = localStorage.getItem("token");
 
       await axios.put(
-        `https://sanjana-bhattarai-crimetrack-backend.onrender.com/api/auth/update-role/${id}`,
+        `${import.meta.env.VITE_BACKEND_URL}/api/auth/update-role/${id}`,
         { role: "user" },
         {
           headers: {
@@ -70,6 +70,24 @@ const Users = () => {
       fetchUsers();
     } catch (err) {
       alert(err.response?.data?.msg || "Error");
+    }
+  };
+
+  const verifyPoliceApplication = async (id, action) => {
+    try {
+      const token = localStorage.getItem("token");
+      await axios.put(
+        `${import.meta.env.VITE_BACKEND_URL}/api/auth/verify-police/${id}`,
+        { action },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+      fetchUsers();
+    } catch (err) {
+      alert(err.response?.data?.msg || "Verification failed");
     }
   };
 
@@ -131,8 +149,43 @@ const Users = () => {
                   </div>
                 </div>
 
-                {/* BUTTON LOGIC */}
-                {user.role === "police" ? (
+                {user.policeVerification?.status === "pending" && (
+                  <div style={{ marginBottom: "14px", padding: "12px", background: "rgba(245, 158, 11, 0.1)", border: "1px solid rgba(245, 158, 11, 0.2)", borderRadius: "10px" }}>
+                    <div style={{ fontSize: "11px", color: "#fbbf24", fontWeight: 700, marginBottom: "6px" }}>
+                      Pending Police Verification
+                    </div>
+                    <div style={{ fontSize: "12px", color: "#cbd5e1", lineHeight: "1.6" }}>
+                      Station: {user.policeVerification?.stationDistrict || "N/A"}<br />
+                      Badge: {user.policeVerification?.badgeNumber || "N/A"}<br />
+                      Department: {user.policeVerification?.department || "N/A"}
+                    </div>
+                  </div>
+                )}
+
+                {user.policeVerification?.status === "pending" ? (
+                  <div style={{ display: "flex", gap: "10px" }}>
+                    <button
+                      onClick={() => verifyPoliceApplication(user._id, "approve")}
+                      style={{
+                        width: "100%", padding: "12px", borderRadius: "12px",
+                        background: "rgba(34, 197, 94, 0.1)", color: "#4ade80", border: "1px solid rgba(34, 197, 94, 0.2)",
+                        fontSize: "12px", fontWeight: 800, cursor: "pointer", transition: "all 0.2s"
+                      }}
+                    >
+                      APPROVE POLICE
+                    </button>
+                    <button
+                      onClick={() => verifyPoliceApplication(user._id, "reject")}
+                      style={{
+                        width: "100%", padding: "12px", borderRadius: "12px",
+                        background: "rgba(239, 68, 68, 0.1)", color: "#f87171", border: "1px solid rgba(239, 68, 68, 0.2)",
+                        fontSize: "12px", fontWeight: 800, cursor: "pointer", transition: "all 0.2s"
+                      }}
+                    >
+                      REJECT
+                    </button>
+                  </div>
+                ) : user.role === "police" ? (
                   <button
                     onClick={() => removePolice(user._id)}
                     style={{

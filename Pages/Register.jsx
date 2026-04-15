@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import React from "react";
-import { Mail, Lock, ArrowRight, Shield, Activity, ChevronLeft, User, MapPin } from "lucide-react";
+import { Mail, Lock, ArrowRight, Shield, Activity, ChevronLeft, User, MapPin, Briefcase, BadgeCheck } from "lucide-react";
 
 const Register = () => {
   const navigate = useNavigate();
@@ -13,7 +13,11 @@ const Register = () => {
     email: "",
     password: "",
     confirmPassword: "",
-    location: ""
+    location: "",
+    role: "user",
+    stationDistrict: "",
+    badgeNumber: "",
+    department: "",
   });
 
   const [otp, setOtp] = useState("");
@@ -31,8 +35,14 @@ const Register = () => {
     setMessage("");
     setError(false);
 
-    if (!form.username || !form.email || !form.password || !form.confirmPassword || !form.location) {
+    if (!form.username || !form.email || !form.password || !form.confirmPassword) {
       setMessage("Please fill all required fields.");
+      setError(true);
+      return;
+    }
+
+    if (form.role === "police" && (!form.stationDistrict || !form.badgeNumber || !form.department)) {
+      setMessage("Please complete all police verification details.");
       setError(true);
       return;
     }
@@ -52,14 +62,22 @@ const Register = () => {
           username: form.username,
           email: form.email,
           password: form.password,
-          location: form.location
+          location: form.location,
+          role: form.role,
+          stationDistrict: form.role === "police" ? form.stationDistrict : undefined,
+          badgeNumber: form.role === "police" ? form.badgeNumber : undefined,
+          department: form.role === "police" ? form.department : undefined,
         })
       });
 
       const data = await res.json();
 
       if (res.ok) {
-        setMessage("Security OTP sent to your email.");
+        setMessage(
+          form.role === "police"
+            ? "OTP sent. After verification, your police profile will be reviewed by an admin."
+            : "Security OTP sent to your email."
+        );
         setError(false);
         setStep("otp");
       } else {
@@ -161,10 +179,28 @@ const Register = () => {
             <>
               <div className="mb-10 text-center md:text-left">
                 <h2 className="text-3xl font-bold text-[#0B1F3B] mb-2" style={{ fontFamily: "Poppins, sans-serif" }}>Create Identity</h2>
-                <p className="text-[#6B7280]">We will require email verification prior to activation.</p>
+                <p className="text-[#6B7280]">Select your registration role and verify your email to activate your account.</p>
               </div>
 
               <form onSubmit={handleRegister} className="space-y-5">
+                <div className="space-y-1">
+                  <label className="text-sm font-semibold text-[#0B1F3B]">Register As</label>
+                  <div className="relative">
+                    <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                      <Briefcase className="h-5 w-5 text-gray-400" />
+                    </div>
+                    <select
+                      name="role"
+                      value={form.role}
+                      onChange={handleChange}
+                      className="w-full pl-11 pr-4 py-3.5 bg-[#F7F9FC] border border-gray-200 rounded-[12px] focus:outline-none focus:ring-2 focus:ring-[#1E5EFF]/50 focus:bg-white transition text-[#111827]"
+                    >
+                      <option value="user">Citizen</option>
+                      <option value="police">Police Officer</option>
+                    </select>
+                  </div>
+                </div>
+
                 <div className="space-y-1">
                   <label className="text-sm font-semibold text-[#0B1F3B]">Digital Alias / Username</label>
                   <div className="relative">
@@ -218,6 +254,65 @@ const Register = () => {
                     />
                   </div>
                 </div>
+
+                {form.role === "police" && (
+                  <>
+                    <div className="space-y-1">
+                      <label className="text-sm font-semibold text-[#0B1F3B]">Station District</label>
+                      <div className="relative">
+                        <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                          <MapPin className="h-5 w-5 text-gray-400" />
+                        </div>
+                        <input
+                          type="text"
+                          name="stationDistrict"
+                          placeholder="e.g. Kathmandu District"
+                          value={form.stationDistrict}
+                          onChange={handleChange}
+                          className="w-full pl-11 pr-4 py-3.5 bg-[#F7F9FC] border border-gray-200 rounded-[12px] focus:outline-none focus:ring-2 focus:ring-[#1E5EFF]/50 focus:bg-white transition text-[#111827]"
+                          required
+                        />
+                      </div>
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                      <div className="space-y-1">
+                        <label className="text-sm font-semibold text-[#0B1F3B]">Badge Number</label>
+                        <div className="relative">
+                          <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                            <BadgeCheck className="h-5 w-5 text-gray-400" />
+                          </div>
+                          <input
+                            type="text"
+                            name="badgeNumber"
+                            placeholder="Badge ID"
+                            value={form.badgeNumber}
+                            onChange={handleChange}
+                            className="w-full pl-11 pr-4 py-3.5 bg-[#F7F9FC] border border-gray-200 rounded-[12px] focus:outline-none focus:ring-2 focus:ring-[#1E5EFF]/50 focus:bg-white transition text-[#111827]"
+                            required
+                          />
+                        </div>
+                      </div>
+                      <div className="space-y-1">
+                        <label className="text-sm font-semibold text-[#0B1F3B]">Department</label>
+                        <div className="relative">
+                          <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                            <Shield className="h-5 w-5 text-gray-400" />
+                          </div>
+                          <input
+                            type="text"
+                            name="department"
+                            placeholder="Police Department"
+                            value={form.department}
+                            onChange={handleChange}
+                            className="w-full pl-11 pr-4 py-3.5 bg-[#F7F9FC] border border-gray-200 rounded-[12px] focus:outline-none focus:ring-2 focus:ring-[#1E5EFF]/50 focus:bg-white transition text-[#111827]"
+                            required
+                          />
+                        </div>
+                      </div>
+                    </div>
+                  </>
+                )}
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
                   <div className="space-y-1">

@@ -21,6 +21,7 @@ const Policereport = () => {
   const [filter, setFilter] = useState("All");
   const [searchTerm, setSearchTerm] = useState("");
   const [updatingId, setUpdatingId] = useState(null);
+  const [expandedCrimeIds, setExpandedCrimeIds] = useState(new Set());
 
   const API_BASE = `${import.meta.env.VITE_BACKEND_URL}/api/report`;
 
@@ -77,6 +78,18 @@ const Policereport = () => {
     } finally {
       setUpdatingId(null);
     }
+  };
+
+  const toggleDetails = (crimeId) => {
+    setExpandedCrimeIds((prev) => {
+      const next = new Set(prev);
+      if (next.has(crimeId)) {
+        next.delete(crimeId);
+      } else {
+        next.add(crimeId);
+      }
+      return next;
+    });
   };
 
   const statusConfig = {
@@ -213,14 +226,22 @@ const Policereport = () => {
               {/* Actions */}
               <div className="flex flex-wrap gap-3 pt-4 border-t border-slate-800/50">
                 {crime.status === "ForwardedToPolice" && (
-                   <button 
-                    onClick={() => updateStatus(crime._id, "UnderInvestigation")}
-                    disabled={updatingId === crime._id}
-                    className="flex-1 bg-blue-600 hover:bg-blue-500 text-white py-4 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all disabled:opacity-50 flex items-center justify-center gap-2 shadow-lg shadow-blue-600/10"
-                   >
-                     {updatingId === crime._id ? "Processing..." : "Accept & Investigate"}
-                     <ChevronRight size={14} />
-                   </button>
+                  <>
+                    <button
+                      onClick={() => toggleDetails(crime._id)}
+                      className="bg-slate-800 hover:bg-slate-700 text-slate-200 px-6 py-4 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all border border-slate-700"
+                    >
+                      {expandedCrimeIds.has(crime._id) ? "Hide Details" : "View Details"}
+                    </button>
+                    <button 
+                      onClick={() => updateStatus(crime._id, "UnderInvestigation")}
+                      disabled={updatingId === crime._id}
+                      className="flex-1 bg-blue-600 hover:bg-blue-500 text-white py-4 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all disabled:opacity-50 flex items-center justify-center gap-2 shadow-lg shadow-blue-600/10"
+                    >
+                      {updatingId === crime._id ? "Processing..." : "Accept & Investigate"}
+                      <ChevronRight size={14} />
+                    </button>
+                  </>
                 )}
 
                 {crime.status === "UnderInvestigation" && (
@@ -243,6 +264,35 @@ const Policereport = () => {
                    </>
                 )}
               </div>
+
+              {crime.status === "ForwardedToPolice" && expandedCrimeIds.has(crime._id) && (
+                <div className="mt-4 p-5 rounded-3xl bg-slate-950/60 border border-slate-800/40">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
+                    <div>
+                      <p className="text-[9px] font-black text-slate-500 uppercase tracking-[2px] mb-1">Case ID</p>
+                      <p className="text-slate-200 font-semibold break-all">{crime._id}</p>
+                    </div>
+                    <div>
+                      <p className="text-[9px] font-black text-slate-500 uppercase tracking-[2px] mb-1">Reported By</p>
+                      <p className="text-slate-200 font-semibold">{crime.userId?.username || crime.userId?.email || "Unknown Reporter"}</p>
+                    </div>
+                    <div>
+                      <p className="text-[9px] font-black text-slate-500 uppercase tracking-[2px] mb-1">Priority</p>
+                      <p className="text-slate-200 font-semibold">{crime.priority || "Medium"}</p>
+                    </div>
+                    <div>
+                      <p className="text-[9px] font-black text-slate-500 uppercase tracking-[2px] mb-1">Evidence Files</p>
+                      <p className="text-slate-200 font-semibold">{crime.evidence?.length || 0}</p>
+                    </div>
+                  </div>
+                  {crime.adminNotes && (
+                    <div className="mt-4">
+                      <p className="text-[9px] font-black text-slate-500 uppercase tracking-[2px] mb-1">Admin Notes</p>
+                      <p className="text-slate-300 text-sm">{crime.adminNotes}</p>
+                    </div>
+                  )}
+                </div>
+              )}
             </div>
           ))
         )}

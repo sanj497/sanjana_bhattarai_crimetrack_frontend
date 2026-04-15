@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Shield, AlertTriangle, FileText, MapPin, Bell, Search, Menu, X, Siren, LogOut, LayoutDashboard, Send, PhoneCall } from 'lucide-react';
+import { Shield, AlertTriangle, FileText, MapPin, Bell, Search, Menu, X, Siren, LogOut, LayoutDashboard, PhoneCall } from 'lucide-react';
 import { useNavigate, Outlet, Link, useLocation } from 'react-router-dom';
 
 const getUser = () => {
@@ -37,7 +37,6 @@ export default function PoliceLayout() {
   const menuItems = [
     { name: 'Dashboard', icon: LayoutDashboard, path: '/police/dashboard' },
     { name: 'Reports', icon: FileText, path: '/police/reports' },
-    { name: 'Forwarded', icon: Send, path: '/police/forward' },
     { name: 'SOS Alerts', icon: Siren, path: '/police/sos', badge: '3' },
     { name: 'Notifications', icon: Bell, path: '/notifications' },
     { name: 'Emergency', icon: PhoneCall, path: '/police/emergency' },

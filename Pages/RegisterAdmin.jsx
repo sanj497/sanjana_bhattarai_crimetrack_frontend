@@ -237,8 +237,8 @@ const RegisterAdmin = () => {
                   <Link to="/login" className="font-bold text-purple-600 hover:text-purple-700 transition">Sign In</Link>
                 </p>
                 <p className="text-[#6B7280] text-xs mt-2">
-                  Register as Police Officer?{" "}
-                  <Link to="/register-police" className="font-semibold text-blue-600 hover:text-blue-700 transition">Police Portal</Link>
+                  Registering as a police officer?{" "}
+                  <Link to="/register" className="font-semibold text-blue-600 hover:text-blue-700 transition">Use standard registration and select Police Officer</Link>
                 </p>
               </div>
             </>
