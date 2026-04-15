@@ -1,5 +1,5 @@
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
-import React from "react";
+import React, { useState, useEffect } from "react";
 import Login from "../Pages/Login";
 import Register from "../Pages/Register";
 import RegisterAdmin from "../Pages/RegisterAdmin.jsx";
@@ -42,11 +42,19 @@ import "react-toastify/dist/ReactToastify.css";
 import { useSocket } from "./hooks/useSocket.js";
 
 function SocketWrapper({ children }) {
+  const [socketError, setSocketError] = useState(false);
+  
   try {
-    useSocket();
+    const socket = useSocket();
   } catch (error) {
     console.warn("Socket initialization failed:", error);
+    setSocketError(true);
   }
+  
+  if (socketError) {
+    console.warn("Socket functionality disabled due to initialization error");
+  }
+  
   return <>{children}</>;
 }
 

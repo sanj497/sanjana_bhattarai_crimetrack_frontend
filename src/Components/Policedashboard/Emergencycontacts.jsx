@@ -50,19 +50,6 @@ function SOSButton() {
   const [message, setMessage] = useState("");
   const [alertId, setAlertId] = useState(null);
 
-  useEffect(() => {
-    let interval;
-    if (status === "active" && alertId) {
-      interval = setInterval(() => {
-        navigator.geolocation.getCurrentPosition(
-          (pos) => updateTracking(pos.coords.latitude, pos.coords.longitude, pos.coords.accuracy),
-          (error) => console.error("Tracking error:", error)
-        );
-      }, 10000); // Update every 10 seconds
-    }
-    return () => clearInterval(interval);
-  }, [status, alertId, updateTracking]);
-
   const updateTracking = useCallback(async (lat, lng, accuracy) => {
     try {
       const token = localStorage.getItem("token");
@@ -84,6 +71,19 @@ function SOSButton() {
       console.error("Failed to update SOS location:", err);
     }
   }, [alertId]);
+
+  useEffect(() => {
+    let interval;
+    if (status === "active" && alertId) {
+      interval = setInterval(() => {
+        navigator.geolocation.getCurrentPosition(
+          (pos) => updateTracking(pos.coords.latitude, pos.coords.longitude, pos.coords.accuracy),
+          (error) => console.error("Tracking error:", error)
+        );
+      }, 10000); // Update every 10 seconds
+    }
+    return () => clearInterval(interval);
+  }, [status, alertId, updateTracking]);
 
   const handleSOS = async () => {
     if (!window.confirm(" Send CRITICAL SOS alert? This will immediately notify all police units and emergency services with your live location.")) return;

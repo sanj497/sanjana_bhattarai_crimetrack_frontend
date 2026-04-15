@@ -42,11 +42,11 @@ const SOSList = () => {
       ));
     };
     
-    socket.on("critical_sos_alert", handleCriticalSOSAlert);
+    socket.on("new_sos_alert", handleCriticalSOSAlert);
     socket.on("sos_location_update", handleSOSLocationUpdate);
     
     return () => {
-      socket.off("critical_sos_alert", handleCriticalSOSAlert);
+      socket.off("new_sos_alert", handleCriticalSOSAlert);
       socket.off("sos_location_update", handleSOSLocationUpdate);
     };
   }, [socket, fetchSOS]);
