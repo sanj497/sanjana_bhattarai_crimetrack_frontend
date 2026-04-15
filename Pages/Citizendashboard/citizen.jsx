@@ -19,7 +19,7 @@ import {
   TrendingUp,
   Radio
 } from "lucide-react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 
 function FeedbackModal({ crime, onClose, onSubmit }) {
@@ -111,6 +111,7 @@ function FeedbackModal({ crime, onClose, onSubmit }) {
 }
 
 export default function CitizenDashboard() {
+  const navigate = useNavigate();
   const [user, setUser] = useState({});
   const [myCrimes, setMyCrimes] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -325,13 +326,16 @@ export default function CitizenDashboard() {
                             </div>
                         </div>
 
-                        <div className="flex flex-col gap-3 lg:border-l lg:border-slate-100 lg:pl-10">
-                            <button className="px-8 py-4 bg-slate-900 text-white rounded-2xl text-[10px] font-black uppercase tracking-widest flex items-center gap-2 hover:bg-slate-800 transition-all whitespace-nowrap">
-                                <Eye size={14} /> Intelligence Log
-                            </button>
-                            <button className="px-8 py-4 bg-white border border-slate-200 text-slate-600 rounded-2xl text-[10px] font-black uppercase tracking-widest flex items-center gap-2 hover:bg-slate-50 transition-all">
-                                <Activity size={14} /> Live Support
-                            </button>
+                            <div className="flex flex-col gap-3 lg:border-l lg:border-slate-100 lg:pl-10">
+                                <button 
+                                  onClick={() => navigate('/citizen/tracking')}
+                                  className="px-8 py-4 bg-slate-900 text-white rounded-2xl text-[10px] font-black uppercase tracking-widest flex items-center gap-2 hover:bg-slate-800 transition-all whitespace-nowrap"
+                                >
+                                    <Eye size={14} /> Intelligence Log
+                                </button>
+                                <button className="px-8 py-4 bg-white border border-slate-200 text-slate-600 rounded-2xl text-[10px] font-black uppercase tracking-widest flex items-center gap-2 hover:bg-slate-50 transition-all">
+                                    <Activity size={14} /> Live Support
+                                </button>
                             {currentStep >= 3 && crime.workflow?.assignedToOfficer?._id && (
                                <button onClick={() => setFeedbackCrime(crime)} className="px-8 py-4 bg-amber-50 text-amber-600 border border-amber-200 rounded-2xl text-[10px] font-black uppercase tracking-widest flex items-center gap-2 hover:bg-amber-100 transition-all">
                                    <MessageSquare size={14} /> Provide Feedback

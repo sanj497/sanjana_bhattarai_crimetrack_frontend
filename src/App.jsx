@@ -29,6 +29,7 @@ import EmergencyContactsApp from "./Components/Policedashboard/Emergencycontacts
 import AdminLayout from "./Components/Layouts/AdminLayout.jsx";
 import PoliceLayout from "./Components/Layouts/PoliceLayout.jsx";
 import CitizenLayout from "./Components/Layouts/CitizenLayout.jsx";
+import IncidentTracking from "./Components/CitizenDashboard/IncidentTracking.jsx";
 
 import ForgotPassword from "../Pages/ForgotPassword.jsx";
 import ResetPassword from "../Pages/ResetPassword.jsx";
@@ -128,9 +129,9 @@ function App() {
           <Route path="/police/emergency" element={<EmergencyContactsApp />} />
         </Route>
 
-        {/* ── CITIZEN ROUTES (role: user) ────────────────────────────── */}
         <Route element={<CitizenRoute><CitizenLayout /></CitizenRoute>}>
           <Route path="/citizen" element={<CitizenDashboard />} />
+          <Route path="/citizen/tracking" element={<IncidentTracking />} />
           <Route path="/community" element={<CommunityBoard />} />
           <Route path="/transparency" element={<TransparencyHub />} />
           <Route path="/notifications" element={<Notifications />} />
