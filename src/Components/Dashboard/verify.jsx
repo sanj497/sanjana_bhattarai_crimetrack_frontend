@@ -310,12 +310,30 @@ const Verify = () => {
                   </div>
 
                   <div>
-                     <label className="text-[9px] font-black text-slate-600 uppercase tracking-[2px] block mb-3">Field Deployment Location</label>
+                     <label className="text-[9px] font-black text-slate-600 uppercase tracking-[2px] block mb-3">Field Deployment Map / Intelligence</label>
+                     <div className="rounded-3xl border border-slate-800/50 overflow-hidden h-64 w-full shadow-2xl mb-4">
+                       {report.location?.lat && report.location?.lng ? (
+                         <iframe
+                           width="100%"
+                           height="100%"
+                           frameBorder="0"
+                           style={{ border: 0, filter: 'invert(90%) hue-rotate(180deg) brightness(95%) contrast(90%)' }} // Cyberpunk/Dark mode map
+                           src={`https://maps.google.com/maps?q=${report.location.lat},${report.location.lng}&t=&z=15&ie=UTF8&iwloc=&output=embed`}
+                           allowFullScreen
+                         ></iframe>
+                       ) : (
+                         <div className="w-full h-full bg-slate-950 flex flex-col items-center justify-center text-slate-600 gap-2">
+                           <MapPin size={32} className="opacity-20" />
+                           <span className="text-[10px] font-black uppercase tracking-widest opacity-40">Coordinate Data Missing</span>
+                         </div>
+                       )}
+                     </div>
+
                      <div className="flex items-start gap-3 p-5 bg-slate-950/30 rounded-3xl border border-slate-800/30">
                         <MapPin size={20} className="text-blue-600 shrink-0 mt-0.5" />
                         <div>
                            <div className="text-white text-sm font-black tracking-tight mb-1">{report.location?.address || "Coordinate Vectors Only"}</div>
-                           <div className="text-slate-500 text-[9px] font-bold">Lat: {report.location?.coordinates?.[1] || "—"} / Lon: {report.location?.coordinates?.[0] || "—"}</div>
+                           <div className="text-slate-500 text-[9px] font-bold">Lat: {report.location?.lat || report.location?.coordinates?.[1] || "—"} / Lon: {report.location?.lng || report.location?.coordinates?.[0] || "—"}</div>
                         </div>
                      </div>
                   </div>
