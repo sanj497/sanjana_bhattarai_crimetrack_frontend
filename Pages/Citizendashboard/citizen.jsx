@@ -247,6 +247,4 @@ export default function CitizenDashboard() {
       </div>
     </div>
   );
-}
-
-}
+}
