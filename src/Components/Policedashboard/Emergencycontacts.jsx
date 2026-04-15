@@ -212,7 +212,7 @@ function SOSButton() {
 }
 
 // ─── Contact Card ─────────────────────────────────────────────────────────────
-function ContactCard({ contact, onDelete }) {
+function ContactCard({ contact, onDelete, isResponder }) {
   const cfg = categoryConfig[contact.category] || categoryConfig.other;
   const handleCall = () => {
     if (confirm(`Call ${contact.name} at ${contact.number}?`)) {
@@ -233,7 +233,9 @@ function ContactCard({ contact, onDelete }) {
             </span>
           </div>
         </div>
-        <button onClick={() => onDelete(contact._id)} className="text-gray-300 hover:text-red-500 transition-colors text-lg leading-none" title="Delete">×</button>
+        {isResponder && (
+          <button onClick={() => onDelete(contact._id)} className="text-gray-300 hover:text-red-500 transition-colors text-lg leading-none" title="Delete">×</button>
+        )}
       </div>
       {contact.description && <p className="text-sm text-gray-500">{contact.description}</p>}
       <div className="flex items-center justify-between mt-1">
@@ -307,6 +309,19 @@ function AddContactModal({ onClose, onSaved }) {
 
 // ─── Main App ─────────────────────────────────────────────────────────────────
 export default function EmergencyContactsApp() {
+  const getUserRole = () => {
+    try {
+      const userStr = localStorage.getItem("user");
+      if (userStr) {
+        return JSON.parse(userStr).role;
+      }
+    } catch {}
+    return "guest";
+  };
+  
+  const role = getUserRole();
+  const isResponder = role === "police" || role === "admin";
+
   const [contacts, setContacts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -314,7 +329,7 @@ export default function EmergencyContactsApp() {
   const [showModal, setShowModal] = useState(false);
   const [seeding, setSeeding] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
-  const [activeTab, setActiveTab] = useState("sos"); // "sos" | "contacts"
+  const [activeTab, setActiveTab] = useState(isResponder ? "contacts" : "sos"); // Default to contacts for police
 
   const fetchContacts = async (category) => {
     setLoading(true);
@@ -328,27 +343,7 @@ export default function EmergencyContactsApp() {
     finally { setLoading(false); }
   };
 
-  useEffect(() => { fetchContacts(filterCategory); }, [filterCategory]);
-
-  const handleSeed = async () => {
-    setSeeding(true);
-    try {
-      const res = await fetch(`${API_BASE}/seed`, { method: "POST" });
-      const data = await res.json();
-      if (data.success) fetchContacts(filterCategory);
-    } catch { setError("Seed failed."); }
-    finally { setSeeding(false); }
-  };
-
-  const handleDelete = async (id) => {
-    if (!confirm("Delete this contact?")) return;
-    try {
-      await fetch(`${API_BASE}/${id}`, { method: "DELETE" });
-      setContacts(prev => prev.filter(c => c._id !== id));
-    } catch { setError("Delete failed."); }
-  };
-
-  const filtered = contacts.filter(c =>
+  useEffect(() => { fetchContacts(filterCategory); }, [filt  const filtered = contacts.filter(c =>
     c.name.toLowerCase().includes(searchTerm.toLowerCase()) || c.number.includes(searchTerm)
   );
 
@@ -368,21 +363,30 @@ export default function EmergencyContactsApp() {
       {/* Tab Bar */}
       <div className="sticky top-0 z-20 bg-white border-b border-gray-100 shadow-sm">
         <div className="max-w-2xl mx-auto flex">
-          {[["sos", "🆘 SOS"], ["contacts", "📋 All Contacts"]].map(([tab, label]) => (
-            <button key={tab} onClick={() => setActiveTab(tab)}
+          {!isResponder && (
+            <button
+              onClick={() => setActiveTab("sos")}
               className={`flex-1 py-3.5 text-sm font-bold transition-all border-b-2 ${
-                activeTab === tab ? "border-red-600 text-red-600" : "border-transparent text-gray-400 hover:text-gray-600"
-              }`}>
-              {label}
+                activeTab === "sos" ? "border-red-600 text-red-600" : "border-transparent text-gray-400 hover:text-gray-600"
+              }`}
+            >
+              🆘 SOS Signal
             </button>
-          ))}
+          )}
+          <button
+            onClick={() => setActiveTab("contacts")}
+            className={`flex-1 py-3.5 text-sm font-bold transition-all border-b-2 ${
+              activeTab === "contacts" ? "border-red-600 text-red-600" : "border-transparent text-gray-400 hover:text-gray-600"
+            }`}
+          >
+            📋 Emergency Directory
+          </button>
         </div>
       </div>
 
       <div className="max-w-2xl mx-auto px-4 py-6 space-y-6">
-
         {/* ── SOS TAB ── */}
-        {activeTab === "sos" && (
+        {!isResponder && activeTab === "sos" && (
           <>
             {/* SOS Button */}
             <div className="bg-white rounded-3xl shadow-lg border border-red-100 p-8 flex flex-col items-center gap-2">
@@ -398,7 +402,7 @@ export default function EmergencyContactsApp() {
 
             {/* Tip */}
             <div className="bg-red-50 border border-red-200 rounded-2xl p-4 text-sm text-red-800">
-              <p className="font-semibold mb-1">� CRITICAL SOS INFORMATION</p>
+              <p className="font-semibold mb-1">CRITICAL SOS INFORMATION</p>
               <ul className="list-disc list-inside space-y-1 text-red-700">
                 <li>Tap <strong>SOS</strong> to dispatch ALL police units immediately</li>
                 <li>Your <strong>live GPS location</strong> is shared with emergency services</li>
@@ -415,36 +419,56 @@ export default function EmergencyContactsApp() {
             {/* Search */}
             <div className="bg-white border border-gray-200 rounded-2xl flex items-center px-4 py-2.5 gap-2 shadow-sm">
               <span className="text-gray-400">🔍</span>
-              <input value={searchTerm} onChange={e => setSearchTerm(e.target.value)}
+              <input
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
                 placeholder="Search contacts or numbers..."
-                className="bg-transparent text-gray-700 text-sm flex-1 outline-none" />
+                className="bg-transparent text-gray-700 text-sm flex-1 outline-none"
+              />
             </div>
 
             {/* Category Filter */}
             <div className="flex gap-2 overflow-x-auto pb-1">
-              {["all", ...Object.keys(categoryConfig)].map(cat => (
-                <button key={cat} onClick={() => setFilterCategory(cat)}
+              {["all", ...Object.keys(categoryConfig)].map((cat) => (
+                <button
+                  key={cat}
+                  onClick={() => setFilterCategory(cat)}
                   className={`flex-shrink-0 px-4 py-2 rounded-full text-sm font-medium transition-all ${
-                    filterCategory === cat ? "bg-red-600 text-white shadow-md" : "bg-white text-gray-600 border border-gray-200 hover:border-red-300"
-                  }`}>
-                  {cat === "all" ? "🔴 All" : `${categoryConfig[cat].icon} ${cat.charAt(0).toUpperCase()+cat.slice(1)}`}
+                    filterCategory === cat
+                      ? "bg-red-600 text-white shadow-md"
+                      : "bg-white text-gray-600 border border-gray-200 hover:border-red-300"
+                  }`}
+                >
+                  {cat === "all" ? "🔴 All" : `${categoryConfig[cat].icon} ${cat.charAt(0).toUpperCase() + cat.slice(1)}`}
                 </button>
               ))}
             </div>
 
             {/* Actions */}
-            <div className="flex gap-3">
-              <button onClick={() => setShowModal(true)} className="flex-1 bg-red-600 text-white py-3 rounded-xl font-semibold text-sm hover:bg-red-700 active:scale-95 transition-all shadow">
-                + Add Contact
-              </button>
-              <button onClick={handleSeed} disabled={seeding} className="flex-1 bg-white border border-gray-200 text-gray-700 py-3 rounded-xl font-semibold text-sm hover:bg-gray-50 active:scale-95 transition-all disabled:opacity-50">
-                {seeding ? "Seeding..." : "🌱 Load Defaults"}
-              </button>
-            </div>
+            {isResponder && (
+              <div className="flex gap-3">
+                <button
+                  onClick={() => setShowModal(true)}
+                  className="flex-1 bg-red-600 text-white py-3 rounded-xl font-semibold text-sm hover:bg-red-700 active:scale-95 transition-all shadow"
+                >
+                  + Add Contact
+                </button>
+                <button
+                  onClick={handleSeed}
+                  disabled={seeding}
+                  className="flex-1 bg-white border border-gray-200 text-gray-700 py-3 rounded-xl font-semibold text-sm hover:bg-gray-50 active:scale-95 transition-all disabled:opacity-50"
+                >
+                  {seeding ? "Seeding..." : "🌱 Load Defaults"}
+                </button>
+              </div>
+            )}
 
             {error && (
               <div className="bg-red-50 border border-red-200 text-red-600 text-sm p-3 rounded-xl flex justify-between">
-                {error}<button onClick={() => setError("")} className="font-bold">×</button>
+                {error}
+                <button onClick={() => setError("")} className="font-bold">
+                  ×
+                </button>
               </div>
             )}
 
@@ -461,16 +485,24 @@ export default function EmergencyContactsApp() {
               </div>
             ) : (
               <div className="grid gap-4">
-                {filtered.map(contact => <ContactCard key={contact._id} contact={contact} onDelete={handleDelete} />)}
+                {filtered.map((contact) => (
+                  <ContactCard key={contact._id} contact={contact} onDelete={handleDelete} isResponder={isResponder} />
+                ))}
               </div>
             )}
 
-            <p className="text-center text-xs text-gray-400 pb-4">{filtered.length} contact{filtered.length !== 1 ? "s" : ""} available</p>
+            <p className="text-center text-xs text-gray-400 pb-4">
+              {filtered.length} contact{filtered.length !== 1 ? "s" : ""} available
+            </p>
           </>
         )}
       </div>
 
-      {showModal && <AddContactModal onClose={() => setShowModal(false)} onSaved={c => setContacts(prev => [c, ...prev])} />}
+      {showModal && (
+        <AddContactModal onClose={() => setShowModal(false)} onSaved={(c) => setContacts((prev) => [c, ...prev])} />
+      )}
+    </div>
+  );
     </div>
   );
 }
