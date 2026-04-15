@@ -133,7 +133,7 @@ const Verify = () => {
         throw new Error(data.error || "Forwarding failed");
       }
 
-      alert(`Case successfully forwarded to ${selectedOfficer.name}`);
+      alert(`Case successfully forwarded to ${selectedOfficer.name || selectedOfficer.username}`);
       navigate("/admin");
     } catch (err) {
       console.error("Forward error:", err);
@@ -415,6 +415,9 @@ const Verify = () => {
                                 </div>
                                 <div className={`text-[10px] font-bold ${selectedOfficer?._id === officer._id ? 'text-blue-500' : 'text-blue-200'}`}>
                                   Station: {officer.stationDistrict || "Unknown Sector"}
+                                </div>
+                                <div className={`text-[10px] font-bold ${selectedOfficer?._id === officer._id ? 'text-blue-500' : 'text-blue-200'}`}>
+                                  Distance: {officer.distanceText || "Distance unavailable"}
                                 </div>
                               </div>
                               {selectedOfficer?._id === officer._id && <CheckCircle2 size={18} className="text-blue-600" />}

@@ -1,1 +1,4 @@
 @import "tailwindcss";
+
+/* Leaflet Map Styles */
+@import "leaflet/dist/leaflet.css";
