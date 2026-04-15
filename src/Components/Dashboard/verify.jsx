@@ -33,6 +33,10 @@ const Verify = () => {
   const [selectedOfficer, setSelectedOfficer] = useState(null);
   const [fetchingPolice, setFetchingPolice] = useState(false);
   const [isForwarding, setIsForwarding] = useState(false);
+  const [nearbyCitizens, setNearbyCitizens] = useState([]);
+  const [fetchingCitizens, setFetchingCitizens] = useState(false);
+  const [isBroadcasting, setIsBroadcasting] = useState(false);
+  const [safeMessage, setSafeMessage] = useState("");
 
   // Fetch the specific report details
   useEffect(() => {
@@ -107,6 +111,33 @@ const Verify = () => {
     }
   }, [id, report]);
 
+  // Fetch nearby citizens
+  useEffect(() => {
+    const fetchNearbyCitizens = async () => {
+      const token = localStorage.getItem("token");
+      if (!token || !id || !report) return;
+
+      setFetchingCitizens(true);
+      try {
+        const response = await fetch(`${API_BASE}/${id}/nearby-citizens?radius=10000`, {
+          headers: { "Authorization": `Bearer ${token}` }
+        });
+        const data = await response.json();
+        if (data.success) {
+          setNearbyCitizens(data.citizens || []);
+        }
+      } catch (err) {
+        console.error("Error fetching nearby citizens:", err);
+      } finally {
+        setFetchingCitizens(false);
+      }
+    };
+
+    if (report && report.status === "Verified") {
+      fetchNearbyCitizens();
+    }
+  }, [id, report]);
+
   const handleForwardToPolice = async () => {
     if (!selectedOfficer) {
       alert("Please select a police officer to forward the case.");
@@ -141,6 +172,45 @@ const Verify = () => {
       alert(`Forwarding Error: ${err.message}`);
     } finally {
       setIsForwarding(false);
+    }
+  };
+
+  const handleBroadcastSafeAlert = async () => {
+    if (!nearbyCitizens.length) {
+      alert("No citizens identified in this zone to alert.");
+      return;
+    }
+
+    setIsBroadcasting(true);
+    const token = localStorage.getItem("token");
+
+    try {
+      const citizenIds = nearbyCitizens.map(c => c._id);
+      const response = await fetch(`${API_BASE}/${id}/broadcast-safe-alert`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          citizenIds,
+          customMessage: safeMessage || undefined
+        }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || "Broadcast failed");
+      }
+
+      alert(`✅ Safety alert successfully dispatched to ${data.notifiedCount} citizens in the immediate vicinity.`);
+      setSafeMessage("");
+    } catch (err) {
+      console.error("Broadcast alert error:", err);
+      alert(`Alert failure: ${err.message}`);
+    } finally {
+      setIsBroadcasting(false);
     }
   };
 
@@ -501,6 +571,52 @@ const Verify = () => {
                       </button>
                     </div>
                   </div>
+                )}
+
+                {/* TARGETED COMMUNITY ALERT */}
+                {report.status === "Verified" && (
+                   <div className="bg-slate-900/60 rounded-[40px] border border-slate-800/50 p-8 space-y-6">
+                      <div className="flex items-center gap-3 text-white">
+                         <div className="h-10 w-10 bg-rose-500/10 rounded-2xl flex items-center justify-center text-rose-500">
+                           <MapPin size={20} className="animate-pulse" />
+                         </div>
+                         <div>
+                            <h3 className="text-white text-md font-black tracking-tighter uppercase leading-none">Geofenced Safety Alert</h3>
+                            <p className="text-slate-500 text-[9px] font-bold uppercase tracking-widest mt-1">Targeted Proximity Broadcast</p>
+                         </div>
+                      </div>
+
+                      <p className="text-slate-400 text-[11px] font-bold leading-relaxed">
+                         Issue a targeted alert to citizens registered within <span className="text-amber-500">10km</span> of this incident. This will send an urgent email and dashboard notification.
+                      </p>
+
+                      <div className="space-y-4">
+                         <div className="bg-slate-950/50 rounded-2xl p-4 border border-slate-800/50">
+                            <div className="flex justify-between items-center">
+                               <span className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Nearby Citizens</span>
+                               <span className="bg-blue-600/10 text-blue-500 px-2 py-0.5 rounded-md text-[9px] font-black">{fetchingCitizens ? "Scanning..." : `${nearbyCitizens.length} Identified`}</span>
+                            </div>
+                         </div>
+
+                         <div className="relative">
+                            <textarea 
+                               className="w-full bg-slate-950/50 border border-slate-800/50 rounded-2xl p-6 text-xs font-medium text-slate-300 outline-none focus:border-rose-500/50 transition-all min-h-[120px] placeholder:text-slate-600 resize-none shadow-inner"
+                               placeholder="Optional: Describe the fraud or incident to warn locals... (Default alert used if blank)"
+                               value={safeMessage}
+                               onChange={(e) => setSafeMessage(e.target.value)}
+                            />
+                         </div>
+
+                         <button 
+                            onClick={handleBroadcastSafeAlert}
+                            disabled={isBroadcasting || fetchingCitizens || nearbyCitizens.length === 0}
+                            className="w-full py-5 bg-rose-600/10 border border-rose-500/20 text-rose-500 rounded-[24px] text-[10px] font-black uppercase tracking-[3px] hover:bg-rose-600 hover:text-white transition-all active:scale-95 disabled:opacity-20 flex items-center justify-center gap-2 shadow-lg hover:shadow-rose-600/20"
+                         >
+                            {isBroadcasting ? "Dispatching..." : "Alert Local Community"}
+                            <Send size={14} />
+                         </button>
+                      </div>
+                   </div>
                 )}
             </div>
          </div>
