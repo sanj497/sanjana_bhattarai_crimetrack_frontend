@@ -297,7 +297,7 @@ const Policereport = () => {
                     <p className="text-[9px] font-black text-blue-400 uppercase tracking-[2px] mb-2 flex items-center gap-2">
                       <MapPin size={12} /> Incident Location
                     </p>
-                    <div className="bg-slate-900/80 rounded-2xl border border-slate-800 p-4">
+                    <div className="bg-slate-900/80 rounded-2xl border border-slate-800 p-4 mb-3">
                       <p className="text-slate-200 text-sm font-bold mb-1">{crime.location?.address || "Address not provided"}</p>
                       {(crime.location?.lat && crime.location?.lng) && (
                         <p className="text-slate-500 text-[10px] font-bold uppercase tracking-wider">
@@ -305,6 +305,20 @@ const Policereport = () => {
                         </p>
                       )}
                     </div>
+                    {/* Embedded Map Visualization */}
+                    {(crime.location?.lat && crime.location?.lng) && (
+                      <div className="rounded-2xl overflow-hidden border border-slate-800 h-48 relative">
+                        <iframe
+                          title={`Location View - ${crime._id}`}
+                          width="100%"
+                          height="100%"
+                          style={{ border: 0, filter: 'invert(90%) hue-rotate(180deg)' }} // Pseudo dark mode for map
+                          loading="lazy"
+                          referrerPolicy="no-referrer-when-downgrade"
+                          src={`https://www.openstreetmap.org/export/embed.html?bbox=${Number(crime.location.lng) - 0.005}%2C${Number(crime.location.lat) - 0.005}%2C${Number(crime.location.lng) + 0.005}%2C${Number(crime.location.lat) + 0.005}&layer=mapnik&marker=${Number(crime.location.lat)}%2C${Number(crime.location.lng)}`}
+                        />
+                      </div>
+                    )}
                   </div>
 
                   {/* Evidence / Media */}
