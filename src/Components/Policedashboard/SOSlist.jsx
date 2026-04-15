@@ -10,11 +10,12 @@ const SOSList = () => {
   const [criticalAlerts, setCriticalAlerts] = useState(new Set());
 
   // Socket for real-time updates
-  useSocket({
-    onConnect: () => {
-      console.log("SOS List connected to socket");
-    },
-    onCriticalSOSAlert: (alert) => {
+  const socket = useSocket();
+  
+  useEffect(() => {
+    if (!socket) return;
+    
+    const handleCriticalSOSAlert = (alert) => {
       console.log(" CRITICAL SOS ALERT RECEIVED:", alert);
       setCriticalAlerts(prev => new Set(prev).add(alert.id));
       
@@ -29,16 +30,25 @@ const SOSList = () => {
           requireInteraction: true
         });
       }
-    },
-    onSOSLocationUpdate: (update) => {
+    };
+    
+    const handleSOSLocationUpdate = (update) => {
       console.log("SOS location update:", update);
       setSosData(prev => prev.map(alert => 
         alert._id === update.id 
           ? { ...alert, latitude: update.location.latitude, longitude: update.location.longitude, accuracy: update.location.accuracy }
           : alert
       ));
-    }
-  });
+    };
+    
+    socket.on("critical_sos_alert", handleCriticalSOSAlert);
+    socket.on("sos_location_update", handleSOSLocationUpdate);
+    
+    return () => {
+      socket.off("critical_sos_alert", handleCriticalSOSAlert);
+      socket.off("sos_location_update", handleSOSLocationUpdate);
+    };
+  }, [socket]);
 
   const fetchSOS = async () => {
     try {
@@ -250,18 +260,6 @@ const SOSList = () => {
       )}
     </div>
   );
-};
-
-// styles
-const thStyle = {
-  border: "1px solid #ddd",
-  padding: "10px",
-  fontWeight: "bold",
-};
-
-const tdStyle = {
-  border: "1px solid #ddd",
-  padding: "10px",
 };
 
 export default SOSList;
