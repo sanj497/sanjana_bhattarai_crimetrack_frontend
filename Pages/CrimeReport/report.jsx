@@ -1,6 +1,8 @@
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import React from "react";
 import { useNavigate, useLocation } from "react-router-dom";
+import L from "leaflet";
+import "leaflet/dist/leaflet.css";
 
 const crimeTypes = [
   "Theft", "Assault", "Burglary", "Fraud", "Vandalism",
@@ -22,6 +24,9 @@ const ReportCrime = () => {
   const [error, setError] = useState("");
   const [dragOver, setDragOver] = useState(false);
   const [step, setStep] = useState(1);
+  const mapRef = useRef(null);
+  const mapInstanceRef = useRef(null);
+  const markerRef = useRef(null);
 
   const onChange = (e) => {
     const { name, value, type, checked } = e.target;
@@ -41,6 +46,112 @@ const ReportCrime = () => {
   };
 
   const removeFile = (i) => setFiles(f => f.filter((_, idx) => idx !== i));
+
+  const reverseGeocode = async (lat, lng) => {
+    try {
+      const res = await fetch(
+        `https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${lat}&lon=${lng}`
+      );
+      const data = await res.json();
+      if (data?.display_name) {
+        setForm((p) => ({ ...p, address: data.display_name }));
+      }
+    } catch (err) {
+      console.warn("Reverse geocoding failed:", err);
+    }
+  };
+
+  const placeMarkerAndSetCoords = (lat, lng, zoom = 16) => {
+    if (!mapInstanceRef.current) return;
+
+    if (markerRef.current) {
+      markerRef.current.setLatLng([lat, lng]);
+    } else {
+      markerRef.current = L.marker([lat, lng]).addTo(mapInstanceRef.current);
+    }
+
+    mapInstanceRef.current.setView([lat, lng], zoom);
+    setForm((p) => ({
+      ...p,
+      lat: Number(lat).toFixed(6),
+      lng: Number(lng).toFixed(6),
+    }));
+  };
+
+  const geocodeAddress = async () => {
+    if (!form.address?.trim()) {
+      setError("Please enter an address first.");
+      return;
+    }
+
+    try {
+      setError("");
+      const q = encodeURIComponent(form.address.trim());
+      const res = await fetch(`https://nominatim.openstreetmap.org/search?format=jsonv2&q=${q}&limit=1`);
+      const data = await res.json();
+
+      if (!Array.isArray(data) || data.length === 0) {
+        setError("Could not find this address on map. Try a more specific location.");
+        return;
+      }
+
+      const lat = parseFloat(data[0].lat);
+      const lng = parseFloat(data[0].lon);
+      placeMarkerAndSetCoords(lat, lng);
+    } catch (err) {
+      console.error("Address geocoding failed:", err);
+      setError("Failed to locate this address right now. Please pick location on map.");
+    }
+  };
+
+  const useCurrentLocation = () => {
+    if (!navigator.geolocation) {
+      setError("Geolocation is not supported by this browser.");
+      return;
+    }
+
+    navigator.geolocation.getCurrentPosition(
+      async (pos) => {
+        const { latitude, longitude } = pos.coords;
+        setError("");
+        placeMarkerAndSetCoords(latitude, longitude);
+        await reverseGeocode(latitude, longitude);
+      },
+      () => setError("Could not access your location. Please allow location access."),
+      { enableHighAccuracy: true, timeout: 10000 }
+    );
+  };
+
+  useEffect(() => {
+    if (step !== 2 || mapInstanceRef.current || !mapRef.current) return;
+
+    const map = L.map(mapRef.current, { zoomControl: true }).setView([27.7172, 85.3240], 13);
+
+    L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+      attribution: "&copy; OpenStreetMap contributors",
+      maxZoom: 19,
+    }).addTo(map);
+
+    map.on("click", async (e) => {
+      const { lat, lng } = e.latlng;
+      setError("");
+      placeMarkerAndSetCoords(lat, lng);
+      await reverseGeocode(lat, lng);
+    });
+
+    mapInstanceRef.current = map;
+
+    if (form.lat && form.lng) {
+      placeMarkerAndSetCoords(parseFloat(form.lat), parseFloat(form.lng));
+    }
+
+    return () => {
+      map.remove();
+      mapInstanceRef.current = null;
+      markerRef.current = null;
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [step]);
 
   const submit = async (e) => {
     e.preventDefault();
@@ -266,6 +377,30 @@ const ReportCrime = () => {
         .rc-grid-2-sm { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
         .rc-form-group { display: flex; flex-direction: column; gap: 14px; }
 
+        .rc-map {
+          width: 100%;
+          height: 280px;
+          border-radius: 14px;
+          border: 1.5px solid #e4ddd0;
+          overflow: hidden;
+        }
+        .rc-map-tools {
+          display: flex;
+          gap: 10px;
+          flex-wrap: wrap;
+        }
+        .rc-map-btn {
+          border: 1.5px solid #e4ddd0;
+          background: #fff;
+          color: #0f1f3d;
+          border-radius: 10px;
+          padding: 10px 12px;
+          font-size: 12px;
+          font-weight: 600;
+          cursor: pointer;
+        }
+        .rc-map-btn:hover { background: #faf8f4; }
+
         /* COORD ROW */
         .rc-coord-wrap { position: relative; }
         .rc-coord-icon {
@@ -490,19 +625,30 @@ const ReportCrime = () => {
                   <label className="rc-label">Address <span>*</span></label>
                   <input className="rc-input" name="address" value={form.address} onChange={onChange} placeholder="Street address, landmark, or area" required />
                 </div>
+                <div className="rc-map-tools">
+                  <button type="button" className="rc-map-btn" onClick={geocodeAddress}>📌 Find Address on Map</button>
+                  <button type="button" className="rc-map-btn" onClick={useCurrentLocation}>🛰 Use Current Location</button>
+                </div>
+                <div className="rc-field">
+                  <label className="rc-label">Location Picker Map</label>
+                  <div ref={mapRef} className="rc-map" />
+                  <div style={{ fontSize: "11px", color: "#9aa3b5", marginTop: "6px" }}>
+                    Click anywhere on map to auto-fill latitude and longitude.
+                  </div>
+                </div>
                 <div className="rc-grid-2-sm">
                   <div className="rc-field">
                     <label className="rc-label">Latitude</label>
                     <div className="rc-coord-wrap">
                       <span className="rc-coord-icon">🌐</span>
-                      <input className="rc-input rc-coord-input" name="lat" value={form.lat} onChange={onChange} placeholder="e.g. 28.6139" />
+                      <input className="rc-input rc-coord-input" name="lat" value={form.lat} onChange={onChange} placeholder="e.g. 28.6139" readOnly />
                     </div>
                   </div>
                   <div className="rc-field">
                     <label className="rc-label">Longitude</label>
                     <div className="rc-coord-wrap">
                       <span className="rc-coord-icon">🌐</span>
-                      <input className="rc-input rc-coord-input" name="lng" value={form.lng} onChange={onChange} placeholder="e.g. 77.2090" />
+                      <input className="rc-input rc-coord-input" name="lng" value={form.lng} onChange={onChange} placeholder="e.g. 77.2090" readOnly />
                     </div>
                   </div>
                 </div>
@@ -535,7 +681,7 @@ const ReportCrime = () => {
               </div>
               <div className="rc-nav-row">
                 <button className="rc-btn-back" onClick={() => setStep(1)}>← Back</button>
-                <button className="rc-btn-next" onClick={() => setStep(3)} disabled={!form.address}>Continue →</button>
+                <button className="rc-btn-next" onClick={() => setStep(3)} disabled={!form.address || !form.lat || !form.lng}>Continue →</button>
               </div>
             </div>
           )}
