@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Shield, Users, AlertTriangle, FileText, MapPin, Bell, Search, Menu, X, Siren, LogOut } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 
 export default function NewBoard() {
   const [sidebarOpen, setSidebarOpen] = useState(true);

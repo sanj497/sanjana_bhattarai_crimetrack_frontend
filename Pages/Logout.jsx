@@ -36,7 +36,7 @@ const Logout = () => {
   const handleCancel = () => {
     const role = user?.role;
     if (role === "admin") navigate("/dashboard");
-    else if (role === "police") navigate("/bar");
+    else if (role === "police") navigate("/police/dashboard");
     else if (role === "user") navigate("/citizen");
     else navigate("/");
   };

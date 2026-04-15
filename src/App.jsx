@@ -52,7 +52,7 @@ function GuestOnlyRoute({ children }) {
     try {
       const user = JSON.parse(userStr);
       if (user.role === "admin") return <Navigate to="/dashboard" replace />;
-      if (user.role === "police") return <Navigate to="/bar" replace />;
+      if (user.role === "police") return <Navigate to="/police/dashboard" replace />;
       if (user.role === "user") return <Navigate to="/citizen" replace />;
     } catch {
       // bad data — let them through to login/register

@@ -17,7 +17,7 @@ export default function AdminRoute({ children }) {
     const user = JSON.parse(userStr);
     if (user.role !== "admin") {
       // Authenticated but wrong role — redirect to their own dashboard
-      if (user.role === "police") return <Navigate to="/bar" replace />;
+      if (user.role === "police") return <Navigate to="/police/dashboard" replace />;
       if (user.role === "user") return <Navigate to="/citizen" replace />;
       return <Navigate to="/" replace />;
     }

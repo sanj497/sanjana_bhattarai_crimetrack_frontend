@@ -18,7 +18,7 @@ export default function CitizenRoute({ children }) {
     if (user.role !== "user") {
       // Authenticated but wrong role — redirect to their own dashboard
       if (user.role === "admin") return <Navigate to="/dashboard" replace />;
-      if (user.role === "police") return <Navigate to="/bar" replace />;
+      if (user.role === "police") return <Navigate to="/police/dashboard" replace />;
       return <Navigate to="/" replace />;
     }
   } catch {
