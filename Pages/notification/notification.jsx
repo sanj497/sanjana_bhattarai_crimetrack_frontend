@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
-import { Bell, Check, Trash2, ShieldAlert, FileText, CheckCircle2, MoreHorizontal, Filter } from "lucide-react";
+import { Bell, Check, Trash2, ShieldAlert, FileText, CheckCircle2, MoreHorizontal, Filter, AlertTriangle } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
 const API_BASE = `${import.meta.env.VITE_BACKEND_URL}/api/notifications`;
 
@@ -7,6 +8,7 @@ export default function NotificationCenter() {
   const [notifications, setNotifications] = useState([]);
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState("all"); // "all" | "unread"
+  const navigate = useNavigate();
 
   useEffect(() => {
     fetchNotifications();
@@ -56,9 +58,36 @@ export default function NotificationCenter() {
       });
       if (res.ok) {
         setNotifications(prev => prev.map(n => n._id === id ? { ...n, isRead: true } : n));
+        window.dispatchEvent(new Event("new-notification-received"));
       }
     } catch (err) {
       console.error(err);
+    }
+  };
+
+  const handleNotificationClick = async (n) => {
+    if (!n.isRead) {
+       await handleMarkRead(n._id);
+    }
+
+    try {
+      const userStr = localStorage.getItem("user");
+      if (!userStr) return;
+      const user = JSON.parse(userStr);
+      const role = user.role;
+
+      if (role === "admin") {
+        if (n.message.toLowerCase().includes("complain")) navigate("/dashboard/complain");
+        else navigate("/dashboard"); 
+      } else if (role === "police") {
+        if (n.message.toLowerCase().includes("sos")) navigate("/police/sos");
+        else navigate("/police/reports");
+      } else {
+        if (n.message.toLowerCase().includes("complain")) navigate("/citizen/complain");
+        else navigate("/citizen"); 
+      }
+    } catch (e) {
+      console.error("Navigation error", e);
     }
   };
 
@@ -128,7 +157,8 @@ export default function NotificationCenter() {
         {filtered.map((n) => (
           <div 
             key={n._id}
-            className={`p-6 rounded-[32px] border transition-all flex items-start gap-5 relative overflow-hidden group ${n.isRead ? 'bg-white border-slate-50' : 'bg-white border-blue-100 shadow-xl shadow-blue-500/5'}`}
+            onClick={() => handleNotificationClick(n)}
+            className={`p-6 rounded-[32px] border transition-all flex items-start gap-5 relative overflow-hidden group cursor-pointer ${n.isRead ? 'bg-white border-slate-50' : 'bg-white border-blue-100 shadow-xl shadow-blue-500/5'}`}
           >
             {!n.isRead && <span className="absolute left-0 top-0 bottom-0 w-1 bg-blue-600" />}
             
@@ -155,7 +185,7 @@ export default function NotificationCenter() {
             <div className="flex flex-col gap-2">
                {!n.isRead && (
                  <button 
-                   onClick={() => handleMarkRead(n._id)}
+                   onClick={(e) => { e.stopPropagation(); handleMarkRead(n._id); }}
                    className="h-10 w-10 bg-blue-50 text-blue-600 rounded-xl flex items-center justify-center hover:bg-blue-600 hover:text-white transition-all"
                    title="Mark as read"
                  >
