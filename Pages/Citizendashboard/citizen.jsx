@@ -13,13 +13,12 @@ import {
   Search,
   Eye
 } from "lucide-react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 
 export default function CitizenDashboard() {
   const [user, setUser] = useState({});
   const [myCrimes, setMyCrimes] = useState([]);
   const [loading, setLoading] = useState(true);
-  const navigate = useNavigate();
 
   useEffect(() => {
     const storedUser = localStorage.getItem("user");
@@ -36,7 +35,7 @@ export default function CitizenDashboard() {
         };
         window.addEventListener("new-notification-received", handleNotification);
         return () => window.removeEventListener("new-notification-received", handleNotification);
-      } catch (e) {
+      } catch {
         console.error("User parsing failed");
       }
     }
@@ -237,22 +236,31 @@ export default function CitizenDashboard() {
                        body: JSON.stringify({ latitude, longitude, accuracy })
                      });
                      const data = await res.json();
-                     if (data.success) alert("🚨 SOS DISPATCHED: Authorities have been notified of your location.");
-                   } catch (err) {
-                     alert("Failed to send SOS. Please call emergency services.");
+                     if (data.success) {
+                       alert("🚨 CRITICAL SOS DISPATCHED! All police units have been notified with your live location. Help is on the way.");
+                       // Vibrate if available
+                       if (navigator.vibrate) {
+                         navigator.vibrate([200, 100, 200, 100, 500]);
+                       }
+                     } else {
+                       throw new Error(data.message);
+                     }
+                   } catch (error) {
+                     alert("Failed to send SOS. Please call emergency services immediately.");
+                     console.error("SOS error:", error);
                    }
                  });
                } else {
-                 alert("Geolocation is not supported by this browser.");
+                 alert("Geolocation is not supported by this browser. Please call emergency services.");
                }
              }}
-             className="w-full lg:w-auto bg-rose-600 hover:bg-rose-500 text-white font-black uppercase text-xs tracking-[3px] px-12 py-6 rounded-[24px] transition-all shadow-2xl shadow-rose-600/30 active:scale-95 flex items-center justify-center gap-4"
+             className="w-full lg:w-auto bg-red-600 hover:bg-red-500 text-white font-black uppercase text-xs tracking-[3px] px-12 py-6 rounded-[24px] transition-all shadow-2xl shadow-red-600/30 active:scale-95 flex items-center justify-center gap-4 animate-pulse"
            >
              <div className="h-2 w-2 rounded-full bg-white animate-ping" />
-             Trigger Emergency SOS
+             🚨 TRIGGER EMERGENCY SOS
            </button>
         </div>
       </div>
     </div>
   );
-}
+}

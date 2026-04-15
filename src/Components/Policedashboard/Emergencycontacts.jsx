@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import React from "react";
 
 const API_BASE = `${import.meta.env.VITE_BACKEND_URL}/api/emergency`;
@@ -56,14 +56,14 @@ function SOSButton() {
       interval = setInterval(() => {
         navigator.geolocation.getCurrentPosition(
           (pos) => updateTracking(pos.coords.latitude, pos.coords.longitude, pos.coords.accuracy),
-          (err) => console.error("Tracking error:", err)
+          (error) => console.error("Tracking error:", error)
         );
       }, 10000); // Update every 10 seconds
     }
     return () => clearInterval(interval);
-  }, [status, alertId]);
+  }, [status, alertId, updateTracking]);
 
-  const updateTracking = async (lat, lng, accuracy) => {
+  const updateTracking = useCallback(async (lat, lng, accuracy) => {
     try {
       const token = localStorage.getItem("token");
       await fetch(`${API_BASE}/sos/${alertId}/track`, {
@@ -77,16 +77,16 @@ function SOSButton() {
     } catch (err) {
       console.error("Failed to update SOS location:", err);
     }
-  };
+  }, [alertId]);
 
   const handleSOS = async () => {
-    if (!window.confirm("🆘 Send SOS alert with your location? This will notify authorities and your guardians.")) return;
+    if (!window.confirm(" Send CRITICAL SOS alert? This will immediately notify all police units and emergency services with your live location.")) return;
     setStatus("locating");
     setMessage("Getting your precise location...");
 
     const sendAlert = async (lat, lng, accuracy) => {
       setStatus("sending");
-      setMessage("Alerting emergency responders and guardians...");
+      setMessage(" DISPATCHING EMERGENCY UNITS...");
       try {
         const token = localStorage.getItem("token");
         const res = await fetch(`${API_BASE}/sos`, {
@@ -101,13 +101,18 @@ function SOSButton() {
         if (data.success) {
           setAlertId(data.alertId);
           setStatus("active");
-          setMessage("🆘 ALERT ACTIVE: Help is on the way. Your live location is being shared.");
+          setMessage(` CRITICAL ALERT ACTIVE: ${data.message} Live tracking enabled.`);
+          
+          // Vibrate and sound if available
+          if (navigator.vibrate) {
+            navigator.vibrate([200, 100, 200, 100, 500]);
+          }
         } else {
           throw new Error(data.message);
         }
       } catch (err) {
         setStatus("error");
-        setMessage(`❌ Failed: ${err.message || "Network Error"}`);
+        setMessage(` Failed: ${err.message || "Network Error"}`);
         setTimeout(() => setStatus("idle"), 5000);
       }
     };
@@ -115,9 +120,9 @@ function SOSButton() {
     if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(
         (pos) => sendAlert(pos.coords.latitude, pos.coords.longitude, pos.coords.accuracy),
-        (err) => {
-           console.warn("Geolocation denied, sending anonymous SOS");
-           sendAlert(null, null, null);
+        () => {
+          console.warn("Geolocation denied, sending anonymous SOS");
+          sendAlert(null, null, null);
         },
         { enableHighAccuracy: true }
       );
@@ -127,12 +132,12 @@ function SOSButton() {
   };
 
   const buttonLabel = {
-    idle:     { text: "SOS",                sub: "Tap for emergency help",  pulse: true  },
-    locating: { text: "Locating...",         sub: "Getting your location",   pulse: false },
-    sending:  { text: "Sending...",          sub: "Alerting responders",     pulse: false },
-    active:   { text: "ACTIVE",              sub: "Live tracking on",        pulse: true  },
+    idle:     { text: "SOS",                sub: "Tap for CRITICAL emergency help",  pulse: true  },
+    locating: { text: "Locating...",         sub: "Getting your precise location",   pulse: false },
+    sending:  { text: "DISPATCHING...",      sub: "Alerting all emergency units",     pulse: false },
+    active:   { text: "CRITICAL",            sub: "Live tracking - Police notified",  pulse: true  },
     sent:     { text: "✅ Sent!",            sub: "Help is on the way",      pulse: false },
-    error:    { text: "Retry",              sub: "Alert failed",            pulse: true  },
+    error:    { text: "Retry",              sub: "Alert failed - Try again",            pulse: true  },
   }[status];
 
   return (
@@ -148,7 +153,7 @@ function SOSButton() {
           onClick={handleSOS}
           disabled={status === "locating" || status === "sending" || status === "active"}
           className={`w-32 h-32 rounded-full text-white font-black text-3xl shadow-2xl z-10 border-4 border-white active:scale-95 transition-all disabled:opacity-80
-            ${status === "active" ? "bg-orange-600 border-orange-200" : (status === "error" ? "bg-gray-600" : "bg-red-600 hover:bg-red-700")}`}
+            ${status === "active" ? "bg-red-700 border-red-200 animate-pulse" : (status === "error" ? "bg-gray-600" : "bg-red-600 hover:bg-red-700")}`}
         >
           {status === "locating" || status === "sending"
             ? <span className="text-2xl animate-spin inline-block">⏳</span>
@@ -159,18 +164,23 @@ function SOSButton() {
       <p className="text-sm text-gray-500 font-medium">{buttonLabel.sub}</p>
 
       {message && (
-        <div className={`w-full max-w-sm text-center text-xs font-bold py-3 px-4 rounded-xl border ${
-          status === "active" ? "bg-orange-50 text-orange-700 border-orange-200"
+        <div className={`w-full max-w-sm text-center text-xs font-bold py-3 px-4 rounded-xl border animate-pulse ${
+          status === "active" ? "bg-red-50 text-red-700 border-red-200"
           : (status === "error" ? "bg-red-50 text-red-700 border-red-200" : "bg-blue-50 text-blue-700 border-blue-200")
         }`}>
           {message}
           {status === "active" && (
-             <button 
-               onClick={() => { setStatus("idle"); setAlertId(null); }}
-               className="block mt-2 mx-auto text-[10px] underline text-orange-800"
-             >
-               Stop Emergency Tracking
-             </button>
+             <div className="mt-2 space-y-1">
+               <button 
+                 onClick={() => { setStatus("idle"); setAlertId(null); }}
+                 className="block mx-auto text-[10px] underline text-red-800"
+               >
+                 Stop Emergency Tracking
+               </button>
+               <div className="text-[9px] text-red-600">
+                 🚨 All police units have been notified
+               </div>
+             </div>
           )}
         </div>
       )}
@@ -353,7 +363,7 @@ export default function EmergencyContactsApp() {
           <>
             {/* SOS Button */}
             <div className="bg-white rounded-3xl shadow-lg border border-red-100 p-8 flex flex-col items-center gap-2">
-              <p className="text-xs font-bold uppercase tracking-widest text-red-400 mb-2">Most Important</p>
+              <p className="text-xs font-bold uppercase tracking-widest text-red-400 mb-2 animate-pulse">🚨 CRITICAL EMERGENCY</p>
               <SOSButton />
             </div>
 
@@ -364,12 +374,13 @@ export default function EmergencyContactsApp() {
             </div>
 
             {/* Tip */}
-            <div className="bg-amber-50 border border-amber-200 rounded-2xl p-4 text-sm text-amber-800">
-              <p className="font-semibold mb-1">💡 How it works</p>
-              <ul className="list-disc list-inside space-y-1 text-amber-700">
-                <li>Tap <strong>SOS</strong> to send your GPS location to responders</li>
-                <li>Tap any quick button to <strong>call directly</strong></li>
-                <li>No internet needed for calls — SIM only</li>
+            <div className="bg-red-50 border border-red-200 rounded-2xl p-4 text-sm text-red-800">
+              <p className="font-semibold mb-1">� CRITICAL SOS INFORMATION</p>
+              <ul className="list-disc list-inside space-y-1 text-red-700">
+                <li>Tap <strong>SOS</strong> to dispatch ALL police units immediately</li>
+                <li>Your <strong>live GPS location</strong> is shared with emergency services</li>
+                <li><strong>No internet needed</strong> for emergency calls - SIM only</li>
+                <li>This alert <strong>bypasses normal verification</strong> for immediate response</li>
               </ul>
             </div>
           </>
