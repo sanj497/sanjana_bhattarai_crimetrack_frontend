@@ -144,53 +144,64 @@ function SOSButton() {
   };
 
   const buttonLabel = {
-    idle:     { text: "SOS",                sub: "Tap for CRITICAL emergency help",  pulse: true  },
-    locating: { text: "Locating...",         sub: "Getting your precise location",   pulse: false },
-    sending:  { text: "DISPATCHING...",      sub: "Alerting all emergency units",     pulse: false },
-    active:   { text: "CRITICAL",            sub: "Live tracking - Police notified",  pulse: true  },
-    sent:     { text: "✅ Sent!",            sub: "Help is on the way",      pulse: false },
-    error:    { text: "Retry",              sub: "Alert failed - Try again",            pulse: true  },
+    idle:     { text: "SOS",                sub: "Initiate Primary Dispatch",  pulse: true,  color: "bg-red-600 hover:bg-red-700" },
+    locating: { text: "Locating",         sub: "Establishing Telemetry...",   pulse: true,  color: "bg-amber-600" },
+    sending:  { text: "Dispatch",      sub: "Alerting Command Center",     pulse: true,  color: "bg-orange-600 animate-pulse" },
+    active:   { text: "CRITICAL",            sub: "Active Live Tracking",  pulse: true,  color: "bg-red-800 animate-pulse" },
+    sent:     { text: "✅ Confirmed",            sub: "Signal Acknowledged",      pulse: false, color: "bg-emerald-600" },
+    error:    { text: "Failed",              sub: "Interference - Retry",            pulse: true,  color: "bg-slate-700" },
   }[status];
 
   return (
-    <div className="flex flex-col items-center gap-3">
+    <div className="flex flex-col items-center gap-6 py-4">
       <div className="relative flex items-center justify-center">
         {buttonLabel.pulse && (
           <>
-            <span className={`absolute w-44 h-44 rounded-full opacity-20 animate-ping ${status === 'active' ? 'bg-orange-500' : 'bg-red-500'}`} />
-            <span className={`absolute w-36 h-36 rounded-full opacity-30 animate-ping ${status === 'active' ? 'bg-orange-500' : 'bg-red-500'}`} style={{ animationDelay: "0.3s" }} />
+            <div className={`absolute -inset-8 rounded-full opacity-20 animate-ping ${status === 'active' ? 'bg-orange-500' : 'bg-red-500'}`} />
+            <div className={`absolute -inset-4 rounded-full opacity-30 animate-ping ${status === 'active' ? 'bg-orange-500' : 'bg-red-500'}`} style={{ animationDelay: "0.3s" }} />
           </>
         )}
+        
+        {/* Shadow Ring */}
+        <div className="absolute -inset-2 rounded-full bg-slate-900 border border-slate-800" />
+        
         <button
           onClick={handleSOS}
           disabled={status === "locating" || status === "sending" || status === "active"}
-          className={`w-32 h-32 rounded-full text-white font-black text-3xl shadow-2xl z-10 border-4 border-white active:scale-95 transition-all disabled:opacity-80
-            ${status === "active" ? "bg-red-700 border-red-200 animate-pulse" : (status === "error" ? "bg-gray-600" : "bg-red-600 hover:bg-red-700")}`}
+          className={`relative w-40 h-40 rounded-full text-white font-black text-4xl shadow-2xl z-10 border-[6px] border-slate-950 active:scale-95 transition-all duration-300 disabled:cursor-not-allowed
+            ${buttonLabel.color}`}
         >
-          {status === "locating" || status === "sending"
-            ? <span className="text-2xl animate-spin inline-block">⏳</span>
-            : buttonLabel.text}
+          <div className="flex flex-col items-center justify-center">
+             {status === "locating" || status === "sending" ? (
+               <Activity className="h-10 w-10 animate-bounce mb-2" />
+             ) : null}
+             <span className="tracking-tighter uppercase">{buttonLabel.text}</span>
+          </div>
         </button>
       </div>
 
-      <p className="text-sm text-gray-500 font-medium">{buttonLabel.sub}</p>
+      <div className="text-center">
+        <p className="text-[10px] font-black text-slate-400 uppercase tracking-[4px] mb-1">{buttonLabel.sub}</p>
+        <div className="h-0.5 w-12 bg-red-600/30 mx-auto rounded-full" />
+      </div>
 
       {message && (
-        <div className={`w-full max-w-sm text-center text-xs font-bold py-3 px-4 rounded-xl border animate-pulse ${
-          status === "active" ? "bg-red-50 text-red-700 border-red-200"
-          : (status === "error" ? "bg-red-50 text-red-700 border-red-200" : "bg-blue-50 text-blue-700 border-blue-200")
+        <div className={`max-w-xs text-center text-[10px] font-bold py-3 px-6 rounded-2xl border transition-all duration-500 ${
+          status === "active" ? "bg-red-950/20 text-red-500 border-red-500/20 shadow-[0_0_30px_rgba(225,29,72,0.1)]"
+          : (status === "error" ? "bg-slate-900 text-slate-400 border-slate-800" : "bg-blue-950/20 text-blue-400 border-blue-500/20")
         }`}>
-          {message}
+          <p className="leading-relaxed">{message}</p>
           {status === "active" && (
-             <div className="mt-2 space-y-1">
+             <div className="mt-4 pt-4 border-t border-red-500/10 space-y-3">
                <button 
                  onClick={() => { setStatus("idle"); setAlertId(null); }}
-                 className="block mx-auto text-[10px] underline text-red-800"
+                 className="px-4 py-2 bg-red-600/10 text-red-500 rounded-lg text-[9px] font-black uppercase tracking-widest hover:bg-red-600 hover:text-white transition-all underline decoration-red-500/30"
                >
-                 Stop Emergency Tracking
+                 Terminate Tracking
                </button>
-               <div className="text-[9px] text-red-600">
-                 🚨 All police units have been notified
+               <div className="flex items-center justify-center gap-2">
+                 <div className="h-1 w-1 rounded-full bg-red-500 animate-ping" />
+                 <span className="text-[8px] italic text-red-400/70">Police units are moving to your position</span>
                </div>
              </div>
           )}

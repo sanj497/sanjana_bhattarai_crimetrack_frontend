@@ -13,6 +13,52 @@ const SOSList = () => {
   // Socket for real-time updates
   const socket = useSocket();
   
+  const fetchSOS = useCallback(async () => {
+    try {
+      const res = await axios.get(
+        `${import.meta.env.VITE_BACKEND_URL}/api/emergency/sos`
+      );
+
+      const data = res.data.data;
+      setSosData(data);
+      
+      // Update stats
+      const activeCount = data.filter(alert => alert.status === 'active').length;
+      const resolvedCount = data.filter(alert => alert.status === 'resolved').length;
+      setStats({ active: activeCount, resolved: resolvedCount, total: data.length });
+      
+      setLoading(false);
+    } catch (error) {
+      console.error(error);
+      setLoading(false);
+    }
+  }, []);
+
+  const handleStatusUpdate = async (alertId, newStatus) => {
+    try {
+      const token = localStorage.getItem("token");
+      await axios.patch(
+        `${import.meta.env.VITE_BACKEND_URL}/api/emergency/sos/${alertId}`,
+        { status: newStatus },
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+      
+      setSosData(prev => prev.map(alert => 
+        alert._id === alertId ? { ...alert, status: newStatus } : alert
+      ));
+      
+      if (newStatus === "resolved") {
+        setCriticalAlerts(prev => {
+          const updated = new Set(prev);
+          updated.delete(alertId);
+          return updated;
+        });
+      }
+    } catch (error) {
+      console.error("Failed to update SOS status:", error);
+    }
+  };
+
   useEffect(() => {
     if (!socket) return;
     
@@ -51,27 +97,6 @@ const SOSList = () => {
     };
   }, [socket, fetchSOS]);
 
-  const fetchSOS = useCallback(async () => {
-    try {
-      const res = await axios.get(
-        `${import.meta.env.VITE_BACKEND_URL}/api/emergency/sos`
-      );
-
-      const data = res.data.data;
-      setSosData(data);
-      
-      // Update stats
-      const activeCount = data.filter(alert => alert.status === 'active').length;
-      const resolvedCount = data.filter(alert => alert.status === 'resolved').length;
-      setStats({ active: activeCount, resolved: resolvedCount, total: data.length });
-      
-      setLoading(false);
-    } catch (error) {
-      console.error(error);
-      setLoading(false);
-    }
-  }, []);
-
   useEffect(() => {
     fetchSOS();
     
@@ -80,31 +105,6 @@ const SOSList = () => {
       Notification.requestPermission();
     }
   }, [fetchSOS]);
-
-  const handleStatusUpdate = async (alertId, newStatus) => {
-    try {
-      const token = localStorage.getItem("token");
-      await axios.patch(
-        `${import.meta.env.VITE_BACKEND_URL}/api/emergency/sos/${alertId}`,
-        { status: newStatus },
-        { headers: { Authorization: `Bearer ${token}` } }
-      );
-      
-      setSosData(prev => prev.map(alert => 
-        alert._id === alertId ? { ...alert, status: newStatus } : alert
-      ));
-      
-      if (newStatus === "resolved") {
-        setCriticalAlerts(prev => {
-          const updated = new Set(prev);
-          updated.delete(alertId);
-          return updated;
-        });
-      }
-    } catch (error) {
-      console.error("Failed to update SOS status:", error);
-    }
-  };
 
   const getPriorityColor = (alert) => {
     if (criticalAlerts.has(alert._id)) return "border-red-500 bg-red-50";

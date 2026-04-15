@@ -14,6 +14,7 @@ import {
   Eye
 } from "lucide-react";
 import { Link } from "react-router-dom";
+import { toast } from "react-toastify";
 
 export default function CitizenDashboard() {
   const [user, setUser] = useState({});
@@ -206,59 +207,112 @@ export default function CitizenDashboard() {
         )}
       </div>
 
-      {/* Emergency SOS Signal Section */}
-      <div className="bg-[#020617] rounded-[48px] p-8 md:p-16 shadow-2xl shadow-rose-900/10 relative overflow-hidden group border border-slate-800">
-        <div className="absolute top-0 right-0 h-64 w-64 bg-rose-600 opacity-10 rounded-full translate-x-20 -translate-y-20 blur-3xl group-hover:scale-110 transition-transform duration-700" />
-        <div className="flex flex-col lg:flex-row items-center justify-between gap-12 relative z-10">
-           <div className="flex flex-col md:flex-row items-center gap-8 text-center md:text-left">
-              <div className="h-24 w-24 bg-rose-600 rounded-[32px] flex items-center justify-center shadow-[0_20px_50px_rgba(225,29,72,0.3)]">
-                 <Activity className="h-12 w-12 text-white animate-pulse" />
+      {/* Emergency SOS Signal Section - Tactical Response Unit */}
+      <div className="bg-slate-950 rounded-[64px] p-10 md:p-20 shadow-[0_40px_100px_rgba(0,0,0,0.4)] relative overflow-hidden group border border-slate-800/50">
+        {/* Dynamic Background Elements */}
+        <div className="absolute top-0 right-0 h-[500px] w-[500px] bg-rose-600/10 rounded-full translate-x-1/2 -translate-y-1/2 blur-[120px] group-hover:bg-rose-500/20 transition-colors duration-1000" />
+        <div className="absolute bottom-0 left-0 h-64 w-64 bg-blue-600/5 rounded-full -translate-x-1/2 translate-y-1/2 blur-[80px]" />
+        
+        {/* Decorative Grid */}
+        <div className="absolute inset-0 opacity-[0.03] pointer-events-none" 
+             style={{ backgroundImage: 'radial-gradient(circle, #fff 1px, transparent 1px)', backgroundSize: '32px 32px' }} />
+
+        <div className="flex flex-col xl:flex-row items-center justify-between gap-16 relative z-10">
+           <div className="flex flex-col items-center md:items-start gap-10 text-center md:text-left max-w-2xl">
+              <div className="flex items-center gap-6">
+                 <div className="h-24 w-24 bg-rose-600 rounded-[32px] flex items-center justify-center shadow-[0_20px_60px_rgba(225,29,72,0.4)] relative group-hover:scale-110 transition-transform duration-500">
+                    <div className="absolute inset-0 rounded-[32px] border-4 border-white/20 animate-ping opacity-20" />
+                    <Activity className="h-12 w-12 text-white animate-pulse" />
+                 </div>
+                 <div>
+                    <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-rose-500/10 text-rose-500 text-[10px] font-black uppercase tracking-[3px] border border-rose-500/20 mb-3">
+                       <Shield className="h-3 w-3" /> Priority Alpha Channel
+                    </div>
+                    <h3 className="text-4xl md:text-5xl font-black text-white uppercase tracking-tighter leading-none">
+                       Tactical <span className="text-rose-600">SOS</span> Dispatch
+                    </h3>
+                 </div>
               </div>
-              <div className="max-w-md">
-                 <h3 className="text-3xl font-black text-white uppercase tracking-tighter mb-2">Immediate Dispatch</h3>
-                 <p className="text-slate-400 text-sm font-medium leading-relaxed">Instantly broadcast your live telemetry to the central police command. This action will bypass all verification and trigger an immediate field response.</p>
+              
+              <div className="space-y-6">
+                 <p className="text-slate-400 text-lg font-medium leading-relaxed">
+                    Instantly broadcast your encrypted telemetry to the <span className="text-white font-bold">Central Police Command</span>. Once triggered, this bypasses all secondary verification protocols for an immediate physical field response.
+                 </p>
+                 
+                 <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+                    {[
+                       { label: "GPS Telemetry", icon: <MapPin size={14} /> },
+                       { label: "Identity Hash", icon: <ShieldCheck size={14} /> },
+                       { label: "Live Tracking", icon: <Activity size={14} /> },
+                    ].map((feat, i) => (
+                       <div key={i} className="flex items-center gap-2 text-[10px] font-black text-slate-500 uppercase tracking-widest bg-white/5 px-4 py-2.5 rounded-xl border border-white/5">
+                          <span className="text-rose-500">{feat.icon}</span> {feat.label}
+                       </div>
+                    ))}
+                 </div>
               </div>
            </div>
            
-           <button 
-             onClick={async () => {
-               if (navigator.geolocation) {
-                 navigator.geolocation.getCurrentPosition(async (pos) => {
-                   const { latitude, longitude, accuracy } = pos.coords;
-                   const token = localStorage.getItem("token");
-                   try {
-                     const res = await fetch(`${import.meta.env.VITE_BACKEND_URL}/api/emergency/sos`, {
-                       method: "POST",
-                       headers: { 
-                         "Content-Type": "application/json",
-                         Authorization: `Bearer ${token}` 
-                       },
-                       body: JSON.stringify({ latitude, longitude, accuracy })
-                     });
-                     const data = await res.json();
-                     if (data.success) {
-                       alert("🚨 CRITICAL SOS DISPATCHED! All police units have been notified with your live location. Help is on the way.");
-                       // Vibrate if available
-                       if (navigator.vibrate) {
-                         navigator.vibrate([200, 100, 200, 100, 500]);
+           <div className="w-full xl:w-auto flex flex-col items-center gap-6">
+             <button 
+               onClick={async () => {
+                 if (!window.confirm("CONFIRM CRITICAL SOS DISPATCH? All police units will be alerted to your location immediately.")) return;
+                 
+                 if (navigator.geolocation) {
+                   navigator.geolocation.getCurrentPosition(async (pos) => {
+                     const { latitude, longitude, accuracy } = pos.coords;
+                     const token = localStorage.getItem("token");
+                     try {
+                       const res = await fetch(`${import.meta.env.VITE_BACKEND_URL}/api/emergency/sos`, {
+                         method: "POST",
+                         headers: { 
+                           "Content-Type": "application/json",
+                           Authorization: `Bearer ${token}` 
+                         },
+                         body: JSON.stringify({ latitude, longitude, accuracy })
+                       });
+                       const data = await res.json();
+                       if (data.success) {
+                         toast.success("🚨 CRITICAL SOS DISPATCHED! All police units have been notified. Maintain current coordinates if safe.", {
+                           position: "top-center",
+                           autoClose: 10000,
+                           theme: "dark"
+                         });
+                         if (navigator.vibrate) navigator.vibrate([200, 100, 200, 100, 500]);
+                       } else {
+                         throw new Error(data.message);
                        }
-                     } else {
-                       throw new Error(data.message);
+                     } catch (error) {
+                       toast.error("DISPATCH FAILED: Network interference. Dial 100 immediately.", {
+                         position: "top-center",
+                         theme: "dark"
+                       });
                      }
-                   } catch (error) {
-                     alert("Failed to send SOS. Please call emergency services immediately.");
-                     console.error("SOS error:", error);
-                   }
-                 });
-               } else {
-                 alert("Geolocation is not supported by this browser. Please call emergency services.");
-               }
-             }}
-             className="w-full lg:w-auto bg-red-600 hover:bg-red-500 text-white font-black uppercase text-xs tracking-[3px] px-12 py-6 rounded-[24px] transition-all shadow-2xl shadow-red-600/30 active:scale-95 flex items-center justify-center gap-4 animate-pulse"
-           >
-             <div className="h-2 w-2 rounded-full bg-white animate-ping" />
-             🚨 TRIGGER EMERGENCY SOS
-           </button>
+                   });
+                 } else {
+                   toast.error("GEOLOCATION UNAVAILABLE. Call emergency services now.", {
+                     position: "top-center",
+                     theme: "dark"
+                   });
+                 }
+               }}
+               className="group/btn relative w-full md:w-80 h-80 rounded-full flex items-center justify-center transition-all duration-500 active:scale-95"
+             >
+               {/* Orbital Rings */}
+               <div className="absolute inset-0 rounded-full border-2 border-rose-600/30 animate-[spin_10s_linear_infinite]" />
+               <div className="absolute inset-4 rounded-full border border-rose-600/10 animate-[spin_15s_linear_infinite_reverse]" />
+               
+               <div className="absolute inset-10 bg-rose-600 rounded-full shadow-[0_0_80px_rgba(225,29,72,0.6)] group-hover/btn:scale-105 transition-transform duration-500 flex flex-col items-center justify-center gap-4 text-center p-8 border-8 border-slate-950">
+                  <Activity className="h-10 w-10 text-white animate-pulse" />
+                  <div>
+                    <span className="block text-[10px] font-black text-rose-200 uppercase tracking-[4px] mb-1">Critical</span>
+                    <span className="block text-4xl font-black text-white uppercase tracking-tighter">TRIGGER</span>
+                    <span className="block text-[10px] font-black text-rose-200 uppercase tracking-[4px] mt-1">SOS SIGNAL</span>
+                  </div>
+               </div>
+             </button>
+             <p className="text-[10px] font-black text-slate-500 uppercase tracking-[4px] animate-pulse">Waiting for manual authorization</p>
+           </div>
         </div>
       </div>
     </div>
