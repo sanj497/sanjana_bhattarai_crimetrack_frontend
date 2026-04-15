@@ -42,6 +42,14 @@ export default function EmergencyCenter() {
 
     useEffect(() => {
         fetchAlertQueue();
+
+        const handleNewNotif = () => {
+          console.log("Emergency Center refreshing queue...");
+          fetchAlertQueue();
+        };
+
+        window.addEventListener("new-notification-received", handleNewNotif);
+        return () => window.removeEventListener("new-notification-received", handleNewNotif);
     }, []);
 
     const sendEmergencyBroadcast = async (crimeId) => {
