@@ -42,7 +42,11 @@ import "react-toastify/dist/ReactToastify.css";
 import { useSocket } from "./hooks/useSocket.js";
 
 function SocketWrapper({ children }) {
-  useSocket();
+  try {
+    useSocket();
+  } catch (error) {
+    console.warn("Socket initialization failed:", error);
+  }
   return <>{children}</>;
 }
 
