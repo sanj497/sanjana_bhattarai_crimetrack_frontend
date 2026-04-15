@@ -19,7 +19,8 @@ import {
   ChevronRight,
   Bell,
   RefreshCw,
-  BarChart3
+  BarChart3,
+  ShieldAlert
 } from "lucide-react";
 
 export default function AdminLayout() {
