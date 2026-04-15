@@ -12,16 +12,22 @@ export const useSocket = () => {
     const userId = user._id || user.id;
     if (!userId) return;
 
-    // Initialize socket
+    // Initialize socket with reconnection limits
     socketRef.current = io(SOCKET_URL, {
       withCredentials: true,
       transports: ["polling", "websocket"],
+      reconnectionAttempts: 5,
+      reconnectionDelay: 3000,
+      timeout: 10000,
     });
 
     // Authenticate with server to join rooms
-    socketRef.current.emit("authenticate", {
-      userId,
-      role: user.role
+    socketRef.current.on("connect", () => {
+      console.log("✅ Socket connected:", socketRef.current.id);
+      socketRef.current.emit("authenticate", {
+        userId,
+        role: user.role
+      });
     });
 
     // Listen for notifications
@@ -40,6 +46,15 @@ export const useSocket = () => {
       
       // Dispatch custom event to refresh notification list components if active
       window.dispatchEvent(new CustomEvent("new-notification-received"));
+    });
+
+    // Graceful error handling - don't spam console
+    socketRef.current.on("connect_error", (err) => {
+      console.warn("Socket connection failed:", err.message);
+    });
+
+    socketRef.current.on("reconnect_failed", () => {
+      console.warn("Socket reconnection failed after max attempts. Notifications will use HTTP polling.");
     });
 
     return () => {
