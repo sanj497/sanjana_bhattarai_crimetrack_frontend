@@ -63,6 +63,16 @@ function GuestOnlyRoute({ children }) {
   return children;
 }
 
+// Helper: any logged-in user (any role) can access
+function AnyAuthRoute({ children }) {
+  const token = localStorage.getItem("token");
+  const userStr = localStorage.getItem("user");
+  if (!token || !userStr) {
+    return <Navigate to="/login" replace />;
+  }
+  return children;
+}
+
 function App() {
   return (
     <BrowserRouter>
@@ -92,7 +102,6 @@ function App() {
           <Route path="/admin/verify/:id" element={<Verify />} />
           <Route path="/admin/performance" element={<TransparencyHub />} />
           <Route path="/admin/map" element={<CrimeMap />} />
-          <Route path="/notifications" element={<Notifications />} />
         </Route>
 
         {/* ── POLICE ROUTES (role: police) ──────────────────────────── */}
@@ -102,7 +111,6 @@ function App() {
           <Route path="/police/forward" element={<ForwardToPolice />} />
           <Route path="/police/sos" element={<SOSList />} />
           <Route path="/police/emergency" element={<EmergencyContactsApp />} />
-          <Route path="/notifications" element={<Notifications />} />
         </Route>
 
         {/* ── CITIZEN ROUTES (role: user) ────────────────────────────── */}
@@ -118,6 +126,9 @@ function App() {
           <Route path="/emergency" element={<EmergencyContactsApp />} />
           <Route path="/citizen/settings" element={<CitizenSettings />} />
         </Route>
+
+        {/* ── SHARED AUTHENTICATED ROUTES (any role) ──────────────── */}
+        <Route path="/notifications" element={<AnyAuthRoute><Notifications /></AnyAuthRoute>} />
 
         {/* ── CATCH-ALL ─────────────────────────────────────────────── */}
         <Route path="*" element={<Navigate to="/" replace />} />

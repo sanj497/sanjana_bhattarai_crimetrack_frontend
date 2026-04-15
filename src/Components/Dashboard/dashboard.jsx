@@ -26,15 +26,37 @@ export default function Dashboard() {
     const fetchDashboardData = async () => {
         try {
             const token = localStorage.getItem("token");
+            if (!token) {
+                console.error("No authentication token found");
+                setLoading(false);
+                return;
+            }
+            
             const res = await fetch(`${import.meta.env.VITE_BACKEND_URL}/api/report/stats`, {
                 headers: {
                     "Authorization": `Bearer ${token}`
                 }
             });
+            
+            if (res.status === 401) {
+                console.error("Authentication failed. Token may be expired.");
+                localStorage.removeItem("token");
+                localStorage.removeItem("user");
+                window.location.href = "/login";
+                return;
+            }
+            
+            if (res.status === 403) {
+                console.error("Access denied. Admin/Police role required.");
+                return;
+            }
+            
             const data = await res.json();
             if (data.success) {
                 setStats(data.stats);
                 setActivities(data.activities);
+            } else {
+                console.error("Failed to fetch dashboard data:", data.error, data.details);
             }
         } catch (err) {
             console.error("Dashboard fetch error:", err);

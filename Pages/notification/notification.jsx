@@ -20,9 +20,24 @@ export default function NotificationCenter() {
   const fetchNotifications = async () => {
     try {
       const token = localStorage.getItem("token");
+      if (!token) {
+        console.error("No authentication token found");
+        setLoading(false);
+        return;
+      }
+      
       const res = await fetch(API_BASE, {
         headers: { Authorization: `Bearer ${token}` }
       });
+      
+      if (res.status === 401) {
+        console.error("Authentication failed. Token may be expired.");
+        localStorage.removeItem("token");
+        localStorage.removeItem("user");
+        window.location.href = "/login";
+        return;
+      }
+      
       const data = await res.json();
       if (data.success) setNotifications(data.notifications);
     } catch (err) {
