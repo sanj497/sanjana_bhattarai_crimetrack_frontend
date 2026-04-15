@@ -9,6 +9,7 @@ const getUser = () => {
 
 const navItems = [
   { icon: <LayoutDashboard size={20} />, label: "Overview", path: "/citizen" },
+  { icon: <Activity size={20} />, label: "Incident Tracker", path: "/citizen/tracking" },
   { icon: <Users size={20} />, label: "Community", path: "/community" },
   { icon: <MapPin size={20} />, label: "Safety Map", path: "/map-citizen" },
   { icon: <BarChart3 size={20} />, label: "Transparency", path: "/transparency" },
@@ -48,6 +49,7 @@ export default function CitizenLayout() {
     const item = navItems.find(i => i.path === location.pathname);
     if (item) return item.label;
     if (location.pathname === "/report") return "Report Crime";
+    if (location.pathname === "/citizen/tracking") return "Incident Tracker";
     if (location.pathname === "/emergency") return "Emergency Services";
     if (location.pathname === "/feedback") return "Submit Feedback";
     return "Citizen Portal";
