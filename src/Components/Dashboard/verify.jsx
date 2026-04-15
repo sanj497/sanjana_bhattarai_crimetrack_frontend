@@ -165,11 +165,12 @@ const Verify = () => {
 
       const data = await response.json();
 
-      if (!response.ok) {
-        throw new Error(data.error || "Administrative action failed");
+      if (action === "verify") {
+        setReport({ ...report, status: "Verified" });
+        alert("Intelligence Verified. You can now forward the evidence to the nearest police unit.");
+      } else {
+        navigate("/dashboard");
       }
-
-      navigate("/admin");
     } catch (err) {
       console.error("Verify error:", err);
       alert(`Decision Rejection: ${err.message}`);

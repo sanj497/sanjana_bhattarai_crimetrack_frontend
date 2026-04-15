@@ -142,61 +142,89 @@ export default function Dashboard() {
                 <div style={{ display: "flex", flexDirection: "column", gap: 32 }}>
                     
                     {/* Stat Cards */}
-                    <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 24 }}>
+                    <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 20 }}>
                         <StatCard 
-                            title="Total Incidents" 
+                            title="Total Cases" 
                             value={stats.total} 
-                            sub="Cumulative database" 
+                            sub="Database volume" 
                             icon={<FileText size={20}/>} 
                             color="#3b82f6"
                         />
                         <StatCard 
                             title="Pending Review" 
                             value={stats.pending} 
-                            sub="Action required" 
+                            sub="Unverified input" 
                             icon={<Clock size={20}/>} 
                             color="#f59e0b"
                         />
                         <StatCard 
-                            title="Closed Cases" 
+                            title="Verified Alerts" 
+                            value={stats.verified} 
+                            sub="Ready for Dispatch" 
+                            icon={<ShieldCheck size={20}/>} 
+                            color="#8b5cf6"
+                        />
+                        <StatCard 
+                            title="Resolution" 
                             value={stats.resolved} 
-                            sub="Resolution verified" 
+                            sub="Cases closed" 
                             icon={<CheckCircle size={20}/>} 
                             color="#10b981"
                         />
                     </div>
 
-                    {/* Integrated Map Callout */}
-                    <div
-                        onClick={() => navigate("/Map")}
-                        style={{
-                            background: "linear-gradient(135deg, #1e293b 0%, #0f172a 100%)",
-                            borderRadius: 24, padding: 32,
-                            display: "flex", alignItems: "center", gap: 32,
-                            cursor: "pointer", transition: "all 0.3s ease",
-                            boxShadow: "0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)"
-                        }}
-                        onMouseEnter={e => e.currentTarget.style.transform = "translateY(-4px)"}
-                        onMouseLeave={e => e.currentTarget.style.transform = "translateY(0)"}
-                    >
-                        <div style={{
-                            width: 64, height: 64, borderRadius: 16,
-                            background: "rgba(59, 130, 246, 0.15)",
-                            display: "flex", alignItems: "center", justifyContent: "center",
-                            color: "#3b82f6"
-                        }}>
-                            <MapIcon size={32}/>
+                    {/* Integrated Map Callout & Forward Section */}
+                    <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 24 }}>
+                        <div
+                            onClick={() => navigate("/Map")}
+                            style={{
+                                background: "linear-gradient(135deg, #1e293b 0%, #0f172a 100%)",
+                                borderRadius: 24, padding: 24,
+                                display: "flex", alignItems: "center", gap: 20,
+                                cursor: "pointer", transition: "all 0.3s ease",
+                                boxShadow: "0 10px 15px -3px rgba(0, 0, 0, 0.1)"
+                            }}
+                            onMouseEnter={e => e.currentTarget.style.transform = "translateY(-4px)"}
+                            onMouseLeave={e => e.currentTarget.style.transform = "translateY(0)"}
+                        >
+                            <div style={{
+                                width: 48, height: 48, borderRadius: 12,
+                                background: "rgba(59, 130, 246, 0.15)",
+                                display: "flex", alignItems: "center", justifyContent: "center",
+                                color: "#3b82f6"
+                            }}>
+                                <MapIcon size={24}/>
+                            </div>
+                            <div style={{ flex: 1 }}>
+                                <h3 style={{ margin: 0, color: "#f8fafc", fontSize: 16, fontWeight: 700 }}>Operational Map</h3>
+                                <p style={{ margin: "2px 0 0 0", color: "#94a3b8", fontSize: 12, lineHeight: 1.4 }}>Visualize live incident locations across active zones.</p>
+                            </div>
                         </div>
-                        <div style={{ flex: 1 }}>
-                            <h3 style={{ margin: 0, color: "#f8fafc", fontSize: 20, fontWeight: 700 }}>Operational Map</h3>
-                            <p style={{ margin: "4px 0 0 0", color: "#94a3b8", fontSize: 14 }}>Visualize historical and live incidents across active jurisdictions.</p>
-                        </div>
-                        <div style={{ 
-                            padding: "10px 20px", background: "rgba(255,255,255,0.05)", 
-                            borderRadius: 12, color: "#fff", fontSize: 14, fontWeight: 600,
-                            border: "1px solid rgba(255,255,255,0.1)"
-                        }}>
-                            Launch Map View →
+
+                        <div
+                            onClick={() => navigate("/adReport")}
+                            style={{
+                                background: "linear-gradient(135deg, #8b5cf6 0%, #6d28d9 100%)",
+                                borderRadius: 24, padding: 24,
+                                display: "flex", alignItems: "center", gap: 20,
+                                cursor: "pointer", transition: "all 0.3s ease",
+                                boxShadow: "0 10px 15px -3px rgba(139, 92, 246, 0.3)"
+                            }}
+                            onMouseEnter={e => e.currentTarget.style.transform = "translateY(-4px)"}
+                            onMouseLeave={e => e.currentTarget.style.transform = "translateY(0)"}
+                        >
+                            <div style={{
+                                width: 48, height: 48, borderRadius: 12,
+                                background: "rgba(255, 255, 255, 0.2)",
+                                display: "flex", alignItems: "center", justifyContent: "center",
+                                color: "#fff"
+                            }}>
+                                <Send size={24}/>
+                            </div>
+                            <div style={{ flex: 1 }}>
+                                <h3 style={{ margin: 0, color: "#fff", fontSize: 16, fontWeight: 700 }}>Dispatcher Queue</h3>
+                                <p style={{ margin: "2px 0 0 0", color: "rgba(255,255,255,0.7)", fontSize: 12, lineHeight: 1.4 }}>{stats.verified} reports verified and pending police assignment.</p>
+                            </div>
                         </div>
                     </div>
 
@@ -255,10 +283,10 @@ export default function Dashboard() {
                                             padding: "6px 12px", borderRadius: 8,
                                             fontSize: 11, fontWeight: 700, textTransform: "uppercase",
                                             letterSpacing: "0.05em",
-                                            background: a.badge === "Resolved" || a.badge === "Verified" ? "#ecfdf5" : a.badge === "Pending" ? "#fffbeb" : "#f1f5f9",
-                                            color: a.badge === "Resolved" || a.badge === "Verified" ? "#059669" : a.badge === "Pending" ? "#d97706" : "#475569",
-                                            border: `1px solid ${a.badge === "Resolved" || a.badge === "Verified" ? "#d1fae5" : a.badge === "Pending" ? "#fef3c7" : "#e2e8f0"}`
-                                        }}>{a.badge}</span>
+                                            background: a.badge === "Resolved" || a.badge === "Verified" ? "#ecfdf5" : a.badge === "Pending" ? "#fffbeb" : a.badge === "ForwardedToPolice" ? "#eff6ff" : "#f1f5f9",
+                                            color: a.badge === "Resolved" || a.badge === "Verified" ? "#059669" : a.badge === "Pending" ? "#d97706" : a.badge === "ForwardedToPolice" ? "#2563eb" : "#475569",
+                                            border: `1px solid ${a.badge === "Resolved" || a.badge === "Verified" ? "#d1fae5" : a.badge === "Pending" ? "#fef3c7" : a.badge === "ForwardedToPolice" ? "#dbeafe" : "#e2e8f0"}`
+                                        }}>{a.badge === "ForwardedToPolice" ? "Escalated" : a.badge}</span>
                                     </div>
                                 ))
                             ) : (

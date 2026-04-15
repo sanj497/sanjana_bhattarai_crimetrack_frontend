@@ -9,7 +9,8 @@ export const useSocket = () => {
 
   useEffect(() => {
     const user = JSON.parse(localStorage.getItem("user") || "{}");
-    if (!user._id) return;
+    const userId = user._id || user.id;
+    if (!userId) return;
 
     // Initialize socket
     socketRef.current = io(SOCKET_URL, {
@@ -18,7 +19,7 @@ export const useSocket = () => {
 
     // Authenticate with server to join rooms
     socketRef.current.emit("authenticate", {
-      userId: user._id,
+      userId,
       role: user.role
     });
 
