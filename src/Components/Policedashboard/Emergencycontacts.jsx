@@ -66,12 +66,18 @@ function SOSButton() {
   const updateTracking = useCallback(async (lat, lng, accuracy) => {
     try {
       const token = localStorage.getItem("token");
+      const headers = { 
+        "Content-Type": "application/json"
+      };
+      
+      // Add authorization header only if token exists
+      if (token) {
+        headers.Authorization = `Bearer ${token}`;
+      }
+      
       await fetch(`${API_BASE}/sos/${alertId}/track`, {
         method: "POST",
-        headers: { 
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}` 
-        },
+        headers,
         body: JSON.stringify({ latitude: lat, longitude: lng, accuracy }),
       });
     } catch (err) {
@@ -89,12 +95,18 @@ function SOSButton() {
       setMessage(" DISPATCHING EMERGENCY UNITS...");
       try {
         const token = localStorage.getItem("token");
+        const headers = { 
+          "Content-Type": "application/json"
+        };
+        
+        // Add authorization header only if token exists
+        if (token) {
+          headers.Authorization = `Bearer ${token}`;
+        }
+        
         const res = await fetch(`${API_BASE}/sos`, {
           method: "POST",
-          headers: { 
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`
-          },
+          headers,
           body: JSON.stringify({ latitude: lat, longitude: lng, accuracy, timestamp: new Date().toISOString() }),
         });
         const data = await res.json();

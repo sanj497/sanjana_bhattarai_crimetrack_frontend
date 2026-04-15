@@ -95,6 +95,9 @@ function App() {
         <Route path="/register-admin" element={<GuestOnlyRoute><RegisterAdmin /></GuestOnlyRoute>} />
         <Route path="/register-police" element={<GuestOnlyRoute><RegisterPolice /></GuestOnlyRoute>} />
 
+        {/* ── PUBLIC EMERGENCY ROUTE ─────────────────────────────── */}
+        <Route path="/emergency" element={<EmergencyContactsApp />} />
+
         {/* ── ADMIN ROUTES (role: admin) ─────────────────────────────── */}
         <Route element={<AdminRoute><AdminLayout /></AdminRoute>}>
           <Route path="/dashboard" element={<Dashboard />} />
