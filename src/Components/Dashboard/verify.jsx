@@ -13,7 +13,8 @@ import {
   CheckCircle2,
   XCircle,
   MessageSquare,
-  ShieldAlert
+  ShieldAlert,
+  Bell
 } from "lucide-react";
 
 // The base API URL from environment
@@ -140,6 +141,36 @@ const Verify = () => {
       alert(`Forwarding Error: ${err.message}`);
     } finally {
       setIsForwarding(false);
+    }
+  };
+
+  const handleBroadcastAlert = async () => {
+    if (!window.confirm("CRITICAL ACTION: This will broadcast a safety alert via email and dashboard notification to ALL verified citizens. Proceed?")) return;
+    
+    setLoading(true);
+    const token = localStorage.getItem("token");
+
+    try {
+      const response = await fetch(`${API_BASE}/${id}/broadcast-community-alert`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${token}`,
+        }
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || "Broadcast failed");
+      }
+
+      alert(`✅ Community Alert successful! Notified ${data.notifiedCount} citizens.`);
+    } catch (err) {
+      console.error("Broadcast error:", err);
+      alert(`Broadcast Failure: ${err.message}`);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -381,66 +412,78 @@ const Verify = () => {
                   {!report.isAnonymous && <div className="text-[10px] text-slate-500 font-bold">{report.userId?.email}</div>}
                </div>
 
-               {/* FORWARD TO POLICE SECTION */}
-               {report.status === "Verified" && (
-                  <div className="bg-blue-600 rounded-[40px] p-8 shadow-2xl shadow-blue-600/20 space-y-6">
-                    <div className="flex items-center gap-3 text-white">
-                      <ShieldAlert size={20} className="animate-pulse" />
-                      <h3 className="text-lg font-black tracking-tighter uppercase leading-none">Forward to Police</h3>
-                    </div>
-                    
-                    <p className="text-blue-100 text-[11px] font-bold leading-relaxed">
-                      Verification complete. Select the nearest deployment unit in <span className="underline decoration-2 underline-offset-4">{report.location?.address}</span> to initialize Field Investigation.
-                    </p>
-
-                    <div className="space-y-3">
-                      <label className="text-[9px] font-black text-blue-200 uppercase tracking-widest block">Nearest Units Identified</label>
-                      
-                      {fetchingPolice ? (
-                        <div className="py-8 flex flex-col items-center justify-center gap-2">
-                           <div className="h-5 w-5 border-2 border-blue-400 border-t-white rounded-full animate-spin" />
-                           <span className="text-[9px] font-black text-blue-200 uppercase tracking-widest">Scanning Jurisdictions...</span>
-                        </div>
-                      ) : nearbyPolice.length > 0 ? (
-                        <div className="space-y-2">
-                          {nearbyPolice.map(officer => (
-                            <button
-                              key={officer._id}
-                              onClick={() => setSelectedOfficer(officer)}
-                              className={`w-full p-4 rounded-2xl flex items-center justify-between transition-all border-2 ${selectedOfficer?._id === officer._id ? 'bg-white border-white scale-[1.02]' : 'bg-blue-700/50 border-blue-500/30 hover:bg-blue-700'}`}
-                            >
-                              <div className="text-left">
-                                <div className={`text-xs font-black uppercase tracking-tight ${selectedOfficer?._id === officer._id ? 'text-blue-700' : 'text-white'}`}>
-                                  {officer.name || officer.username}
-                                </div>
-                                <div className={`text-[10px] font-bold ${selectedOfficer?._id === officer._id ? 'text-blue-500' : 'text-blue-200'}`}>
-                                  Station: {officer.stationDistrict || "Unknown Sector"}
-                                </div>
-                                <div className={`text-[10px] font-bold ${selectedOfficer?._id === officer._id ? 'text-blue-500' : 'text-blue-200'}`}>
-                                  Distance: {officer.distanceText || "Distance unavailable"}
-                                </div>
-                              </div>
-                              {selectedOfficer?._id === officer._id && <CheckCircle2 size={18} className="text-blue-600" />}
-                            </button>
-                          ))}
-                        </div>
-                      ) : (
-                        <div className="p-4 bg-blue-700/50 rounded-2xl border border-blue-500/30 text-[10px] font-bold text-blue-200 text-center">
-                          No matching units found for this zone.
-                        </div>
-                      )}
-                    </div>
-
+                {/* FORWARD TO POLICE SECTION */}
+                {report.status === "Verified" && (
+                  <div className="space-y-6">
+                    {/* ALERT COMMUNITY BUTTON */}
                     <button 
-                      onClick={handleForwardToPolice}
-                      disabled={!selectedOfficer || isForwarding}
-                      className="w-full py-5 bg-white text-blue-700 rounded-3xl text-xs font-black uppercase tracking-[2px] shadow-xl hover:bg-slate-100 transition-all active:scale-95 disabled:opacity-30 flex items-center justify-center gap-2"
+                      onClick={handleBroadcastAlert}
+                      disabled={loading}
+                      className="w-full py-6 bg-rose-600 text-white rounded-[40px] text-xs font-black uppercase tracking-[3px] shadow-2xl shadow-rose-600/30 hover:bg-rose-500 transition-all flex items-center justify-center gap-3 active:scale-95 disabled:opacity-30"
                     >
-                      {isForwarding ? "Deploying..." : "Initialize Field Assignment"}
-                      <ChevronRight size={16} />
+                      <Bell size={18} className="animate-bounce" />
+                      Broadcast Community Alert
                     </button>
+
+                    <div className="bg-blue-600 rounded-[40px] p-8 shadow-2xl shadow-blue-600/20 space-y-6">
+                      <div className="flex items-center gap-3 text-white">
+                        <ShieldAlert size={20} className="animate-pulse" />
+                        <h3 className="text-lg font-black tracking-tighter uppercase leading-none">Forward to Police</h3>
+                      </div>
+                      
+                      <p className="text-blue-100 text-[11px] font-bold leading-relaxed">
+                        Verification complete. Select the nearest deployment unit in <span className="underline decoration-2 underline-offset-4">{report.location?.address}</span> to initialize Field Investigation.
+                      </p>
+
+                      <div className="space-y-3">
+                        <label className="text-[9px] font-black text-blue-200 uppercase tracking-widest block">Nearest Units Identified</label>
+                        
+                        {fetchingPolice ? (
+                          <div className="py-8 flex flex-col items-center justify-center gap-2">
+                             <div className="h-5 w-5 border-2 border-blue-400 border-t-white rounded-full animate-spin" />
+                             <span className="text-[9px] font-black text-blue-200 uppercase tracking-widest">Scanning Jurisdictions...</span>
+                          </div>
+                        ) : nearbyPolice.length > 0 ? (
+                          <div className="space-y-2">
+                            {nearbyPolice.map(officer => (
+                              <button
+                                key={officer._id}
+                                onClick={() => setSelectedOfficer(officer)}
+                                className={`w-full p-4 rounded-2xl flex items-center justify-between transition-all border-2 ${selectedOfficer?._id === officer._id ? 'bg-white border-white scale-[1.02]' : 'bg-blue-700/50 border-blue-500/30 hover:bg-blue-700'}`}
+                              >
+                                <div className="text-left">
+                                  <div className={`text-xs font-black uppercase tracking-tight ${selectedOfficer?._id === officer._id ? 'text-blue-700' : 'text-white'}`}>
+                                    {officer.name || officer.username}
+                                  </div>
+                                  <div className={`text-[10px] font-bold ${selectedOfficer?._id === officer._id ? 'text-blue-500' : 'text-blue-200'}`}>
+                                    Station: {officer.stationDistrict || "Unknown Sector"}
+                                  </div>
+                                  <div className={`text-[10px] font-bold ${selectedOfficer?._id === officer._id ? 'text-blue-500' : 'text-blue-200'}`}>
+                                    Distance: {officer.distanceText || "Distance unavailable"}
+                                  </div>
+                                </div>
+                                {selectedOfficer?._id === officer._id && <CheckCircle2 size={18} className="text-blue-600" />}
+                              </button>
+                            ))}
+                          </div>
+                        ) : (
+                          <div className="p-4 bg-blue-700/50 rounded-2xl border border-blue-500/30 text-[10px] font-bold text-blue-200 text-center">
+                            No matching units found for this zone.
+                          </div>
+                        )}
+                      </div>
+
+                      <button 
+                        onClick={handleForwardToPolice}
+                        disabled={!selectedOfficer || isForwarding}
+                        className="w-full py-5 bg-white text-blue-700 rounded-3xl text-xs font-black uppercase tracking-[2px] shadow-xl hover:bg-slate-100 transition-all active:scale-95 disabled:opacity-30 flex items-center justify-center gap-2"
+                      >
+                        {isForwarding ? "Deploying..." : "Initialize Field Assignment"}
+                        <ChevronRight size={16} />
+                      </button>
+                    </div>
                   </div>
-               )}
+                )}
             </div>
          </div>
       </div>
