@@ -14,7 +14,8 @@ import {
   XCircle,
   MessageSquare,
   ShieldAlert,
-  Bell
+  Bell,
+  Send
 } from "lucide-react";
 
 // The base API URL from environment
