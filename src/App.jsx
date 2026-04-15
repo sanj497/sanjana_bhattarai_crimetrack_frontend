@@ -2,6 +2,8 @@ import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import React from "react";
 import Login from "../Pages/Login";
 import Register from "../Pages/Register";
+import RegisterAdmin from "../Pages/RegisterAdmin.jsx";
+import RegisterPolice from "../Pages/RegisterPolice.jsx";
 import CrimeReportingHome from "../Pages/Home";
 import ReportCrime from "../Pages/CrimeReport/report.jsx";
 
@@ -76,6 +78,8 @@ function App() {
         {/* Auth pages — redirect if already logged in */}
         <Route path="/login" element={<GuestOnlyRoute><Login /></GuestOnlyRoute>} />
         <Route path="/register" element={<GuestOnlyRoute><Register /></GuestOnlyRoute>} />
+        <Route path="/register-admin" element={<GuestOnlyRoute><RegisterAdmin /></GuestOnlyRoute>} />
+        <Route path="/register-police" element={<GuestOnlyRoute><RegisterPolice /></GuestOnlyRoute>} />
 
         {/* ── ADMIN ROUTES (role: admin) ─────────────────────────────── */}
         <Route element={<AdminRoute><AdminLayout /></AdminRoute>}>
