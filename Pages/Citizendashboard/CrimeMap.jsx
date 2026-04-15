@@ -244,7 +244,7 @@ export default function CrimeMap() {
                   <div className={`h-2 w-2 rounded-full ${selected === r._id ? 'bg-white' : ''}`} style={{ background: selected === r._id ? '#fff' : SEVERITY_COLOR[r.severity] }} />
                </div>
                <h4 className={`text-sm font-black tracking-tight mb-1 ${selected === r._id ? 'text-white' : 'text-slate-800 group-hover:text-blue-600'}`}>{r.title || "Untitled Incident"}</h4>
-               <p className={`text-[10px] font-medium leading-relaxed line-clamp-2 ${selected === r._id ? 'text-slate-400' : 'text-slate-500'}`}>{r.location.address}</p>
+               <p className={`text-[10px] font-medium leading-relaxed line-clamp-2 ${selected === r._id ? 'text-slate-400' : 'text-slate-500'}`}>{r._isSOS ? "Live Dispatch Location" : (r.location?.address || "Unknown Location")}</p>
                
                <div className="mt-4 flex items-center justify-between">
                   <span className={`text-[9px] font-bold ${selected === r._id ? 'text-slate-500' : 'text-slate-300'}`}>

@@ -123,6 +123,7 @@ function App() {
         {/* ── POLICE ROUTES (role: police) ──────────────────────────── */}
         <Route element={<PoliceRoute><PoliceLayout /></PoliceRoute>}>
           <Route path="/police/dashboard" element={<NewBoard />} />
+          <Route path="/police/map" element={<CrimeMap />} />
           <Route path="/police/reports" element={<Policereport />} />
           <Route path="/police/forward" element={<ForwardToPolice />} />
           <Route path="/police/sos" element={<SOSList />} />

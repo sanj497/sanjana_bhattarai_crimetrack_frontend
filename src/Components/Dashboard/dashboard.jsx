@@ -182,31 +182,57 @@ export default function Dashboard() {
                         />
                     </div>
 
-                    {/* Integrated Map Callout & Forward Section */}
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <div
-                            onClick={() => navigate("/admin/map")}
-                            className="bg-slate-900 rounded-[32px] p-8 flex items-center gap-6 cursor-pointer hover:-translate-y-1 transition-all shadow-xl"
-                        >
-                            <div className="w-14 h-14 rounded-2xl bg-blue-500/10 flex items-center justify-center text-blue-500">
-                                <MapIcon size={28}/>
-                            </div>
-                            <div>
-                                <h3 className="text-white text-lg font-black uppercase tracking-tight">Operational Map</h3>
-                                <p className="text-slate-400 text-xs font-bold mt-1">Visualize live incident locations across active zones.</p>
-                            </div>
+                    {/* Live Intelligence Map & Dispatcher Queue */}
+                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 w-full">
+                        {/* Live Tactical Map Preview */}
+                        <div className="bg-slate-900 rounded-[32px] overflow-hidden flex flex-col relative h-[250px] shadow-xl group border border-slate-800">
+                          <div className="absolute top-4 left-4 z-20 pointer-events-none flex items-center gap-2 bg-slate-900/80 backdrop-blur-md px-4 py-2 rounded-xl border border-slate-700/50">
+                            <span className="w-2 h-2 rounded-full bg-blue-500 animate-pulse" />
+                            <span className="text-[10px] font-black text-white uppercase tracking-widest">Tactical Overview</span>
+                          </div>
+                          
+                          <div className="absolute inset-0 z-10 w-full h-full" style={{ filter: 'invert(90%) hue-rotate(180deg)' }}>
+                            <iframe
+                              title="Live Tactical Overview"
+                              width="100%"
+                              height="100%"
+                              style={{ border: 0, pointerEvents: 'none' }}
+                              loading="lazy"
+                              src={`https://www.openstreetmap.org/export/embed.html?bbox=85.314%2C27.7072%2C85.334%2C27.7272&layer=mapnik`}
+                            />
+                          </div>
+                          
+                          {/* Map Overlay content */}
+                          <div className="absolute inset-0 z-20 bg-gradient-to-t from-slate-950/90 via-slate-900/20 to-transparent flex flex-col justify-end p-6 hover:from-slate-950 transition-all cursor-pointer" onClick={() => navigate("/admin/map")}>
+                             <div className="transform translate-y-2 group-hover:translate-y-0 transition-all">
+                               <h3 className="text-white text-lg font-black uppercase tracking-tight flex items-center gap-2">
+                                 <MapIcon size={18} className="text-blue-500" /> Operational Map Grid
+                               </h3>
+                               <p className="text-slate-400 text-xs font-bold mt-1">Visualize full reports & critical incident intel in the interactive map.</p>
+                             </div>
+                             <div className="absolute bottom-6 right-6 opacity-0 group-hover:opacity-100 transition-all translate-x-4 group-hover:translate-x-0">
+                               <div className="h-10 w-10 bg-blue-600 rounded-full flex items-center justify-center text-white">
+                                 <Send size={16} />
+                               </div>
+                             </div>
+                          </div>
                         </div>
 
+                        {/* Dispatch Queue Card */}
                         <div
-                            onClick={() => navigate("/adReport")}
-                            className="bg-gradient-to-br from-indigo-600 to-violet-700 rounded-[32px] p-8 flex items-center gap-6 cursor-pointer hover:-translate-y-1 transition-all shadow-xl"
+                            onClick={() => navigate("/forward-admin")}
+                            className="bg-gradient-to-br from-indigo-600 to-violet-700 rounded-[32px] p-8 flex items-center gap-6 cursor-pointer hover:-translate-y-1 transition-all shadow-xl h-[250px]"
                         >
-                            <div className="w-14 h-14 rounded-2xl bg-white/20 flex items-center justify-center text-white">
-                                <Send size={28}/>
+                            <div className="w-16 h-16 rounded-3xl bg-white/20 flex flex-col items-center justify-center text-white shrink-0 shadow-inner">
+                                <Send size={24}/>
                             </div>
                             <div>
-                                <h3 className="text-white text-lg font-black uppercase tracking-tight">Dispatcher Queue</h3>
-                                <p className="text-white/70 text-xs font-bold mt-1">{stats.verified} reports verified and pending police assignment.</p>
+                                <h3 className="text-white text-2xl font-black uppercase tracking-tight">Dispatcher Queue</h3>
+                                <p className="text-indigo-100 text-sm font-medium mt-2 leading-relaxed">{stats.verified} reports have been verified by intelligence officers and are pending immediate police assignment.</p>
+                                
+                                <button className="mt-6 px-6 py-2.5 bg-white text-indigo-700 rounded-xl text-[10px] font-black uppercase tracking-widest shadow-lg hover:shadow-xl hover:scale-105 transition-all">
+                                  Assign Units Now
+                                </button>
                             </div>
                         </div>
                     </div>

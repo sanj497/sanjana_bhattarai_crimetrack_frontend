@@ -38,6 +38,7 @@ export default function PoliceLayout() {
 
   const menuItems = [
     { name: 'Dashboard', icon: LayoutDashboard, path: '/police/dashboard' },
+    { name: 'Live Map', icon: MapPin, path: '/police/map' },
     { name: 'Reports', icon: FileText, path: '/police/reports' },
     { name: 'SOS Alerts', icon: Siren, path: '/police/sos', badge: '3' },
     { name: 'Notifications', icon: Bell, path: '/notifications' },
