@@ -177,6 +177,10 @@ export default function EmergencyCenter() {
                                                 <span className="text-xs font-black text-slate-700 mt-1 uppercase tracking-tighter">10KM Radius</span>
                                             </div>
                                         </div>
+                                        <div className="flex flex-col items-end">
+                                            <span className="text-[9px] font-black text-rose-500 uppercase leading-none">Impact</span>
+                                            <span className="text-sm font-black text-rose-600 mt-1">{crime.nearbyCitizenCount || 0} People</span>
+                                        </div>
                                     </div>
 
                                     <button 
