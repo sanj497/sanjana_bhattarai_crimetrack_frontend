@@ -144,194 +144,189 @@ const SOSList = () => {
   );
 
   return (
-    <div className="p-6 space-y-6">
+    <div className="p-8 space-y-8 animate-in fade-in duration-500">
       {/* Header with Stats */}
-      <div className="flex items-center justify-between mb-8">
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
         <div>
-          <h2 className="text-3xl font-bold text-gray-900 flex items-center gap-3">
-            <AlertTriangle className="h-8 w-8 text-red-600" />
-            Emergency SOS Alerts
+          <h2 className="text-4xl font-black text-white flex items-center gap-4 tracking-tighter uppercase italic">
+            <Siren className="h-10 w-10 text-red-500 animate-pulse" />
+            Live SOS Feed
             {criticalAlerts.size > 0 && (
-              <span className="bg-red-600 text-white text-sm font-bold px-3 py-1 rounded-full animate-pulse">
-                {criticalAlerts.size} CRITICAL
+              <span className="bg-red-600 text-white text-[10px] font-black px-3 py-1 rounded-full animate-bounce tracking-widest shadow-lg shadow-red-600/30">
+                {criticalAlerts.size} ACTIVE THREATS
               </span>
             )}
           </h2>
-          <p className="text-gray-600 mt-1">Real-time emergency response system</p>
+          <p className="text-slate-500 font-bold text-xs uppercase tracking-widest mt-2 ml-14">Central Dispatch Control Unit</p>
         </div>
         <button 
           onClick={fetchSOS}
-          className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors flex items-center gap-2"
+          className="px-6 py-3 bg-blue-600 text-white rounded-2xl hover:bg-blue-500 transition-all active:scale-95 flex items-center gap-3 font-black text-[10px] uppercase tracking-widest shadow-xl shadow-blue-600/20"
         >
           <Activity className="h-4 w-4" />
-          Refresh
+          Synchronize Data
         </button>
       </div>
 
       {/* Stats Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-        <div className="bg-white rounded-xl p-6 border border-gray-200 shadow-sm">
-          <div className="flex items-center justify-between">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        {[
+          { label: "Active Responses", val: stats.active, color: "rose", icon: AlertTriangle },
+          { label: "Resolved Incidents", val: stats.resolved, color: "emerald", icon: CheckCircle },
+          { label: "Cumulative Alerts", val: stats.total, color: "blue", icon: Bell },
+        ].map((stat, i) => (
+          <div key={i} className="bg-slate-900/50 backdrop-blur-md rounded-[32px] p-8 border border-slate-800/50 flex items-center justify-between group hover:border-slate-700 transition-all shadow-xl">
             <div>
-              <p className="text-sm font-medium text-gray-600">Active Alerts</p>
-              <p className="text-3xl font-bold text-red-600">{stats.active}</p>
+              <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-1">{stat.label}</p>
+              <p className={`text-4xl font-black text-${stat.color}-500 tracking-tighter`}>{stat.val}</p>
             </div>
-            <div className="p-3 bg-red-100 rounded-full">
-              <AlertTriangle className="h-6 w-6 text-red-600" />
+            <div className={`p-4 bg-${stat.color}-500/10 rounded-2xl group-hover:scale-110 transition-transform`}>
+              <stat.icon className={`h-8 w-8 text-${stat.color}-500`} />
             </div>
           </div>
-        </div>
-        <div className="bg-white rounded-xl p-6 border border-gray-200 shadow-sm">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm font-medium text-gray-600">Resolved</p>
-              <p className="text-3xl font-bold text-green-600">{stats.resolved}</p>
-            </div>
-            <div className="p-3 bg-green-100 rounded-full">
-              <CheckCircle className="h-6 w-6 text-green-600" />
-            </div>
-          </div>
-        </div>
-        <div className="bg-white rounded-xl p-6 border border-gray-200 shadow-sm">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm font-medium text-gray-600">Total Alerts</p>
-              <p className="text-3xl font-bold text-blue-600">{stats.total}</p>
-            </div>
-            <div className="p-3 bg-blue-100 rounded-full">
-              <Bell className="h-6 w-6 text-blue-600" />
-            </div>
-          </div>
-        </div>
+        ))}
       </div>
 
       {/* Alerts List */}
       {sosData.length === 0 ? (
-        <div className="text-center py-12 bg-gray-50 rounded-xl border border-gray-200">
-          <div className="p-4 bg-gray-100 rounded-full w-fit mx-auto mb-4">
-            <AlertTriangle className="h-12 w-12 text-gray-300" />
+        <div className="text-center py-24 bg-slate-900/30 rounded-[40px] border border-slate-800/50 backdrop-blur-sm">
+          <div className="p-8 bg-slate-800 text-slate-600 rounded-full w-fit mx-auto mb-6">
+            <AlertTriangle className="h-16 w-16" />
           </div>
-          <h3 className="text-xl font-semibold text-gray-700 mb-2">No SOS Alerts</h3>
-          <p className="text-gray-500">No emergency alerts have been received at this time.</p>
+          <h3 className="text-2xl font-black text-slate-400 mb-2 uppercase tracking-tighter">No Active Signals</h3>
+          <p className="text-slate-500 font-medium">All clear. No emergency transmissions detected on current frequencies.</p>
         </div>
       ) : (
-        <div className="space-y-4">
-          {sosData.map((item) => (
-            <div 
-              key={item._id} 
-              className={`border-2 rounded-xl p-6 transition-all hover:shadow-lg ${getPriorityColor(item)} ${
-                criticalAlerts.has(item._id) ? 'animate-pulse shadow-xl' : 'shadow-md'
-              }`}
-            >
-              <div className="flex items-start justify-between mb-4">
-                <div className="flex items-center gap-3">
-                  {getStatusIcon(item.status)}
-                  <div>
-                    <h3 className="font-bold text-lg">
-                      {item.userId?.name || 'Anonymous User'}
-                    </h3>
-                    <p className="text-sm text-gray-600">
-                      {item.userId?.email || 'No email'}
-                    </p>
+        <div className="grid grid-cols-1 gap-8 pb-12">
+          {sosData.map((item) => {
+            const isCritical = criticalAlerts.has(item._id);
+            const statusColors = {
+              active: "rose",
+              acknowledged: "blue",
+              resolved: "emerald"
+            }[item.status] || "slate";
+
+            return (
+              <div 
+                key={item._id} 
+                className={`group relative overflow-hidden bg-slate-900 rounded-[40px] border-2 transition-all duration-500 ${
+                  isCritical ? 'border-red-600 shadow-[0_0_50px_rgba(225,29,72,0.15)]' : 'border-slate-800 hover:border-slate-700'
+                }`}
+              >
+                {isCritical && <div className="absolute inset-0 bg-red-600/5 animate-pulse pointer-events-none" />}
+                
+                <div className="p-8 md:p-12 relative z-10">
+                  <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-8 mb-10">
+                    <div className="flex items-center gap-6">
+                      <div className={`p-4 bg-${statusColors}-500/10 rounded-3xl`}>
+                        {getStatusIcon(item.status)}
+                      </div>
+                      <div>
+                        <div className="text-[10px] font-black text-blue-500 uppercase tracking-widest mb-1">Authenticated Citizen</div>
+                        <h3 className="text-2xl font-black text-white uppercase tracking-tight group-hover:text-blue-400 transition-colors">
+                          {item.userId?.name || 'Unknown Operator'}
+                        </h3>
+                        <p className="text-xs font-bold text-slate-500 mt-1 uppercase tracking-wider">{item.userId?.email || 'Secure Channel'}</p>
+                      </div>
+                    </div>
+                    
+                    <div className="flex items-center gap-4">
+                      <div className={`px-5 py-2 rounded-full bg-${statusColors}-500/10 text-${statusColors}-500 text-[10px] font-black uppercase tracking-widest border border-${statusColors}-500/20`}>
+                        {item.status}
+                      </div>
+                      {isCritical && (
+                        <span className="bg-red-600 text-white text-[10px] font-black px-4 py-2 rounded-full uppercase tracking-tighter flex items-center gap-2 shadow-lg shadow-red-600/40">
+                          <Activity className="h-4 w-4 animate-spin" /> PRIORITY ZERO
+                        </span>
+                      )}
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-10">
+                    <div className="p-6 bg-slate-950/50 rounded-3xl border border-slate-800/50">
+                      <div className="flex items-center gap-3 text-slate-500 mb-2">
+                        <MapPin size={16} />
+                        <span className="text-[10px] font-black uppercase tracking-widest">Geolocation</span>
+                      </div>
+                      <p className="text-lg font-black text-white italic tracking-tighter">
+                        {item.latitude && item.longitude ? 
+                          `${item.latitude.toFixed(6)}, ${item.longitude.toFixed(6)}` : 
+                          'COORDS REDACTED'
+                        }
+                      </p>
+                      {item.accuracy && (
+                        <p className="text-[10px] text-slate-500 font-bold mt-1">Margin of Error: ±{item.accuracy}m</p>
+                      )}
+                    </div>
+
+                    <div className="p-6 bg-slate-950/50 rounded-3xl border border-slate-800/50">
+                      <div className="flex items-center gap-3 text-slate-500 mb-2">
+                        <Clock size={16} />
+                        <span className="text-[10px] font-black uppercase tracking-widest">Timestamp</span>
+                      </div>
+                      <p className="text-lg font-black text-white italic tracking-tighter">
+                        {new Date(item.timestamp).toLocaleTimeString([], { hour12: true, hour: '2-digit', minute: '2-digit' })}
+                      </p>
+                      <p className="text-[10px] text-slate-500 font-bold mt-1">{new Date(item.timestamp).toLocaleDateString()}</p>
+                    </div>
+
+                    <div className="p-6 bg-slate-950/50 rounded-3xl border border-slate-800/50">
+                      <div className="flex items-center gap-3 text-slate-500 mb-2">
+                        <User size={16} />
+                        <span className="text-[10px] font-black uppercase tracking-widest">Incident Note</span>
+                      </div>
+                      <p className="text-sm font-bold text-slate-300 line-clamp-2 italic">{item.message || "No immediate message provided."}</p>
+                    </div>
+                  </div>
+
+                  <div className="flex flex-wrap gap-4 pt-4 border-t border-slate-800/50">
+                    {item.status === 'active' && (
+                      <>
+                        <button
+                          onClick={() => handleStatusUpdate(item._id, 'acknowledged')}
+                          className="px-8 py-4 bg-blue-600 text-white rounded-2xl hover:bg-blue-500 transition-all text-[10px] font-black uppercase tracking-widest flex items-center gap-3 shadow-xl shadow-blue-600/20 active:scale-95"
+                        >
+                          <Navigation className="h-4 w-4" /> Acknowledge Dispatch
+                        </button>
+                        <button
+                          onClick={() => handleStatusUpdate(item._id, 'resolved')}
+                          className="px-8 py-4 bg-emerald-600 text-white rounded-2xl hover:bg-emerald-500 transition-all text-[10px] font-black uppercase tracking-widest flex items-center gap-3 shadow-xl shadow-emerald-600/20 active:scale-95"
+                        >
+                          <CheckCircle className="h-4 w-4" /> Secure Incident
+                        </button>
+                      </>
+                    )}
+                    {item.status === 'acknowledged' && (
+                      <button
+                        onClick={() => handleStatusUpdate(item._id, 'resolved')}
+                        className="px-8 py-4 bg-emerald-600 text-white rounded-2xl hover:bg-emerald-500 transition-all text-[10px] font-black uppercase tracking-widest flex items-center gap-3 shadow-xl shadow-emerald-600/20 active:scale-95"
+                      >
+                        <CheckCircle className="h-4 w-4" /> Finalize Resolution
+                      </button>
+                    )}
+                    
+                    <a
+                      href={`https://maps.google.com/?q=${item.latitude},${item.longitude}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="px-8 py-4 bg-slate-800 text-slate-300 rounded-2xl hover:bg-slate-700 transition-all text-[10px] font-black uppercase tracking-widest flex items-center gap-3 italic"
+                    >
+                      <MapPin className="h-4 w-4" /> Intel Map View
+                    </a>
+                    
+                    {item.userId?.phone && (
+                      <a
+                        href={`tel:${item.userId.phone}`}
+                        className="px-8 py-4 bg-slate-800 text-blue-500 rounded-2xl hover:bg-slate-700 transition-all text-[10px] font-black uppercase tracking-widest flex items-center gap-3 italic"
+                      >
+                        <Phone className="h-4 w-4" /> Established Comms
+                      </a>
+                    )}
                   </div>
                 </div>
-                <div className="flex items-center gap-2">
-                  <span className={`px-3 py-1 rounded-full text-xs font-bold uppercase ${
-                    item.status === 'active' ? 'bg-red-600 text-white' :
-                    item.status === 'acknowledged' ? 'bg-blue-600 text-white' :
-                    'bg-green-600 text-white'
-                  }`}>
-                    {item.status}
-                  </span>
-                  {getSeverityBadge(item)}
-                </div>
               </div>
-              
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-                <div className="flex items-center gap-2">
-                  <MapPin className="h-4 w-4 text-gray-500" />
-                  <span className="text-sm">
-                    {item.latitude && item.longitude ? 
-                      `${item.latitude.toFixed(4)}, ${item.longitude.toFixed(4)}` : 
-                      'Location unknown'
-                    }
-                  </span>
-                  {item.accuracy && (
-                    <span className="text-xs text-gray-500">
-                      (±{item.accuracy}m)
-                    </span>
-                  )}
-                </div>
-                <div className="flex items-center gap-2">
-                  <Clock className="h-4 w-4 text-gray-500" />
-                  <span className="text-sm">
-                    {new Date(item.timestamp).toLocaleString()}
-                  </span>
-                </div>
-              </div>
-              
-              <div className="mb-4">
-                <p className="text-sm font-medium text-gray-700 mb-1">Message:</p>
-                <p className="text-sm text-gray-600">{item.message}</p>
-              </div>
-              
-              {item.trackingHistory && item.trackingHistory.length > 1 && (
-                <div className="mb-4">
-                  <p className="text-sm font-medium text-gray-700 mb-1">
-                    Location Updates: {item.trackingHistory.length} points
-                  </p>
-                </div>
-              )}
-              
-              <div className="flex gap-2">
-                {item.status === 'active' && (
-                  <>
-                    <button
-                      onClick={() => handleStatusUpdate(item._id, 'acknowledged')}
-                      className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm flex items-center gap-2"
-                    >
-                      <CheckCircle className="h-4 w-4" />
-                      Acknowledge
-                    </button>
-                    <button
-                      onClick={() => handleStatusUpdate(item._id, 'resolved')}
-                      className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors text-sm flex items-center gap-2"
-                    >
-                      <CheckCircle className="h-4 w-4" />
-                      Mark Resolved
-                    </button>
-                  </>
-                )}
-                {item.status === 'acknowledged' && (
-                  <button
-                    onClick={() => handleStatusUpdate(item._id, 'resolved')}
-                    className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors text-sm flex items-center gap-2"
-                  >
-                    <CheckCircle className="h-4 w-4" />
-                    Mark Resolved
-                  </button>
-                )}
-                <a
-                  href={`https://maps.google.com/?q=${item.latitude},${item.longitude}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors text-sm flex items-center gap-2"
-                >
-                  <Navigation className="h-4 w-4" />
-                  View on Map
-                </a>
-                {item.userId?.phone && (
-                  <a
-                    href={`tel:${item.userId.phone}`}
-                    className="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors text-sm flex items-center gap-2"
-                  >
-                    <Phone className="h-4 w-4" />
-                    Call User
-                  </a>
-                )}
-              </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
       )}
     </div>
