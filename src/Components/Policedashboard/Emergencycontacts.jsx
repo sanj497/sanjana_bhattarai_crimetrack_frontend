@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from "react";
 import React from "react";
+import { Activity } from "lucide-react";
 
 const API_BASE = `${import.meta.env.VITE_BACKEND_URL}/api/emergency`;
 
@@ -343,7 +344,36 @@ export default function EmergencyContactsApp() {
     finally { setLoading(false); }
   };
 
-  useEffect(() => { fetchContacts(filterCategory); }, [filt  const filtered = contacts.filter(c =>
+  const handleSeed = async () => {
+    setSeeding(true);
+    try {
+      const res = await fetch(`${API_BASE}/seed`, { method: "POST" });
+      const data = await res.json();
+      if (!data.success) throw new Error(data.message || "Failed to seed contacts");
+      await fetchContacts(filterCategory);
+    } catch {
+      setError("Failed to load default emergency contacts.");
+    } finally {
+      setSeeding(false);
+    }
+  };
+
+  const handleDelete = async (id) => {
+    try {
+      const res = await fetch(`${API_BASE}/${id}`, { method: "DELETE" });
+      const data = await res.json();
+      if (!data.success) throw new Error(data.message || "Delete failed");
+      setContacts((prev) => prev.filter((c) => c._id !== id));
+    } catch {
+      setError("Failed to delete contact.");
+    }
+  };
+
+  useEffect(() => {
+    fetchContacts(filterCategory);
+  }, [filterCategory]);
+
+  const filtered = contacts.filter(c =>
     c.name.toLowerCase().includes(searchTerm.toLowerCase()) || c.number.includes(searchTerm)
   );
 
@@ -501,8 +531,6 @@ export default function EmergencyContactsApp() {
       {showModal && (
         <AddContactModal onClose={() => setShowModal(false)} onSaved={(c) => setContacts((prev) => [c, ...prev])} />
       )}
-    </div>
-  );
     </div>
   );
 }
