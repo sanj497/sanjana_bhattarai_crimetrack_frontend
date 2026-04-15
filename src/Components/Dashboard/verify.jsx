@@ -329,8 +329,16 @@ const Verify = () => {
                <h1 className="text-4xl font-black text-white tracking-tighter uppercase leading-none">{report.title || "Unclassified Intelligence"}</h1>
             </div>
 
-            <div className={`px-6 py-2 rounded-2xl border text-[10px] font-black uppercase tracking-[2px] ${getStatusBadge(report.status)}`}>
-               System Status: {report.status}
+            <div className="flex items-center gap-3">
+               {report.notificationsSent?.community && (
+                  <div className="px-4 py-2 rounded-2xl bg-rose-600/10 border border-rose-500/20 text-rose-500 text-[9px] font-black uppercase tracking-[2px] flex items-center gap-2">
+                     <Bell size={12} className="animate-pulse" />
+                     Community Alerted
+                  </div>
+               )}
+               <div className={`px-6 py-2 rounded-2xl border text-[10px] font-black uppercase tracking-[2px] ${getStatusBadge(report.status)}`}>
+                  System Status: {report.status}
+               </div>
             </div>
          </div>
       </div>
