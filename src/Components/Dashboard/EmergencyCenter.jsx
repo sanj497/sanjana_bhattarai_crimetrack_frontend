@@ -142,14 +142,20 @@ export default function EmergencyCenter() {
                                         {crime.title}
                                     </h3>
 
-                                    <div className="flex flex-col gap-2 mb-8">
-                                        <div className="flex items-center gap-2 text-slate-500 text-xs font-bold">
+                                    <div className="flex flex-col gap-3 mb-8">
+                                        <div className="flex items-center gap-2 text-slate-500 text-xs font-bold bg-slate-50 p-2 rounded-xl">
                                             <AlertTriangle size={14} className="text-amber-500" />
                                             {crime.crimeType}
                                         </div>
-                                        <div className="flex items-center gap-2 text-slate-400 text-[11px] font-medium leading-relaxed">
+                                        <div className="flex items-center gap-2 text-slate-400 text-[11px] font-medium leading-relaxed px-1">
                                             <MapPin size={14} className="text-slate-300" />
                                             {crime.location?.address}
+                                        </div>
+                                        <div className="flex items-center gap-2 text-slate-400 text-[11px] font-bold px-1 mt-1 border-t border-slate-50 pt-3">
+                                            <div className="h-6 w-6 bg-slate-100 rounded-full flex items-center justify-center text-[10px] text-slate-500 font-black">
+                                              {crime.userId?.username?.[0] || 'U'}
+                                            </div>
+                                            <span>Reported by: <span className="text-slate-600 font-black">{crime.userId?.username || "Authenticated User"}</span></span>
                                         </div>
                                     </div>
 
