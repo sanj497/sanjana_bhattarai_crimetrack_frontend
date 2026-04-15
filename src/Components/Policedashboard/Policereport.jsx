@@ -225,23 +225,23 @@ const Policereport = () => {
 
               {/* Actions */}
               <div className="flex flex-wrap gap-3 pt-4 border-t border-slate-800/50">
+                {/* View Details — always visible */}
+                <button
+                  onClick={() => toggleDetails(crime._id)}
+                  className="bg-slate-800 hover:bg-slate-700 text-slate-200 px-6 py-4 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all border border-slate-700"
+                >
+                  {expandedCrimeIds.has(crime._id) ? "Hide Details" : "View Details"}
+                </button>
+
                 {crime.status === "ForwardedToPolice" && (
-                  <>
-                    <button
-                      onClick={() => toggleDetails(crime._id)}
-                      className="bg-slate-800 hover:bg-slate-700 text-slate-200 px-6 py-4 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all border border-slate-700"
-                    >
-                      {expandedCrimeIds.has(crime._id) ? "Hide Details" : "View Details"}
-                    </button>
-                    <button 
-                      onClick={() => updateStatus(crime._id, "UnderInvestigation")}
-                      disabled={updatingId === crime._id}
-                      className="flex-1 bg-blue-600 hover:bg-blue-500 text-white py-4 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all disabled:opacity-50 flex items-center justify-center gap-2 shadow-lg shadow-blue-600/10"
-                    >
-                      {updatingId === crime._id ? "Processing..." : "Accept & Investigate"}
-                      <ChevronRight size={14} />
-                    </button>
-                  </>
+                  <button 
+                    onClick={() => updateStatus(crime._id, "UnderInvestigation")}
+                    disabled={updatingId === crime._id}
+                    className="flex-1 bg-blue-600 hover:bg-blue-500 text-white py-4 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all disabled:opacity-50 flex items-center justify-center gap-2 shadow-lg shadow-blue-600/10"
+                  >
+                    {updatingId === crime._id ? "Processing..." : "Accept & Investigate"}
+                    <ChevronRight size={14} />
+                  </button>
                 )}
 
                 {crime.status === "UnderInvestigation" && (
@@ -265,8 +265,10 @@ const Policereport = () => {
                 )}
               </div>
 
-              {crime.status === "ForwardedToPolice" && expandedCrimeIds.has(crime._id) && (
-                <div className="mt-4 p-5 rounded-3xl bg-slate-950/60 border border-slate-800/40">
+              {/* Expanded Details Panel — always available */}
+              {expandedCrimeIds.has(crime._id) && (
+                <div className="mt-6 p-6 rounded-3xl bg-slate-950/60 border border-slate-800/40 space-y-6">
+                  {/* Case Metadata */}
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
                     <div>
                       <p className="text-[9px] font-black text-slate-500 uppercase tracking-[2px] mb-1">Case ID</p>
@@ -274,21 +276,90 @@ const Policereport = () => {
                     </div>
                     <div>
                       <p className="text-[9px] font-black text-slate-500 uppercase tracking-[2px] mb-1">Reported By</p>
-                      <p className="text-slate-200 font-semibold">{crime.userId?.username || crime.userId?.email || "Unknown Reporter"}</p>
+                      <p className="text-slate-200 font-semibold">{crime.userId?.username || crime.userId?.email || "Anonymous"}</p>
                     </div>
                     <div>
                       <p className="text-[9px] font-black text-slate-500 uppercase tracking-[2px] mb-1">Priority</p>
-                      <p className="text-slate-200 font-semibold">{crime.priority || "Medium"}</p>
+                      <p className={`font-black uppercase tracking-widest ${
+                        crime.priority === "Critical" ? "text-rose-400" : 
+                        crime.priority === "High" ? "text-orange-400" : 
+                        crime.priority === "Medium" ? "text-amber-400" : "text-blue-400"
+                      }`}>{crime.priority || "Medium"}</p>
                     </div>
                     <div>
-                      <p className="text-[9px] font-black text-slate-500 uppercase tracking-[2px] mb-1">Evidence Files</p>
-                      <p className="text-slate-200 font-semibold">{crime.evidence?.length || 0}</p>
+                      <p className="text-[9px] font-black text-slate-500 uppercase tracking-[2px] mb-1">Filed On</p>
+                      <p className="text-slate-200 font-semibold">{new Date(crime.createdAt).toLocaleString()}</p>
                     </div>
                   </div>
+
+                  {/* Location Details */}
+                  <div>
+                    <p className="text-[9px] font-black text-blue-400 uppercase tracking-[2px] mb-2 flex items-center gap-2">
+                      <MapPin size={12} /> Incident Location
+                    </p>
+                    <div className="bg-slate-900/80 rounded-2xl border border-slate-800 p-4">
+                      <p className="text-slate-200 text-sm font-bold mb-1">{crime.location?.address || "Address not provided"}</p>
+                      {(crime.location?.lat && crime.location?.lng) && (
+                        <p className="text-slate-500 text-[10px] font-bold uppercase tracking-wider">
+                          Coordinates: {Number(crime.location.lat).toFixed(6)}, {Number(crime.location.lng).toFixed(6)}
+                        </p>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Evidence / Media */}
+                  <div>
+                    <p className="text-[9px] font-black text-blue-400 uppercase tracking-[2px] mb-2">
+                      Evidence Files ({crime.evidence?.length || 0})
+                    </p>
+                    {crime.evidence && crime.evidence.length > 0 ? (
+                      <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+                        {crime.evidence.map((file, idx) => (
+                          <a 
+                            key={idx} 
+                            href={file.url} 
+                            target="_blank" 
+                            rel="noopener noreferrer"
+                            className="block relative group/ev rounded-2xl overflow-hidden border border-slate-800 hover:border-blue-500/50 transition-all"
+                          >
+                            {file.resourceType === "video" ? (
+                              <video src={file.url} className="w-full h-32 object-cover" muted />
+                            ) : (
+                              <img src={file.url} alt={`Evidence ${idx + 1}`} className="w-full h-32 object-cover" />
+                            )}
+                            <div className="absolute inset-0 bg-black/40 opacity-0 group-hover/ev:opacity-100 transition-opacity flex items-center justify-center">
+                              <span className="text-white text-[10px] font-black uppercase tracking-widest bg-blue-600 px-3 py-1.5 rounded-full">
+                                Open Full
+                              </span>
+                            </div>
+                            <div className="absolute top-2 right-2 px-2 py-0.5 bg-slate-900/80 text-slate-300 text-[8px] font-black uppercase rounded-md border border-slate-700">
+                              {file.resourceType || "image"}
+                            </div>
+                          </a>
+                        ))}
+                      </div>
+                    ) : (
+                      <p className="text-slate-600 text-xs italic">No evidence files attached to this report.</p>
+                    )}
+                  </div>
+
+                  {/* Admin Notes */}
                   {crime.adminNotes && (
-                    <div className="mt-4">
-                      <p className="text-[9px] font-black text-slate-500 uppercase tracking-[2px] mb-1">Admin Notes</p>
-                      <p className="text-slate-300 text-sm">{crime.adminNotes}</p>
+                    <div>
+                      <p className="text-[9px] font-black text-amber-400 uppercase tracking-[2px] mb-2">Admin Notes</p>
+                      <div className="bg-amber-500/5 border border-amber-500/20 rounded-2xl p-4">
+                        <p className="text-slate-300 text-sm leading-relaxed">{crime.adminNotes}</p>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Assigned Officer */}
+                  {crime.workflow?.assignedToOfficer && (
+                    <div>
+                      <p className="text-[9px] font-black text-slate-500 uppercase tracking-[2px] mb-2">Assigned Officer</p>
+                      <p className="text-slate-200 text-sm font-bold">
+                        {crime.workflow.assignedToOfficer.username || crime.workflow.assignedToOfficer.email || "Officer ID: " + crime.workflow.assignedToOfficer}
+                      </p>
                     </div>
                   )}
                 </div>
