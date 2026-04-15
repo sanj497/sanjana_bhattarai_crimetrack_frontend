@@ -12,6 +12,23 @@ const Login = () => {
   const [error, setError] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
+  React.useEffect(() => {
+    const token = localStorage.getItem("token");
+    const userStr = localStorage.getItem("user");
+    if (token && userStr) {
+      try {
+        const user = JSON.parse(userStr);
+        const role = user.role;
+        if (role === "admin") navigate("/dashboard", { replace: true });
+        else if (role === "police") navigate("/police/dashboard", { replace: true });
+        else if (role === "user") navigate("/citizen", { replace: true });
+      } catch (e) {
+        localStorage.removeItem("token");
+        localStorage.removeItem("user");
+      }
+    }
+  }, [navigate]);
+
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
