@@ -14,12 +14,15 @@ import {
   AlertCircle,
   Activity,
   ShieldCheck,
-  Bell
+  Bell,
+  AlertTriangle,
+  RefreshCw
 } from "lucide-react";
 
 export default function Dashboard() {
     const [stats, setStats] = useState({ total: 0, pending: 0, verified: 0, resolved: 0 });
     const [activities, setActivities] = useState([]);
+    const [alertQueue, setAlertQueue] = useState([]);
     const [loading, setLoading] = useState(true);
     const navigate = useNavigate();
 
@@ -27,27 +30,17 @@ export default function Dashboard() {
         try {
             const token = localStorage.getItem("token");
             if (!token) {
-                console.error("No authentication token found");
                 setLoading(false);
                 return;
             }
             
             const res = await fetch(`${import.meta.env.VITE_BACKEND_URL}/api/report/stats`, {
-                headers: {
-                    "Authorization": `Bearer ${token}`
-                }
+                headers: { "Authorization": `Bearer ${token}` }
             });
             
             if (res.status === 401) {
-                console.error("Authentication failed. Token may be expired.");
-                localStorage.removeItem("token");
-                localStorage.removeItem("user");
+                localStorage.clear();
                 window.location.href = "/login";
-                return;
-            }
-            
-            if (res.status === 403) {
-                console.error("Access denied. Admin/Police role required.");
                 return;
             }
             
@@ -55,8 +48,6 @@ export default function Dashboard() {
             if (data.success) {
                 setStats(data.stats);
                 setActivities(data.activities);
-            } else {
-                console.error("Failed to fetch dashboard data:", data.error, data.details);
             }
         } catch (err) {
             console.error("Dashboard fetch error:", err);
@@ -65,19 +56,35 @@ export default function Dashboard() {
         }
     };
 
+    const fetchAlertQueue = async () => {
+        try {
+            const token = localStorage.getItem("token");
+            const res = await fetch(`${import.meta.env.VITE_BACKEND_URL}/api/report/alert-queue`, {
+                headers: { "Authorization": `Bearer ${token}` }
+            });
+            const data = await res.json();
+            if (data.success) {
+                setAlertQueue(data.queue || []);
+            }
+        } catch (err) {
+            console.error("Alert Queue fetch error:", err);
+        }
+    };
+
     useEffect(() => {
         fetchDashboardData();
+        fetchAlertQueue();
         
-        // Listen for socket events dispatched by useSocket hook
         const handleNotification = () => {
-            console.log("Dashboard refreshing due to new notification...");
             fetchDashboardData();
+            fetchAlertQueue();
         };
         
         window.addEventListener("new-notification-received", handleNotification);
-
-        // Dynamic refresh every 2 minutes as fallback
-        const interval = setInterval(fetchDashboardData, 120000);
+        const interval = setInterval(() => {
+            fetchDashboardData();
+            fetchAlertQueue();
+        }, 120000);
         
         return () => {
             clearInterval(interval);
@@ -88,11 +95,11 @@ export default function Dashboard() {
     const menu = useMemo(
         () => [
             { name: "Dashboard", icon: <BarChart3 size={18}/>, path: "/dashboard" },
-            { name: "Map",       icon: <MapIcon size={18}/>, path: "/Map"       },
+            { name: "Map",       icon: <MapIcon size={18}/>, path: "/admin/map"       },
             { name: "Reports",   icon: <FileText size={18}/>, path: "/adReport"  },
             { name: "Users",     icon: <UsersIcon size={18}/>, path: "/user"          },
             { name: "Verify",    icon: <ShieldCheck size={18}/>, path: "/forward-admin" },
-            { name: "Complaints", icon: <AlertCircle size={18}/>, path: "/Comp"         },
+            { name: "Complaints", icon: <AlertCircle size={18}/>, path: "/admin/complaints" },
             { name: "Feedback",  icon: <MessageSquare size={18}/>, path: "/admin/feedback" },
         ],
         []
@@ -100,34 +107,19 @@ export default function Dashboard() {
 
     const StatCard = ({ title, value, sub, icon, color }) => (
         <div
-            style={{
-                background: "#fff",
-                border: "1px solid #e2e8f0",
-                borderRadius: 20,
-                padding: 24,
-                boxShadow: "0 4px 6px -1px rgba(0,0,0,0.05), 0 2px 4px -1px rgba(0,0,0,0.03)",
-                transition: "transform 0.2s ease",
-                cursor: "default"
-            }}
-            onMouseEnter={e => e.currentTarget.style.transform = "translateY(-4px)"}
-            onMouseLeave={e => e.currentTarget.style.transform = "translateY(0)"}
+            className="bg-white border border-slate-200 rounded-3xl p-6 shadow-sm hover:-translate-y-1 transition-all cursor-default"
         >
-            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
+            <div className="flex justify-between items-start">
                 <div>
-                    <div style={{ fontSize: 13, fontWeight: 600, color: "#64748b", textTransform: "uppercase", letterSpacing: "0.05em" }}>{title}</div>
-                    <div style={{ fontSize: 32, fontWeight: 800, marginTop: 8, color: "#0f172a" }}>{loading ? "..." : value}</div>
-                    <div style={{ marginTop: 8, fontSize: 13, color: "#94a3b8", display: "flex", alignItems: "center", gap: 4 }}>
-                        <Clock size={12}/> {sub}
+                    <div className="text-[10px] font-black text-slate-500 uppercase tracking-widest">{title}</div>
+                    <div className="text-3xl font-black mt-2 text-slate-900">{loading ? "..." : value}</div>
+                    <div className="mt-2 text-[10px] text-slate-400 font-bold flex items-center gap-1">
+                        <Clock size={10}/> {sub}
                     </div>
                 </div>
                 <div
-                    style={{
-                        width: 48, height: 48, borderRadius: 12,
-                        display: "grid", placeItems: "center",
-                        background: `${color}15`,
-                        color: color,
-                        fontSize: 20,
-                    }}
+                    className="w-12 h-12 rounded-2xl flex items-center justify-center"
+                    style={{ background: `${color}15`, color: color }}
                 >
                     {icon}
                 </div>
@@ -136,48 +128,30 @@ export default function Dashboard() {
     );
 
     return (
-        <div
-            style={{
-                minHeight: "calc(100vh - 80px)",
-                background: "#f8fafc",
-                color: "#1e293b",
-                fontFamily: "Inter, system-ui, -apple-system, sans-serif",
-                padding: "32px 40px"
-            }}
-        >
+        <div className="min-h-screen bg-[#F7F9FC] p-8">
             {/* Header */}
-            <div style={{
-                display: "flex", alignItems: "center", justifyContent: "space-between",
-                marginBottom: 32,
-            }}>
+            <div className="flex items-center justify-between mb-8">
                 <div>
-                    <h2 style={{ fontSize: 26, fontWeight: 800, margin: 0, color: "#0f172a", letterSpacing: "-0.02em" }}>Executive Overview</h2>
-                    <p style={{ marginTop: 6, fontSize: 14, color: "#64748b" }}>
-                        Real-time intelligence and case management statistics.
-                    </p>
+                    <h2 className="text-2xl font-black text-slate-900 tracking-tighter uppercase">Executive Overview</h2>
+                    <p className="text-sm font-bold text-slate-400 mt-1">Real-time intelligence and community safety coordination.</p>
                 </div>
 
-                <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-                    <div style={{ 
-                        display: "flex", alignItems: "center", gap: 8, 
-                        padding: "8px 16px", background: "#ecfdf5", 
-                        border: "1px solid #d1fae5", borderRadius: 12,
-                        fontSize: 13, fontWeight: 600, color: "#059669"
-                    }}>
-                        <div style={{ width: 8, height: 8, background: "#10b981", borderRadius: "50%" }}/>
-                        Live System
+                <div className="flex items-center gap-4">
+                    <div className="flex items-center gap-2 px-4 py-2 bg-emerald-50 border border-emerald-100 rounded-2xl text-[10px] font-black text-emerald-600 uppercase tracking-widest">
+                        <div className="w-2 h-2 bg-emerald-500 rounded-full animate-pulse"/>
+                        Live Intelligence
                     </div>
                 </div>
             </div>
 
             {/* Main Grid */}
-            <div style={{ display: "grid", gridTemplateColumns: "1fr 360px", gap: 32 }}>
+            <div className="grid grid-cols-1 lg:grid-cols-[1fr_360px] gap-8">
                 
                 {/* Left Side: Stats and Activity */}
-                <div style={{ display: "flex", flexDirection: "column", gap: 32 }}>
+                <div className="flex flex-col gap-8">
                     
                     {/* Stat Cards */}
-                    <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 20 }}>
+                    <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6">
                         <StatCard 
                             title="Total Cases" 
                             value={stats.total} 
@@ -188,7 +162,7 @@ export default function Dashboard() {
                         <StatCard 
                             title="Pending Review" 
                             value={stats.pending} 
-                            sub="Unverified input" 
+                            sub="Action required" 
                             icon={<Clock size={20}/>} 
                             color="#f59e0b"
                         />
@@ -209,123 +183,77 @@ export default function Dashboard() {
                     </div>
 
                     {/* Integrated Map Callout & Forward Section */}
-                    <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 24 }}>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div
-                            onClick={() => navigate("/Map")}
-                            style={{
-                                background: "linear-gradient(135deg, #1e293b 0%, #0f172a 100%)",
-                                borderRadius: 24, padding: 24,
-                                display: "flex", alignItems: "center", gap: 20,
-                                cursor: "pointer", transition: "all 0.3s ease",
-                                boxShadow: "0 10px 15px -3px rgba(0, 0, 0, 0.1)"
-                            }}
-                            onMouseEnter={e => e.currentTarget.style.transform = "translateY(-4px)"}
-                            onMouseLeave={e => e.currentTarget.style.transform = "translateY(0)"}
+                            onClick={() => navigate("/admin/map")}
+                            className="bg-slate-900 rounded-[32px] p-8 flex items-center gap-6 cursor-pointer hover:-translate-y-1 transition-all shadow-xl"
                         >
-                            <div style={{
-                                width: 48, height: 48, borderRadius: 12,
-                                background: "rgba(59, 130, 246, 0.15)",
-                                display: "flex", alignItems: "center", justifyContent: "center",
-                                color: "#3b82f6"
-                            }}>
-                                <MapIcon size={24}/>
+                            <div className="w-14 h-14 rounded-2xl bg-blue-500/10 flex items-center justify-center text-blue-500">
+                                <MapIcon size={28}/>
                             </div>
-                            <div style={{ flex: 1 }}>
-                                <h3 style={{ margin: 0, color: "#f8fafc", fontSize: 16, fontWeight: 700 }}>Operational Map</h3>
-                                <p style={{ margin: "2px 0 0 0", color: "#94a3b8", fontSize: 12, lineHeight: 1.4 }}>Visualize live incident locations across active zones.</p>
+                            <div>
+                                <h3 className="text-white text-lg font-black uppercase tracking-tight">Operational Map</h3>
+                                <p className="text-slate-400 text-xs font-bold mt-1">Visualize live incident locations across active zones.</p>
                             </div>
                         </div>
 
                         <div
                             onClick={() => navigate("/adReport")}
-                            style={{
-                                background: "linear-gradient(135deg, #8b5cf6 0%, #6d28d9 100%)",
-                                borderRadius: 24, padding: 24,
-                                display: "flex", alignItems: "center", gap: 20,
-                                cursor: "pointer", transition: "all 0.3s ease",
-                                boxShadow: "0 10px 15px -3px rgba(139, 92, 246, 0.3)"
-                            }}
-                            onMouseEnter={e => e.currentTarget.style.transform = "translateY(-4px)"}
-                            onMouseLeave={e => e.currentTarget.style.transform = "translateY(0)"}
+                            className="bg-gradient-to-br from-indigo-600 to-violet-700 rounded-[32px] p-8 flex items-center gap-6 cursor-pointer hover:-translate-y-1 transition-all shadow-xl"
                         >
-                            <div style={{
-                                width: 48, height: 48, borderRadius: 12,
-                                background: "rgba(255, 255, 255, 0.2)",
-                                display: "flex", alignItems: "center", justifyContent: "center",
-                                color: "#fff"
-                            }}>
-                                <Send size={24}/>
+                            <div className="w-14 h-14 rounded-2xl bg-white/20 flex items-center justify-center text-white">
+                                <Send size={28}/>
                             </div>
-                            <div style={{ flex: 1 }}>
-                                <h3 style={{ margin: 0, color: "#fff", fontSize: 16, fontWeight: 700 }}>Dispatcher Queue</h3>
-                                <p style={{ margin: "2px 0 0 0", color: "rgba(255,255,255,0.7)", fontSize: 12, lineHeight: 1.4 }}>{stats.verified} reports verified and pending police assignment.</p>
+                            <div>
+                                <h3 className="text-white text-lg font-black uppercase tracking-tight">Dispatcher Queue</h3>
+                                <p className="text-white/70 text-xs font-bold mt-1">{stats.verified} reports verified and pending police assignment.</p>
                             </div>
                         </div>
                     </div>
 
                     {/* Activity Feed */}
-                    <div style={{
-                        background: "#fff",
-                        border: "1px solid #e2e8f0",
-                        borderRadius: 24, padding: 32,
-                        boxShadow: "0 4px 6px -1px rgba(0,0,0,0.05)"
-                    }}>
-                        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 24 }}>
-                            <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-                                <div style={{ padding: 8, background: "#f1f5f9", borderRadius: 8, color: "#3b82f6" }}>
+                    <div className="bg-white border border-slate-200 rounded-[32px] p-8 shadow-sm">
+                        <div className="flex justify-between items-center mb-8">
+                            <div className="flex items-center gap-3">
+                                <div className="p-2 bg-slate-100 rounded-xl text-blue-600">
                                     <Activity size={18}/>
                                 </div>
-                                <h3 style={{ margin: 0, fontSize: 18, fontWeight: 700, color: "#0f172a" }}>Recent Intelligence Feed</h3>
+                                <h3 className="text-lg font-black text-slate-900 uppercase tracking-tight">Intelligence Feed</h3>
                             </div>
                             <button 
                                 onClick={fetchDashboardData}
-                                style={{
-                                    all: "unset", cursor: "pointer", fontSize: 13, 
-                                    fontWeight: 600, color: "#3b82f6", display: "flex", 
-                                    alignItems: "center", gap: 6
-                                }}
+                                className="text-[10px] font-black text-blue-600 uppercase tracking-widest flex items-center gap-2 hover:opacity-70 transition-opacity"
                             >
-                                <RefreshCw size={14}/> Refresh Feed
+                                <RefreshCw size={14}/> Force Refresh
                             </button>
                         </div>
 
-                        <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+                        <div className="flex flex-col gap-4">
                             {loading ? (
-                                [1,2,3].map(i => <div key={i} style={{ height: 72, background: "#f8fafc", borderRadius: 16, animation: "pulse 1.5s infinite" }}/>)
+                                [1,2,3].map(i => <div key={i} className="h-20 bg-slate-50 rounded-2xl animate-pulse"/>)
                             ) : activities.length > 0 ? (
                                 activities.map((a, i) => (
-                                    <div key={i} style={{
-                                        display: "flex", justifyContent: "space-between",
-                                        alignItems: "center", padding: "16px 20px",
-                                        background: "#f8fafc", border: "1px solid #f1f5f9",
-                                        borderRadius: 16, transition: "background 0.2s"
-                                    }}>
-                                        <div style={{ display: "flex", gap: 16, alignItems: "center" }}>
-                                            <div style={{ 
-                                                width: 40, height: 40, borderRadius: 10, 
-                                                background: "#fff", border: "1px solid #e2e8f0",
-                                                display: "flex", alignItems: "center", justifyContent: "center",
-                                                color: "#64748b"
-                                            }}>
+                                    <div key={i} className="flex justify-between items-center p-5 bg-slate-50 border border-slate-100 rounded-2xl hover:bg-slate-100/50 transition-colors">
+                                        <div className="flex gap-4 items-center">
+                                            <div className="w-10 h-10 rounded-xl bg-white border border-slate-200 flex items-center justify-center text-slate-400">
                                                 <FileText size={18}/>
                                             </div>
                                             <div>
-                                                <div style={{ fontWeight: 600, fontSize: 14, color: "#0f172a" }}>{a.title}</div>
-                                                <div style={{ marginTop: 2, fontSize: 12, color: "#64748b" }}>{a.meta}</div>
+                                                <div className="font-black text-sm text-slate-900">{a.title}</div>
+                                                <div className="text-[10px] font-bold text-slate-400 mt-0.5">{a.meta}</div>
                                             </div>
                                         </div>
-                                        <span style={{
-                                            padding: "6px 12px", borderRadius: 8,
-                                            fontSize: 11, fontWeight: 700, textTransform: "uppercase",
-                                            letterSpacing: "0.05em",
-                                            background: a.badge === "Resolved" || a.badge === "Verified" ? "#ecfdf5" : a.badge === "Pending" ? "#fffbeb" : a.badge === "ForwardedToPolice" ? "#eff6ff" : "#f1f5f9",
-                                            color: a.badge === "Resolved" || a.badge === "Verified" ? "#059669" : a.badge === "Pending" ? "#d97706" : a.badge === "ForwardedToPolice" ? "#2563eb" : "#475569",
-                                            border: `1px solid ${a.badge === "Resolved" || a.badge === "Verified" ? "#d1fae5" : a.badge === "Pending" ? "#fef3c7" : a.badge === "ForwardedToPolice" ? "#dbeafe" : "#e2e8f0"}`
-                                        }}>{a.badge === "ForwardedToPolice" ? "Escalated" : a.badge}</span>
+                                        <span className={`px-3 py-1.5 rounded-lg text-[9px] font-black uppercase tracking-widest border ${
+                                          a.badge === "Resolved" || a.badge === "Verified" ? "bg-emerald-50 text-emerald-600 border-emerald-100" : 
+                                          a.badge === "Pending" ? "bg-amber-50 text-amber-600 border-amber-100" : 
+                                          "bg-blue-50 text-blue-600 border-blue-100"
+                                        }`}>
+                                          {a.badge === "ForwardedToPolice" ? "Escalated" : a.badge}
+                                        </span>
                                     </div>
                                 ))
                             ) : (
-                                <div style={{ textAlign: "center", padding: "40px 0", color: "#94a3b8" }}>
+                                <div className="text-center py-12 text-slate-400 font-bold text-sm">
                                     No recent activity recorded yet.
                                 </div>
                             )}
@@ -333,101 +261,106 @@ export default function Dashboard() {
                     </div>
                 </div>
 
-                {/* Right Side: Quick Actions & Status */}
-                <div style={{ display: "flex", flexDirection: "column", gap: 32 }}>
+                {/* Right Side: Emergency Hub & Actions */}
+                <div className="flex flex-col gap-8">
                     
+                    {/* EMERGENCY RESPONSE QUEUE (THE NEW SECTION) */}
+                    <div className="bg-white border-2 border-rose-100 rounded-[32px] p-8 shadow-[0_20px_40px_-15px_rgba(225,29,72,0.1)] relative overflow-hidden">
+                        <div className="absolute top-0 right-0 w-2 h-full bg-rose-500"/>
+                        
+                        <div className="flex justify-between items-center mb-6">
+                          <div>
+                            <h3 className="text-sm font-black text-slate-900 uppercase tracking-widest">Emergency Hub</h3>
+                            <p className="text-[9px] font-bold text-rose-500 uppercase mt-1">Pending Alerts</p>
+                          </div>
+                          {alertQueue.length > 0 && (
+                            <span className="bg-rose-600 h-8 w-8 rounded-full flex items-center justify-center text-white text-xs font-black shadow-lg shadow-rose-600/30">
+                              {alertQueue.length}
+                            </span>
+                          )}
+                        </div>
+
+                        <div className="flex flex-col gap-4 max-h-[400px] overflow-y-auto pr-2 scrollbar-hide">
+                            {alertQueue.length > 0 ? (
+                              alertQueue.map((item, i) => (
+                                <div 
+                                  key={i} 
+                                  onClick={() => navigate(`/admin/verify/${item._id}`)}
+                                  className="p-5 bg-rose-50 border border-rose-100 rounded-2xl cursor-pointer hover:scale-[1.02] transition-all hover:bg-rose-100 group"
+                                >
+                                  <div className="flex items-center gap-2 mb-2">
+                                    <AlertTriangle size={14} className="text-rose-500 animate-pulse" />
+                                    <span className="text-[10px] font-black text-rose-700 uppercase tracking-widest">{item.crimeType}</span>
+                                  </div>
+                                  <div className="text-xs font-black text-slate-900 leading-tight group-hover:text-rose-700 transition-colors uppercase">{item.title}</div>
+                                  <div className="text-[9px] font-bold text-slate-400 mt-2 flex items-center gap-1 italic">
+                                    <MapPin size={10} /> Local Alert Required
+                                  </div>
+                                </div>
+                              ))
+                            ) : (
+                              <div className="text-center py-8">
+                                <div className="h-12 w-12 bg-slate-50 rounded-full flex items-center justify-center mx-auto mb-3">
+                                  <ShieldCheck size={20} className="text-slate-300" />
+                                </div>
+                                <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Zones Secured</p>
+                              </div>
+                            )}
+                        </div>
+                    </div>
+
                     {/* Quick Launch */}
-                    <div style={{
-                        background: "#fff",
-                        border: "1px solid #e2e8f0",
-                        borderRadius: 24, padding: 32,
-                        boxShadow: "0 4px 6px -1px rgba(0,0,0,0.05)"
-                    }}>
-                        <h3 style={{ margin: "0 0 20px 0", fontSize: 16, fontWeight: 700, color: "#0f172a" }}>Operations Desk</h3>
-                        <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+                    <div className="bg-slate-900 rounded-[32px] p-8 shadow-xl">
+                        <h3 className="text-sm font-black text-white uppercase tracking-widest mb-6">Operations Desk</h3>
+                        <div className="flex flex-col gap-3">
                             {menu.slice(2).map((item, i) => (
                                 <button
                                     key={i}
                                     onClick={() => navigate(item.path)}
-                                    style={{
-                                        all: "unset", cursor: "pointer",
-                                        padding: "12px 16px", borderRadius: 12,
-                                        display: "flex", alignItems: "center", gap: 12,
-                                        transition: "all 0.2s",
-                                        background: "#f8fafc", border: "1px solid #f1f5f9"
-                                    }}
-                                    onMouseEnter={e => { e.currentTarget.style.background = "#fff"; e.currentTarget.style.borderColor = "#3b82f6"; }}
-                                    onMouseLeave={e => { e.currentTarget.style.background = "#f8fafc"; e.currentTarget.style.borderColor = "#f1f5f9"; }}
+                                    className="w-full p-4 bg-white/5 border border-white/5 rounded-2xl flex items-center gap-4 hover:bg-white/10 hover:border-white/20 transition-all text-white group"
                                 >
-                                    <div style={{ color: "#3b82f6" }}>{item.icon}</div>
-                                    <span style={{ fontSize: 14, fontWeight: 600, color: "#334155" }}>{item.name}</span>
+                                    <div className="text-blue-400 group-hover:scale-110 transition-transform">{item.icon}</div>
+                                    <span className="text-xs font-black uppercase tracking-widest whitespace-nowrap">{item.name}</span>
                                 </button>
                             ))}
                         </div>
                     </div>
 
                     {/* Health Check */}
-                    <div style={{
-                        background: "#fff",
-                        border: "1px solid #e2e8f0",
-                        borderRadius: 24, padding: 32,
-                        boxShadow: "0 4px 6px -1px rgba(0,0,0,0.05)"
-                    }}>
-                        <h3 style={{ margin: "0 0 20px 0", fontSize: 16, fontWeight: 700, color: "#0f172a" }}>Health Summary</h3>
-                        <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
-                            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                                <span style={{ fontSize: 14, color: "#64748b" }}>Resolved Efficiency</span>
-                                <span style={{ fontSize: 14, fontWeight: 700, color: "#0f172a" }}>
-                                    {stats.total > 0 ? Math.round((stats.resolved / stats.total) * 100) : 0}%
-                                </span>
-                            </div>
-                            <div style={{ height: 8, background: "#f1f5f9", borderRadius: 4, overflow: "hidden" }}>
-                                <div style={{ 
-                                    height: "100%", 
-                                    width: `${stats.total > 0 ? (stats.resolved / stats.total) * 100 : 0}%`, 
-                                    background: "#10b981", borderRadius: 4 
-                                }}/>
+                    <div className="bg-white border border-slate-200 rounded-[32px] p-8 shadow-sm">
+                        <h3 className="text-sm font-black text-slate-900 uppercase tracking-widest mb-6">System Health</h3>
+                        <div className="flex flex-col gap-6">
+                            <div>
+                              <div className="flex justify-between items-center mb-2">
+                                  <span className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Resolution Rate</span>
+                                  <span className="text-xs font-black text-slate-900">
+                                      {stats.total > 0 ? Math.round((stats.resolved / stats.total) * 100) : 0}%
+                                  </span>
+                              </div>
+                              <div className="h-2 bg-slate-100 rounded-full overflow-hidden">
+                                  <div 
+                                    className="h-full bg-emerald-500 transition-all duration-1000"
+                                    style={{ width: `${stats.total > 0 ? (stats.resolved / stats.total) * 100 : 0}%` }}
+                                  />
+                              </div>
                             </div>
                             
-                            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                                <span style={{ fontSize: 14, color: "#64748b" }}>Backlog Depth</span>
-                                <span style={{ fontSize: 14, fontWeight: 700, color: "#0f172a" }}>{stats.pending} cases</span>
-                            </div>
-                            <div style={{ height: 8, background: "#f1f5f9", borderRadius: 4, overflow: "hidden" }}>
-                                <div style={{ 
-                                    height: "100%", 
-                                    width: `${stats.total > 0 ? (stats.pending / stats.total) * 100 : 0}%`, 
-                                    background: "#f59e0b", borderRadius: 4 
-                                }}/>
+                            <div>
+                              <div className="flex justify-between items-center mb-2">
+                                  <span className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Review Backlog</span>
+                                  <span className="text-xs font-black text-amber-600">{stats.pending} Reports</span>
+                              </div>
+                              <div className="h-2 bg-slate-100 rounded-full overflow-hidden">
+                                  <div 
+                                    className="h-full bg-amber-500 transition-all duration-1000"
+                                    style={{ width: `${stats.total > 0 ? (stats.pending / stats.total) * 100 : 0}%` }}
+                                  />
+                              </div>
                             </div>
                         </div>
                     </div>
-
                 </div>
             </div>
-            
-            <style>{`
-                @keyframes pulse {
-                    0% { opacity: 1; }
-                    50% { opacity: 0.5; }
-                    100% { opacity: 1; }
-                }
-            `}</style>
         </div>
     );
 }
-
-const RefreshCw = ({ size }) => (
-    <svg 
-        xmlns="http://www.w3.org/2000/svg" 
-        width={size} height={size} 
-        viewBox="0 0 24 24" fill="none" 
-        stroke="currentColor" strokeWidth="2" 
-        strokeLinecap="round" strokeLinejoin="round"
-    >
-        <path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"/>
-        <path d="M21 3v5h-5"/>
-        <path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16"/>
-        <path d="M3 21v-5h5"/>
-    </svg>
-);
