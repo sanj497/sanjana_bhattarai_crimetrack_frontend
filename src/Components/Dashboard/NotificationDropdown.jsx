@@ -73,6 +73,21 @@ export default function NotificationDropdown({ isOpen, onClose }) {
     }
   };
 
+  const handleReadAll = async () => {
+    try {
+      const token = localStorage.getItem("token");
+      await fetch(`${API_BASE}/read-all`, {
+        method: "PATCH",
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      setNotifications(prev => prev.map(n => ({ ...n, isRead: true })));
+      // globally update count
+      window.dispatchEvent(new Event("new-notification-received"));
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
   const handleNotificationClick = async (n) => {
     if (!n.isRead) {
        await handleMarkRead(n._id);
@@ -131,8 +146,19 @@ export default function NotificationDropdown({ isOpen, onClose }) {
       className="absolute top-14 right-0 w-80 bg-white rounded-[24px] shadow-2xl border border-slate-100 overflow-hidden z-[100] animate-in fade-in zoom-in duration-200"
     >
       <div className="p-5 border-b border-slate-50 flex items-center justify-between">
-        <h3 className="text-sm font-black text-slate-900 uppercase tracking-widest">Recent Activity</h3>
-        <span className="text-[10px] font-bold text-blue-600 bg-blue-50 px-2.5 py-1 rounded-full">{notifications.filter(n => !n.isRead).length} New</span>
+        <div>
+          <h3 className="text-sm font-black text-slate-900 uppercase tracking-widest leading-none mb-1">Recent Activity</h3>
+          <span className="text-[9px] font-bold text-blue-600 bg-blue-50 px-2 py-0.5 rounded-full inline-block">{notifications.filter(n => !n.isRead).length} New</span>
+        </div>
+        {notifications.some(n => !n.isRead) && (
+          <button 
+            onClick={handleReadAll}
+            className="text-[10px] font-black text-slate-500 hover:text-blue-600 uppercase tracking-widest transition-colors flex items-center gap-1 bg-slate-50 hover:bg-blue-50 px-2 py-1 rounded-full"
+            title="Mark all as read"
+          >
+            <Check size={12} /> Read All
+          </button>
+        )}
       </div>
 
       <div className="max-h-[360px] overflow-y-auto">
