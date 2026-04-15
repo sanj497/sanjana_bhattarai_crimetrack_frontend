@@ -1,25 +1,58 @@
-import React, { useState } from 'react';
-import { Shield, Users, AlertTriangle, FileText, MapPin, Bell, Search, Menu, X, Siren, LogOut } from 'lucide-react';
-import { useNavigate, Link } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { 
+  Shield, Users, AlertTriangle, FileText, MapPin, Clock, 
+  Siren, ChevronRight, CheckCircle2, Activity, Image, 
+  ExternalLink, CheckSquare, ClipboardList
+} from 'lucide-react';
+import { Link } from 'react-router-dom';
+
+const API_BASE = `${import.meta.env.VITE_BACKEND_URL}/api/report`;
 
 export default function NewBoard() {
-  const [sidebarOpen, setSidebarOpen] = useState(true);
-  const navigate = useNavigate();
+  const [crimes, setCrimes] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    fetchCrimes();
+    const handler = () => fetchCrimes();
+    window.addEventListener("new-notification-received", handler);
+    return () => window.removeEventListener("new-notification-received", handler);
+  }, []);
+
+  const fetchCrimes = async () => {
+    try {
+      const token = localStorage.getItem("token");
+      const res = await fetch(API_BASE, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      const data = await res.json();
+      if (data.success) setCrimes(data.crimes || []);
+    } catch (err) {
+      console.error("Failed to fetch cases:", err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const forwarded = crimes.filter(c => c.status === "ForwardedToPolice");
+  const investigating = crimes.filter(c => c.status === "UnderInvestigation");
+  const resolved = crimes.filter(c => c.status === "Resolved");
 
   const stats = [
-    { label: 'Active Cases', value: '342', icon: FileText, color: 'bg-blue-500' },
-    { label: 'Officers on Duty', value: '87', icon: Users, color: 'bg-blue-600' },
-    { label: 'Incidents Today', value: '23', icon: AlertTriangle, color: 'bg-blue-700' },
-    { label: 'Patrol Units', value: '45', icon: MapPin, color: 'bg-blue-800' }
+    { label: 'Total Assigned', value: crimes.length, icon: ClipboardList, color: 'bg-blue-500' },
+    { label: 'New Cases', value: forwarded.length, icon: FileText, color: 'bg-amber-500' },
+    { label: 'Investigating', value: investigating.length, icon: Activity, color: 'bg-indigo-500' },
+    { label: 'Resolved', value: resolved.length, icon: CheckSquare, color: 'bg-emerald-500' },
   ];
 
-  const incidents = [
-    { id: 1, type: 'Theft', location: 'Main St', time: '10:30 AM', status: 'Active' },
-    { id: 2, type: 'Traffic', location: '5th Ave', time: '11:15 AM', status: 'Resolved' },
-    { id: 3, type: 'Disturbance', location: 'Park Rd', time: '12:00 PM', status: 'Active' }
-  ];
+  // Cases to show on dashboard — new assignments first, then investigating
+  const dashboardCases = [...forwarded, ...investigating].slice(0, 6);
 
-  const navItems = ['Dashboard', 'Cases', 'Officers', 'Reports', 'Map', 'Settings'];
+  const statusConfig = {
+    ForwardedToPolice: { label: "New Assignment", color: "amber", icon: <FileText size={12} /> },
+    UnderInvestigation: { label: "Investigating", color: "indigo", icon: <Activity size={12} /> },
+    Resolved: { label: "Resolved", color: "emerald", icon: <CheckCircle2 size={12} /> },
+  };
 
   return (
     <div className="p-8 font-sans bg-slate-950 min-h-full">
@@ -83,44 +116,154 @@ export default function NewBoard() {
         </Link>
       </div>
 
-      {/* Recent Incidents */}
-      <div className="bg-slate-900 border border-slate-800 rounded-[40px] shadow-2xl overflow-hidden">
-        <div className="p-8 border-b border-slate-800 flex items-center justify-between">
-          <h3 className="text-xl font-black text-white tracking-tight flex items-center gap-3">
-             <Siren className="text-blue-500" size={24} />
-             Priority Response Queue
-          </h3>
-          <Link to="/police/reports" className="text-xs font-bold text-blue-500 hover:text-blue-400 uppercase tracking-widest">Full Case Log</Link>
-        </div>
-        <div className="overflow-x-auto">
-          <table className="w-full">
-            <thead>
-              <tr className="bg-slate-800/50">
-                <th className="px-8 py-5 text-left text-[10px] font-black text-slate-500 uppercase tracking-widest">Type</th>
-                <th className="px-8 py-5 text-left text-[10px] font-black text-slate-500 uppercase tracking-widest">Location</th>
-                <th className="px-8 py-5 text-left text-[10px] font-black text-slate-500 uppercase tracking-widest">Time</th>
-                <th className="px-8 py-5 text-left text-[10px] font-black text-slate-500 uppercase tracking-widest">Status</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-slate-800">
-              {incidents.map(inc => (
-                <tr key={inc.id} className="hover:bg-slate-800/30 transition-colors group">
-                  <td className="px-8 py-6">
-                     <span className="text-sm font-bold text-white group-hover:text-blue-500 transition-colors">{inc.type}</span>
-                  </td>
-                  <td className="px-8 py-6 text-slate-400 text-sm">{inc.location}</td>
-                  <td className="px-8 py-6 text-slate-500 text-xs font-medium">{inc.time}</td>
-                  <td className="px-8 py-6">
-                    <span className={`px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest border ${inc.status === 'Active' ? 'bg-blue-500/10 text-blue-500 border-blue-500/20' : 'bg-emerald-500/10 text-emerald-500 border-emerald-500/20'}`}>
-                      {inc.status}
-                    </span>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+      {/* Forwarded Cases — Card Grid */}
+      <div className="mb-6 flex items-center justify-between">
+        <h3 className="text-xl font-black text-white tracking-tight flex items-center gap-3">
+          <Siren className="text-blue-500" size={24} />
+          Priority Response Queue
+        </h3>
+        <Link to="/police/reports" className="text-xs font-bold text-blue-500 hover:text-blue-400 uppercase tracking-widest">Full Case Log</Link>
       </div>
+
+      {loading ? (
+        <div className="flex flex-col items-center justify-center py-20 gap-4">
+          <div className="h-10 w-10 border-4 border-slate-800 border-t-blue-500 rounded-full animate-spin" />
+          <span className="text-[10px] font-black text-slate-500 uppercase tracking-[4px]">Loading Intelligence...</span>
+        </div>
+      ) : dashboardCases.length === 0 ? (
+        <div className="bg-slate-900 border border-slate-800 rounded-[40px] p-16 text-center">
+          <div className="h-20 w-20 bg-slate-800 rounded-full flex items-center justify-center mx-auto mb-6">
+            <CheckCircle2 size={40} className="text-slate-600" />
+          </div>
+          <h4 className="text-lg font-black text-slate-400 uppercase tracking-widest mb-2">All Clear</h4>
+          <p className="text-slate-600 text-sm">No active case assignments. Awaiting new dispatches.</p>
+        </div>
+      ) : (
+        <div className="grid grid-cols-1 xl:grid-cols-2 gap-8">
+          {dashboardCases.map((crime) => {
+            const cfg = statusConfig[crime.status] || statusConfig.ForwardedToPolice;
+            return (
+              <div key={crime._id} className="bg-slate-900 border border-slate-800 rounded-[40px] overflow-hidden hover:border-blue-500/20 transition-all group shadow-xl">
+                
+                {/* Card Header */}
+                <div className="p-8 pb-0">
+                  <div className="flex items-start justify-between mb-4">
+                    <div className="flex items-center gap-4">
+                      <div className="h-12 w-12 bg-slate-800 rounded-2xl flex items-center justify-center text-blue-500 border border-slate-700 group-hover:scale-110 transition-transform">
+                        <Shield size={22} />
+                      </div>
+                      <div>
+                        <div className="text-[9px] font-black text-blue-500 uppercase tracking-[3px] mb-0.5">{crime.crimeType}</div>
+                        <h4 className="text-lg font-black text-white tracking-tight uppercase leading-tight group-hover:text-blue-400 transition-colors line-clamp-1">{crime.title}</h4>
+                      </div>
+                    </div>
+                    <span className={`px-4 py-1.5 rounded-full bg-${cfg.color}-500/10 text-${cfg.color}-400 border border-${cfg.color}-500/20 text-[9px] font-black uppercase tracking-widest flex items-center gap-1.5 shrink-0`}>
+                      {cfg.icon} {cfg.label}
+                    </span>
+                  </div>
+
+                  {/* Description */}
+                  <p className="text-slate-400 text-sm leading-relaxed line-clamp-2 mb-4">{crime.description}</p>
+
+                  {/* Meta Row */}
+                  <div className="flex flex-wrap items-center gap-4 text-slate-500 mb-6">
+                    <div className="flex items-center gap-1.5 text-xs font-bold">
+                      <MapPin size={13} className="text-blue-500" /> {crime.location?.address || "Unknown"}
+                    </div>
+                    <div className="h-1 w-1 rounded-full bg-slate-700" />
+                    <div className="flex items-center gap-1.5 text-xs font-bold">
+                      <Clock size={13} /> {new Date(crime.createdAt).toLocaleDateString()}
+                    </div>
+                    {crime.priority && (
+                      <>
+                        <div className="h-1 w-1 rounded-full bg-slate-700" />
+                        <span className={`text-[9px] font-black uppercase tracking-widest ${
+                          crime.priority === "Critical" ? "text-rose-400" :
+                          crime.priority === "High" ? "text-orange-400" :
+                          crime.priority === "Medium" ? "text-amber-400" : "text-blue-400"
+                        }`}>{crime.priority} Priority</span>
+                      </>
+                    )}
+                  </div>
+                </div>
+
+                {/* Evidence Section */}
+                {crime.evidence && crime.evidence.length > 0 && (
+                  <div className="px-8 pb-4">
+                    <p className="text-[9px] font-black text-slate-500 uppercase tracking-[2px] mb-3 flex items-center gap-2">
+                      <Image size={12} className="text-blue-500" /> Evidence ({crime.evidence.length})
+                    </p>
+                    <div className="flex gap-3 overflow-x-auto pb-2 no-scrollbar">
+                      {crime.evidence.map((file, idx) => (
+                        <a
+                          key={idx}
+                          href={file.url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="relative shrink-0 w-28 h-20 rounded-2xl overflow-hidden border border-slate-800 hover:border-blue-500/50 transition-all group/ev"
+                        >
+                          {file.resourceType === "video" ? (
+                            <video src={file.url} className="w-full h-full object-cover" muted />
+                          ) : (
+                            <img src={file.url} alt={`Evidence ${idx + 1}`} className="w-full h-full object-cover" />
+                          )}
+                          <div className="absolute inset-0 bg-black/50 opacity-0 group-hover/ev:opacity-100 transition-opacity flex items-center justify-center">
+                            <ExternalLink size={14} className="text-white" />
+                          </div>
+                          <div className="absolute bottom-1 right-1 px-1.5 py-0.5 bg-slate-900/90 text-slate-300 text-[7px] font-black uppercase rounded border border-slate-700">
+                            {file.resourceType || "img"}
+                          </div>
+                        </a>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* Map Location */}
+                {crime.location?.lat && crime.location?.lng && (
+                  <div className="px-8 pb-4">
+                    <p className="text-[9px] font-black text-slate-500 uppercase tracking-[2px] mb-3 flex items-center gap-2">
+                      <MapPin size={12} className="text-blue-500" /> Incident Map
+                    </p>
+                    <div className="rounded-2xl overflow-hidden border border-slate-800 h-40">
+                      <iframe
+                        title={`Location - ${crime._id}`}
+                        width="100%"
+                        height="100%"
+                        style={{ border: 0 }}
+                        loading="lazy"
+                        referrerPolicy="no-referrer-when-downgrade"
+                        src={`https://www.openstreetmap.org/export/embed.html?bbox=${Number(crime.location.lng) - 0.005}%2C${Number(crime.location.lat) - 0.005}%2C${Number(crime.location.lng) + 0.005}%2C${Number(crime.location.lat) + 0.005}&layer=mapnik&marker=${Number(crime.location.lat)}%2C${Number(crime.location.lng)}`}
+                      />
+                    </div>
+                    <p className="text-slate-600 text-[10px] font-bold mt-2 uppercase tracking-wider">
+                      Coords: {Number(crime.location.lat).toFixed(6)}, {Number(crime.location.lng).toFixed(6)}
+                    </p>
+                  </div>
+                )}
+
+                {/* Card Footer */}
+                <div className="px-8 py-5 border-t border-slate-800/50 flex items-center justify-between bg-slate-900/50">
+                  <div className="text-[9px] font-black text-slate-600 uppercase tracking-widest">
+                    Reporter: {crime.userId?.username || "Anonymous"}
+                  </div>
+                  <Link
+                    to="/police/reports"
+                    className="flex items-center gap-2 text-[10px] font-black text-blue-500 hover:text-blue-400 uppercase tracking-widest transition-colors"
+                  >
+                    Open Full Case <ChevronRight size={14} />
+                  </Link>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      )}
+
+      <style>{`
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+      `}</style>
     </div>
   );
 }
