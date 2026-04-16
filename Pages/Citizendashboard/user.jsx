@@ -92,6 +92,20 @@ const Users = () => {
     }
   };
 
+  // REMOVE USER
+  const removeUserAction = async (id) => {
+    if (!window.confirm("Are you sure you want to permanently delete this user?")) return;
+    try {
+      const token = localStorage.getItem("token");
+      await axios.delete(`${import.meta.env.VITE_BACKEND_URL}/api/auth/remove/${id}`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      fetchUsers();
+    } catch (err) {
+      alert(err.response?.data?.msg || "Failed to remove user");
+    }
+  };
+
   return (
     <div className="p-6 md:p-10 min-h-screen bg-[#f8fafc] font-sans">
       <div className="max-w-7xl mx-auto">
@@ -207,10 +221,12 @@ const Users = () => {
                             <XCircle size={14} /> Revoke Status
                           </button>
                         ) : (
-                          <span className="text-[10px] font-bold text-slate-300 uppercase tracking-widest">
-                            {/* Manual Promote button removed completely as requested */}
-                            Standard
-                          </span>
+                          <button
+                            onClick={() => removeUserAction(user._id)}
+                            className="px-4 py-2 bg-slate-50 text-slate-500 hover:bg-rose-600 hover:text-white rounded-lg text-[10px] font-black uppercase tracking-widest transition-all border border-slate-200 hover:border-rose-600 inline-flex items-center gap-1.5"
+                          >
+                            <XCircle size={14} /> Remove User
+                          </button>
                         )}
                       </td>
                     </tr>
