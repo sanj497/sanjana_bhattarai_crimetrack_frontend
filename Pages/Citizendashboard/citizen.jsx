@@ -117,6 +117,7 @@ export default function CitizenDashboard() {
   const [crimeAlerts, setCrimeAlerts] = useState([]);
   const [alertsLoading, setAlertsLoading] = useState(true);
   const [unreadCount, setUnreadCount] = useState(0);
+  const [localPings, setLocalPings] = useState([]);
 
   useEffect(() => {
     const storedUser = localStorage.getItem("user");
@@ -129,9 +130,10 @@ export default function CitizenDashboard() {
 
         // Real-time listener
         const handleNotification = () => {
-          console.log("Citizen dashboard refreshing...");
+          console.log("Citizen dashboard refreshing due to new notification...");
           fetchMyReports(parsedUser._id);
           fetchUnreadCount();
+          fetchCrimeAlerts(); // Keep feed synced
         };
         window.addEventListener("new-notification-received", handleNotification);
         return () => window.removeEventListener("new-notification-received", handleNotification);
@@ -178,7 +180,12 @@ export default function CitizenDashboard() {
         headers: { Authorization: `Bearer ${token}` }
       });
       const data = await res.json();
-      if (data.success) setUnreadCount(data.unreadCount || 0);
+      if (data.success) {
+        setUnreadCount(data.unreadCount || 0);
+        if (data.notifications) {
+          setLocalPings(data.notifications.filter(n => n.type === "citizen_alert" && !n.isRead));
+        }
+      }
     } catch (err) {}
   };
 
@@ -240,7 +247,47 @@ export default function CitizenDashboard() {
          ))}
       </div>
 
-
+      {/* Live Active Pings (Safeguard) */}
+      {localPings.length > 0 && (
+        <div className="mb-12 bg-rose-600 rounded-[32px] p-8 md:p-10 text-white shadow-[0_20px_40px_-15px_rgba(225,29,72,0.6)] border border-rose-500 relative overflow-hidden group">
+           <div className="absolute top-0 right-0 h-64 w-64 bg-rose-500 rounded-full blur-[80px] -mr-32 -mt-32 pointer-events-none" />
+           <div className="flex flex-col md:flex-row items-start md:items-center gap-4 mb-8 relative z-10">
+              <div className="h-16 w-16 rounded-full bg-white text-rose-600 flex items-center justify-center shadow-2xl shadow-white/20 shrink-0">
+                 <AlertCircle size={32} className="animate-pulse" />
+              </div>
+              <div>
+                 <h2 className="text-2xl font-black uppercase tracking-tight leading-none mb-1">Local Area Pings</h2>
+                 <p className="text-rose-200 text-sm font-bold">Unverified alerts routed specifically to you due to proximate reporting.</p>
+              </div>
+           </div>
+           
+           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 relative z-10">
+             {localPings.map((ping) => (
+               <div key={ping._id} className="bg-rose-700/50 backdrop-blur-md rounded-[24px] p-6 border border-rose-500 hover:bg-rose-700/80 transition-all hover:-translate-y-1 shadow-lg cursor-default">
+                  <div className="flex justify-between items-center mb-4">
+                     <span className="px-3 py-1 bg-white text-rose-600 text-[9px] font-black uppercase tracking-widest rounded-full shadow-sm flex items-center gap-1.5">
+                       <span className="w-1.5 h-1.5 bg-rose-600 rounded-full animate-pulse" />
+                       Proximity Ping
+                     </span>
+                     <span className="text-rose-200 text-[10px] font-black uppercase tracking-wider bg-rose-900/50 px-2 py-1 rounded-lg">
+                       {new Date(ping.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                     </span>
+                  </div>
+                  <p className="text-white font-bold leading-relaxed text-sm mb-4">
+                    {ping.message}
+                  </p>
+                  
+                  {ping.crimeId && (
+                     <div className="flex items-center gap-2 pt-4 border-t border-rose-500/50 text-[10px] font-black uppercase tracking-widest text-rose-200">
+                        <MapPin size={14} /> 
+                        {ping.crimeId.crimeType || "Incident"} IN YOUR SECTOR
+                     </div>
+                  )}
+               </div>
+             ))}
+           </div>
+        </div>
+      )}
 
       {/* Crime Alerts Near You Section */}
       <div className="mb-12">
