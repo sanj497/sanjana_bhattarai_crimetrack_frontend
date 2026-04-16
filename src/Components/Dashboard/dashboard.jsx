@@ -8,23 +8,16 @@ import {
   FileText, 
   Users as UsersIcon, 
   Send, 
-  Settings, 
   MessageSquare,
   Clock,
   CheckCircle,
   AlertCircle,
-  Activity,
   ShieldCheck,
-  Bell,
-  AlertTriangle,
-  RefreshCw,
-  MapPin
 } from "lucide-react";
 
 export default function Dashboard() {
     const [stats, setStats] = useState({ total: 0, pending: 0, verified: 0, resolved: 0 });
     const [activities, setActivities] = useState([]);
-    const [alertQueue, setAlertQueue] = useState([]);
     const [loading, setLoading] = useState(true);
     const navigate = useNavigate();
 
@@ -58,34 +51,17 @@ export default function Dashboard() {
         }
     };
 
-    const fetchAlertQueue = async () => {
-        try {
-            const token = localStorage.getItem("token");
-            const res = await fetch(`${import.meta.env.VITE_BACKEND_URL}/api/report/alert-queue`, {
-                headers: { "Authorization": `Bearer ${token}` }
-            });
-            const data = await res.json();
-            if (data.success) {
-                setAlertQueue(data.queue || []);
-            }
-        } catch (err) {
-            console.error("Alert Queue fetch error:", err);
-        }
-    };
 
     useEffect(() => {
         fetchDashboardData();
-        fetchAlertQueue();
         
         const handleNotification = () => {
             fetchDashboardData();
-            fetchAlertQueue();
         };
         
         window.addEventListener("new-notification-received", handleNotification);
         const interval = setInterval(() => {
             fetchDashboardData();
-            fetchAlertQueue();
         }, 120000);
         
         return () => {
@@ -151,16 +127,11 @@ export default function Dashboard() {
             {/* Header */}
             <div className="flex items-center justify-between mb-section">
                 <div>
-                    <h1 className="text-text-primary mb-1">Executive Command Center</h1>
-                    <p className="text-text-secondary text-sm">Verified Operational Intelligence</p>
+                    <h1 className="text-text-primary mb-1">Welcome to the CrimeTrack Admin </h1>
+                   
                 </div>
 
-                <div className="flex items-center gap-default">
-                    <div className="flex items-center gap-2 px-4 py-2 bg-secondary-dark border border-border-subtle rounded-lg text-xs font-medium text-text-primary shadow-lg">
-                        <div className="w-2 h-2 bg-success rounded-full animate-pulse"/>
-                        System Synchronized
-                    </div>
-                </div>
+
             </div>
 
             {/* Main Grid */}
@@ -225,7 +196,7 @@ export default function Dashboard() {
                           <div className="absolute inset-0 z-20 bg-gradient-to-t from-slate-950/90 via-slate-900/20 to-transparent flex flex-col justify-end p-6 hover:from-slate-950 transition-all cursor-pointer" onClick={() => navigate("/admin/map")}>
                              <div className="transform translate-y-2 group-hover:translate-y-0 transition-all">
                                <h3 className="text-white text-lg font-black uppercase tracking-tight flex items-center gap-2">
-                                 <MapIcon size={18} className="text-blue-500" /> Operational Map Grid
+                                 <MapIcon size={18} className="text-blue-500" /> Live Response Map
                                </h3>
                                <p className="text-slate-400 text-xs font-bold mt-1">Visualize full reports & critical incident intel in the interactive map.</p>
                              </div>
@@ -263,7 +234,7 @@ export default function Dashboard() {
                                 <div className="p-2 bg-accent-gold/10 rounded-lg text-accent-gold">
                                     <BarChart3 size={20}/>
                                 </div>
-                                <h3 className="text-lg font-semibold text-text-primary">Intelligence Distribution</h3>
+                                <h3 className="text-lg font-semibold text-text-primary">Crime Statistics</h3>
                             </div>
                         </div>
                         <div className="h-[350px] w-full relative z-10">
@@ -287,54 +258,10 @@ export default function Dashboard() {
                 {/* Right Side: Emergency Hub & Actions */}
                 <div className="flex flex-col gap-section">
                     
-                    {/* EMERGENCY RESPONSE QUEUE */}
-                    <div className="bg-secondary-dark/60 border-2 border-danger/20 rounded-card p-section shadow-lg relative overflow-hidden">
-                        <div className="absolute top-0 right-0 w-1 h-full bg-danger opacity-50"/>
-                        
-                        <div className="flex justify-between items-center mb-default">
-                          <div>
-                            <h3 className="text-base font-semibold text-text-primary">Emergency Hub</h3>
-                            <p className="text-xs text-danger mt-0.5">Critical Dispatch Queue</p>
-                          </div>
-                          {alertQueue.length > 0 && (
-                            <span className="bg-danger h-8 w-8 rounded-lg flex items-center justify-center text-white text-sm font-bold shadow-lg animate-bounce">
-                              {alertQueue.length}
-                            </span>
-                          )}
-                        </div>
-
-                        <div className="flex flex-col gap-5 max-h-[500px] overflow-y-auto pr-3 custom-scrollbar relative z-10">
-                            {alertQueue.length > 0 ? (
-                              alertQueue.map((item, i) => (
-                                <div 
-                                  key={i} 
-                                  onClick={() => navigate(`/admin/verify/${item._id}`)}
-                                  className="p-6 bg-rose-500/5 border border-rose-500/10 rounded-3xl cursor-pointer hover:bg-rose-500/10 transition-all group/item shadow-inner"
-                                >
-                                  <div className="flex items-center gap-3 mb-3">
-                                    <AlertTriangle size={16} className="text-rose-500 animate-pulse" />
-                                    <span className="text-[10px] font-black text-rose-400 uppercase tracking-widest">{item.crimeType}</span>
-                                  </div>
-                                  <div className="text-sm font-black text-white leading-tight group-hover/item:text-rose-400 transition-colors uppercase tracking-tight">{item.title}</div>
-                                  <div className="text-[9px] font-black text-slate-600 mt-4 flex items-center gap-2 italic uppercase tracking-widest">
-                                    <MapPin size={12} /> Proximity Alert Required
-                                  </div>
-                                </div>
-                              ))
-                            ) : (
-                              <div className="text-center py-16">
-                                <div className="h-16 w-16 bg-slate-950 rounded-[24px] flex items-center justify-center mx-auto mb-6 border border-slate-800 shadow-inner">
-                                  <ShieldCheck size={28} className="text-slate-800" />
-                                </div>
-                                <p className="text-[9px] font-black text-slate-700 uppercase tracking-[4px]">Sector Cleared</p>
-                              </div>
-                            )}
-                        </div>
-                    </div>
 
                     {/* Quick Launch */}
                     <div className="bg-slate-900 border border-slate-800 rounded-[48px] p-10 shadow-2xl">
-                        <h3 className="text-[10px] font-black text-slate-500 uppercase tracking-[4px] mb-8">Operations Desk</h3>
+                        <h3 className="text-[10px] font-black text-slate-500 uppercase tracking-[4px] mb-8">Quick Actions</h3>
                         <div className="flex flex-col gap-4">
                             {menu.slice(2).map((item, i) => (
                                 <button
@@ -351,11 +278,11 @@ export default function Dashboard() {
 
                     {/* Health Check */}
                     <div className="bg-slate-900 border border-slate-800 rounded-[48px] p-10 shadow-2xl">
-                        <h3 className="text-[10px] font-black text-slate-500 uppercase tracking-[4px] mb-8">System Telemetry</h3>
+                        <h3 className="text-[10px] font-black text-slate-500 uppercase tracking-[4px] mb-8">System Status</h3>
                         <div className="flex flex-col gap-8">
                             <div>
                               <div className="flex justify-between items-center mb-3">
-                                  <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Global Resolution</span>
+                                  <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Solved Cases</span>
                                   <span className="text-xs font-black text-emerald-500 font-mono">
                                       {stats.total > 0 ? Math.round((stats.resolved / stats.total) * 100) : 0}%
                                   </span>
@@ -370,7 +297,7 @@ export default function Dashboard() {
                             
                             <div>
                               <div className="flex justify-between items-center mb-3">
-                                  <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Intelligence Backlog</span>
+                                  <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Pending Cases</span>
                                   <span className="text-xs font-black text-amber-500 font-mono">{stats.pending} Units</span>
                               </div>
                               <div className="h-2 bg-slate-950 rounded-full overflow-hidden border border-slate-800/50 shadow-inner">
