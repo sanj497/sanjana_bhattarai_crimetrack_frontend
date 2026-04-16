@@ -51,6 +51,13 @@ export default function PoliceLayout() {
         body: formData
       });
 
+      // Handle 404 - endpoint not deployed yet
+      if (res.status === 404) {
+        toast.error("Profile upload endpoint not deployed yet. Please use Settings page.");
+        setUploadingPicture(false);
+        return;
+      }
+
       const data = await res.json();
       if (res.ok && data.success) {
         toast.success("Profile picture updated!");
@@ -65,7 +72,7 @@ export default function PoliceLayout() {
       }
     } catch (err) {
       console.error("Upload error:", err);
-      toast.error("Failed to upload picture");
+      toast.error("Failed to upload picture. Backend may not be deployed.");
     } finally {
       setUploadingPicture(false);
     }

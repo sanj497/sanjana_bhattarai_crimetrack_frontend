@@ -138,7 +138,7 @@ export default function CitizenDashboard() {
         setUser(parsedUser);
         fetchMyReports(parsedUser._id);
         fetchUnreadCount();
-        fetchProfile(); // Fetch full profile with picture
+        fetchProfile(); // Fetch full profile with picture from backend
 
         // Real-time listener
         const handleNotification = () => {
@@ -146,6 +146,7 @@ export default function CitizenDashboard() {
           fetchMyReports(parsedUser._id);
           fetchUnreadCount();
           fetchCrimeAlerts(); // Keep feed synced
+          fetchProfile(); // Also refresh profile
         };
         window.addEventListener("new-notification-received", handleNotification);
         return () => window.removeEventListener("new-notification-received", handleNotification);
@@ -162,6 +163,13 @@ export default function CitizenDashboard() {
       const res = await fetch(`${import.meta.env.VITE_BACKEND_URL}/api/auth/profile`, {
         headers: { Authorization: `Bearer ${token}` }
       });
+      
+      // If endpoint doesn't exist yet (404), use localStorage data
+      if (res.status === 404) {
+        console.warn("Profile endpoint not deployed yet, using localStorage data");
+        return;
+      }
+      
       const data = await res.json();
       if (res.ok && data.success) {
         setUser(data.user);
