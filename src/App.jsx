@@ -15,6 +15,7 @@ import NewBoard from "../Pages/police/Dashui.jsx";
 import Policereport from "./Components/Policedashboard/Policereport.jsx";
 import Notifications from "../Pages/notification/notification.jsx";
 import CitizenDashboard from "../Pages/Citizendashboard/citizen.jsx";
+import CitizenAlerts from "../Pages/Citizendashboard/CitizenAlerts.jsx";
 import CitizenSettings from "../Pages/Citizendashboard/CitizenSettings.jsx";
 import SendFeedback from "../Pages/Feedback/SendFeedback.jsx";
 import AdminFeedback from "../Pages/Feedback/admingetfeed.jsx";
@@ -130,6 +131,7 @@ function App() {
 
         <Route element={<CitizenRoute><CitizenLayout /></CitizenRoute>}>
           <Route path="/citizen" element={<CitizenDashboard />} />
+          <Route path="/citizen/alerts" element={<CitizenAlerts />} />
           <Route path="/citizen/tracking" element={<IncidentTracking />} />
           <Route path="/community" element={<CommunityBoard />} />
           <Route path="/transparency" element={<TransparencyHub />} />

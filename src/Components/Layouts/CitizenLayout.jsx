@@ -13,6 +13,7 @@ const navItems = [
   { icon: <Users size={20} />, label: "Community", path: "/community" },
   { icon: <MapPin size={20} />, label: "Safety Map", path: "/map-citizen" },
   { icon: <BarChart3 size={20} />, label: "Transparency", path: "/transparency" },
+  { icon: <ShieldAlert size={20} />, label: "Admin Alerts", path: "/citizen/alerts" },
   { icon: <AlertTriangle size={20} />, label: "Emergency", path: "/emergency", badge: "SOS" },
   { icon: <Bell size={20} />, label: "Notifications", path: "/notifications" },
   { icon: <MessageSquare size={20} />, label: "Complaints", path: "/complaints" },

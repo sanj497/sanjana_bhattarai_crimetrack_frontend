@@ -395,66 +395,7 @@ export default function CitizenDashboard() {
         )}
       </div>
 
-      {/* Admin Broadcasted Crime Alerts Section */}
-      <div id="admin-alerts" className="mb-12 scroll-mt-24">
-        <div className="flex items-center justify-between mb-8 px-2">
-          <div className="flex items-center gap-3">
-            <div className="p-2.5 bg-indigo-50 rounded-2xl">
-              <MessageSquare className="h-5 w-5 text-indigo-500" />
-            </div>
-            <div>
-              <h2 className="text-xl font-black text-slate-900 uppercase tracking-tight">Admin Crime Alerts</h2>
-              <p className="text-xs text-slate-400 font-medium mt-0.5">Official safety broadcasts and crime reports sent by administration</p>
-            </div>
-          </div>
-        </div>
 
-        {adminAlerts.length === 0 ? (
-          <div className="bg-slate-50 border border-slate-100 rounded-[32px] p-10 text-center">
-            <div className="w-16 h-16 bg-slate-200 rounded-full flex items-center justify-center mx-auto mb-4">
-               <ShieldCheck className="h-8 w-8 text-slate-400" />
-            </div>
-            <p className="text-sm text-slate-500 font-bold">No admin alerts at this time.</p>
-          </div>
-        ) : (
-          <div className="flex flex-col gap-4">
-            {adminAlerts.map(alert => (
-              <div key={alert._id} className={`bg-white border-l-4 ${!alert.isRead ? 'border-l-rose-500' : 'border-l-indigo-500'} border-y border-r border-slate-100 rounded-r-[24px] rounded-l-[8px] p-6 shadow-sm hover:shadow-md transition-all group`}>
-                <div className="flex justify-between items-start mb-2">
-                   <div className="flex items-center gap-2">
-                      <span className={`px-3 py-1 ${!alert.isRead ? 'bg-rose-50 text-rose-600' : 'bg-indigo-50 text-indigo-600'} text-[10px] font-black uppercase tracking-widest rounded-full`}>
-                         {!alert.isRead ? 'New Alert' : 'Official Broadcast'}
-                      </span>
-                      {alert.crimeId && alert.crimeId.crimeType && (
-                        <span className="text-[10px] font-black text-slate-500 uppercase tracking-widest">
-                           {alert.crimeId.crimeType}
-                        </span>
-                      )}
-                   </div>
-                   <span className="text-[10px] font-bold text-slate-400 flex items-center gap-1 uppercase tracking-wider">
-                     <Clock size={12}/> {new Date(alert.createdAt).toLocaleString()}
-                   </span>
-                </div>
-                <p className="text-sm font-bold text-slate-800 leading-relaxed max-w-4xl mt-3 mb-2">
-                  {alert.message}
-                </p>
-                {alert.crimeId && alert.crimeId.title && (
-                  <div className="mt-4 p-4 bg-slate-50 rounded-2xl border border-slate-100 flex flex-col md:flex-row justify-between md:items-center gap-4">
-                    <div>
-                        <p className="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-1">Attached Crime Report</p>
-                        <p className="text-xs font-bold text-slate-700">{alert.crimeId.title}</p>
-                        <p className="text-[10px] text-slate-500 flex items-center gap-1 mt-1"><MapPin size={10}/> {alert.crimeId?.location?.address || "Location unavailable"}</p>
-                    </div>
-                    <Link to={`/citizen/tracking`} className="px-4 py-2 bg-white border border-slate-200 text-slate-700 rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-slate-50 transition-colors shrink-0">
-                       Track Case
-                    </Link>
-                  </div>
-                )}
-              </div>
-            ))}
-          </div>
-        )}
-      </div>
 
       {/* Emergency SOS Signal Section - Tactical Response Unit */}
       <div className="bg-slate-950 rounded-[64px] p-10 md:p-20 shadow-[0_40px_100px_rgba(0,0,0,0.4)] relative overflow-hidden group border border-slate-800/50">
