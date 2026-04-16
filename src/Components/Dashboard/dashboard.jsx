@@ -149,7 +149,6 @@ export default function Dashboard() {
     };
 
     return (
-    return (
         <div className="min-h-screen bg-slate-950 p-8 text-slate-300">
             {/* Header */}
             <div className="flex items-center justify-between mb-12">
