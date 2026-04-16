@@ -226,12 +226,12 @@ export default function CitizenLayout() {
             </div>
             {(() => {
               const u = getUser();
-              const initials = u.username ? u.username.split(" ").map(w => w[0]).join("").toUpperCase().slice(0, 2) : "C";
+              const initials = (u.username || u.name || "Citizen").split(" ").map(w => w[0]).join("").toUpperCase().slice(0, 2);
               return (
                 <div className="flex items-center gap-4">
-                  <div className="hidden sm:block text-right">
-                    <div className="text-xs font-black text-white uppercase tracking-tighter">{u.username || u.name || "Citizen"}</div>
-                    <div className="text-[9px] font-black text-slate-500 uppercase tracking-widest mt-0.5">{u.role || "Citizen"}</div>
+                  <div className="hidden sm:flex flex-col items-end">
+                    <div className="text-sm font-black text-white tracking-tight leading-none capitalize">{u.username || u.name || "Citizen"}</div>
+                    <div className="text-[10px] font-bold text-blue-400/80 lowercase tracking-wide mt-1.5">{u.email || "user@crimetrack.com"}</div>
                   </div>
                   <div
                     className="h-12 w-12 bg-blue-600 text-white flex items-center justify-center rounded-2xl font-black text-lg shadow-xl shadow-blue-900/40 relative group cursor-pointer border border-blue-500/50 overflow-hidden"

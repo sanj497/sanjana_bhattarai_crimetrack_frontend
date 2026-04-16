@@ -231,12 +231,12 @@ export default function PoliceLayout() {
 
               {(() => {
                 const u = getUser();
-                const initials = u.username ? u.username.split(" ").map(w => w[0]).join("").toUpperCase().slice(0,2) : "P";
+                const initials = (u.username || u.name || "Police").split(" ").map(w => w[0]).join("").toUpperCase().slice(0, 2);
                 return (
                   <div className="flex items-center gap-4">
-                    <div className="text-right hidden sm:block">
-                      <div className="text-xs font-black text-white uppercase tracking-tighter leading-none">{u.username || "Officer"}</div>
-                      <div className="text-[9px] font-black text-slate-500 uppercase tracking-widest mt-1">{u.role || "Patrol Unit"}</div>
+                    <div className="hidden sm:flex flex-col items-end">
+                      <div className="text-sm font-black text-white tracking-tight leading-none capitalize">{u.username || u.name || "Officer"}</div>
+                      <div className="text-[10px] font-bold text-blue-400/80 lowercase tracking-wide mt-1.5">{u.email || "officer@crimetrack.com"}</div>
                     </div>
                     <div 
                       className="h-12 w-12 bg-blue-600 text-white flex items-center justify-center rounded-2xl font-black text-lg shadow-xl shadow-blue-900/40 relative group cursor-pointer border border-blue-500/50 overflow-hidden"

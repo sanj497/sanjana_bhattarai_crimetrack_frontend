@@ -116,7 +116,7 @@ export default function AdminReport() {
     return (
       <div className="flex flex-col items-center justify-center min-h-[600px] bg-slate-50">
         <div className="h-12 w-12 border-4 border-slate-200 border-t-blue-600 rounded-full animate-spin mb-4" />
-        <p className="text-slate-500 font-bold uppercase tracking-widest text-[10px]">Synchronizing Case Files</p>
+        <p className="text-slate-500 font-bold uppercase tracking-widest text-[10px]">Updating Reports...</p>
       </div>
     );
 
@@ -124,8 +124,8 @@ export default function AdminReport() {
     <div className="p-8 bg-slate-950 min-h-screen font-sans text-slate-300">
       <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6 mb-12">
         <div>
-           <h2 className="text-3xl font-black text-white tracking-tighter uppercase mb-1">Administrative Clearing House</h2>
-           <p className="text-[10px] font-black text-slate-500 uppercase tracking-[4px]">HQ Operations Center</p>
+           <h2 className="text-3xl font-black text-white tracking-tighter uppercase mb-1">Manage Reports</h2>
+           <p className="text-[10px] font-black text-slate-500 uppercase tracking-[4px]">Review and handle all submitted cases</p>
         </div>
         <div className="flex flex-col lg:flex-row lg:items-center gap-4">
           <div className="flex items-center gap-2 bg-slate-900 border border-slate-800 p-2 rounded-2xl">
@@ -141,7 +141,7 @@ export default function AdminReport() {
           </div>
           <button onClick={fetchReports} className="flex items-center gap-2 px-6 py-4 bg-slate-900 border border-slate-800 rounded-2xl text-[10px] font-black uppercase tracking-widest text-white hover:bg-slate-800 transition-all shadow-xl">
             <RefreshCw size={14} className={loading ? "animate-spin" : ""} />
-            Sync Ledger
+            Refresh Reports
           </button>
         </div>
       </div>
@@ -158,7 +158,7 @@ export default function AdminReport() {
                 ) : (
                    <div className="w-full h-full bg-slate-950 flex flex-col items-center justify-center text-slate-700 gap-4 border-b border-slate-800">
                      <Camera size={48} className="opacity-20 animate-pulse" />
-                     <span className="text-[9px] font-black uppercase tracking-[4px] opacity-40">Artifact Unvailable</span>
+                     <span className="text-[9px] font-black uppercase tracking-[4px] opacity-40">No Image Available</span>
                    </div>
                 )}
                 <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-transparent to-transparent opacity-60" />
@@ -182,14 +182,14 @@ export default function AdminReport() {
                 <div className="mt-auto space-y-4">
                     <div className="flex items-center gap-4 p-5 bg-slate-950/50 rounded-[24px] border border-slate-800/50 transition-colors group-hover:border-slate-700">
                        <MapPin size={18} className="text-blue-600 shrink-0" />
-                       <span className="text-xs font-black text-slate-400 uppercase tracking-tight line-clamp-1">{crime.location?.address || "Grid Coordinates Only"}</span>
+                       <span className="text-xs font-black text-slate-400 uppercase tracking-tight line-clamp-1">{crime.location?.address || "Location data not available"}</span>
                     </div>
 
                     {crime.status === "ForwardedToPolice" && crime.workflow?.assignedToOfficer && (
                        <div className="flex items-center gap-4 p-5 bg-blue-500/5 rounded-[24px] border border-blue-500/10">
                           <User size={18} className="text-blue-500 shrink-0" />
                           <div className="flex flex-col">
-                             <span className="text-[9px] font-black text-blue-500/50 uppercase tracking-widest leading-none mb-1">Assigned Agent</span>
+                             <span className="text-[9px] font-black text-blue-500/50 uppercase tracking-widest leading-none mb-1">Assigned Officer</span>
                              <span className="text-xs font-black text-white uppercase">{crime.workflow.assignedToOfficer.username}</span>
                           </div>
                        </div>
@@ -199,21 +199,21 @@ export default function AdminReport() {
                         {crime.status === "Pending" && (
                             <>
                                <button onClick={() => navigate(`/admin/verify/${crime._id}`)} className="col-span-2 py-5 bg-emerald-600 text-white rounded-2xl text-[10px] font-black uppercase tracking-widest flex items-center justify-center gap-3 hover:bg-emerald-500 transition-all shadow-xl shadow-emerald-900/20 active:scale-95">
-                                  <CheckCircle size={16} /> Authorize Verification
+                                  <CheckCircle size={16} /> Verify Report
                                </button>
                                <button onClick={() => handleAction(crime._id, "Rejected")} className="py-4 border border-rose-500/20 text-rose-500 rounded-2xl text-[10px] font-black uppercase tracking-widest flex items-center justify-center gap-2 hover:bg-rose-500/10 transition-all">
-                                  <XCircle size={14} /> Nullify
+                                  <XCircle size={14} /> Reject
                                </button>
                             </>
                         )}
                         {crime.status === "Verified" && (
                            <button onClick={() => navigate(`/admin/verify/${crime._id}`)} className="col-span-2 py-5 bg-blue-600 text-white rounded-2xl text-[10px] font-black uppercase tracking-widest flex items-center justify-center gap-3 hover:bg-blue-500 transition-all shadow-xl shadow-blue-900/20 active:scale-95">
-                              <Send size={16} /> Deploy Forces
+                              <Send size={16} /> Send to Police
                            </button>
                         )}
                         {crime.status !== "Pending" && crime.status !== "Verified" && (
                            <button onClick={() => navigate(`/admin/verify/${crime._id}`)} className="col-span-2 py-5 bg-slate-800 text-white rounded-2xl text-[10px] font-black uppercase tracking-widest flex items-center justify-center gap-3 hover:bg-slate-700 transition-all border border-slate-700">
-                              <Eye size={16} /> Open Dossier
+                              <Eye size={16} /> View Full Report
                            </button>
                         )}
                     </div>
@@ -227,8 +227,8 @@ export default function AdminReport() {
       {totalPages > 1 && (
         <div className="flex flex-col md:flex-row items-center justify-between px-8 py-6 bg-slate-900/40 border border-slate-800/50 rounded-[40px] shadow-2xl backdrop-blur-md mb-10 gap-6">
           <div className="flex flex-col">
-             <span className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-1">Administrative Index</span>
-             <span className="text-xs font-bold text-white uppercase">Archive {currentPage} <span className="text-slate-600">/</span> {totalPages} <span className="text-slate-600">—</span> {totalItems} Total Records</span>
+             <span className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-1">Page Navigation</span>
+             <span className="text-xs font-bold text-white uppercase">Page {currentPage} <span className="text-slate-600">/</span> {totalPages} <span className="text-slate-600">—</span> {totalItems} Total Reports</span>
           </div>
           
           <div className="flex items-center gap-2">
@@ -274,7 +274,7 @@ export default function AdminReport() {
       {crimes.length === 0 && (
         <div className="flex flex-col items-center justify-center py-40 text-slate-400 gap-6">
           <Inbox size={80} className="opacity-20" />
-          <div className="text-center"><h4 className="text-xl font-black text-slate-900 mb-1">Archive Entry Empty</h4><p className="text-sm font-medium">No case files match the current parameters.</p></div>
+          <div className="text-center"><h4 className="text-xl font-black text-slate-900 mb-1">No Reports Found</h4><p className="text-sm font-medium">No case files match your current selection.</p></div>
         </div>
       )}
     </div>

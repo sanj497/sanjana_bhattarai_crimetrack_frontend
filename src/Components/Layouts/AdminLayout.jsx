@@ -245,7 +245,7 @@ export default function AdminLayout() {
                 {/* HEADER */}
                 <header className="h-24 bg-slate-900 border-b border-slate-800 flex items-center justify-between px-10 shrink-0 z-30 sticky top-0 shadow-2xl backdrop-blur-md bg-opacity-80">
                     <div>
-                        <div className="text-[10px] text-slate-600 font-black uppercase tracking-[3px] mb-1">Administrative Clearing House</div>
+                        <div className="text-[10px] text-slate-600 font-black uppercase tracking-[3px] mb-1">Admin Control Center</div>
                         <h2 className="text-2xl font-black text-white italic tracking-tight uppercase">{activeItem}</h2>
                     </div>
 
