@@ -13,20 +13,26 @@ const Login = () => {
   const [isLoading, setIsLoading] = useState(false);
 
   React.useEffect(() => {
-    const token = localStorage.getItem("token");
-    const userStr = localStorage.getItem("user");
-    if (token && userStr) {
-      try {
-        const user = JSON.parse(userStr);
-        const role = user.role;
-        if (role === "admin") navigate("/dashboard", { replace: true });
-        else if (role === "police") navigate("/police/dashboard", { replace: true });
-        else if (role === "user") navigate("/citizen", { replace: true });
-      } catch (e) {
-        localStorage.removeItem("token");
-        localStorage.removeItem("user");
+    const checkAuth = () => {
+      const token = localStorage.getItem("token");
+      const userStr = localStorage.getItem("user");
+      if (token && userStr) {
+        try {
+          const user = JSON.parse(userStr);
+          const role = user.role;
+          if (role === "admin") navigate("/dashboard", { replace: true });
+          else if (role === "police") navigate("/police/dashboard", { replace: true });
+          else if (role === "user") navigate("/citizen", { replace: true });
+        } catch (e) {
+          localStorage.removeItem("token");
+          localStorage.removeItem("user");
+        }
       }
-    }
+    };
+
+    checkAuth();
+    window.addEventListener("storage", checkAuth);
+    return () => window.removeEventListener("storage", checkAuth);
   }, [navigate]);
 
   const handleChange = (e) => {
@@ -35,6 +41,15 @@ const Login = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    
+    // Cross-tab safety: explicitly reject submittion if already logged in elsewhere
+    if (localStorage.getItem("token")) {
+      setError(true);
+      setMessage("Session already active in another tab. Redirecting...");
+      setTimeout(() => window.location.reload(), 1500);
+      return;
+    }
+
     setMessage("");
     setError(false);
     setIsLoading(true);
