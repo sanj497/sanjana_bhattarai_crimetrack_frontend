@@ -105,8 +105,6 @@ function App() {
         <Route path="/register" element={<GuestOnlyRoute><Register /></GuestOnlyRoute>} />
         <Route path="/register-admin" element={<GuestOnlyRoute><RegisterAdmin /></GuestOnlyRoute>} />
 
-        {/* ── PUBLIC EMERGENCY ROUTE ─────────────────────────────── */}
-        <Route path="/emergency" element={<EmergencyContactsApp />} />
 
         {/* ── ADMIN ROUTES (role: admin) ─────────────────────────────── */}
         <Route element={<AdminRoute><AdminLayout /></AdminRoute>}>
@@ -119,6 +117,7 @@ function App() {
           <Route path="/admin/verify/:id" element={<Verify />} />
           <Route path="/admin/performance" element={<TransparencyHub />} />
           <Route path="/admin/map" element={<CrimeMap />} />
+          <Route path="/admin/emergency" element={<EmergencyContactsApp />} />
           <Route path="/admin/settings" element={<AdminSettings />} />
         </Route>
 

@@ -23,7 +23,8 @@ import {
   RefreshCw,
   BarChart3,
   ShieldAlert,
-  Activity
+  Activity,
+  AlertTriangle
 } from "lucide-react";
 
 export default function AdminLayout() {
@@ -133,6 +134,7 @@ export default function AdminLayout() {
             { name: "Notifications",    icon: <Bell size={20} />,            path: "/notifications" },
             { name: "Feedback",    icon: <MessageSquare size={20} />,   path: "/admin/feedback" },
             { name: "Performance",    icon: <BarChart3 size={20} />,       path: "/admin/performance" },
+            { name: "Emergency",      icon: <AlertTriangle size={20} />,   path: "/admin/emergency" },
             { name: "Settings",          icon: <Settings size={20} />,        path: "/admin/settings" },
         ],
         []
@@ -221,7 +223,7 @@ export default function AdminLayout() {
                         <div className="group-hover:rotate-12 transition-transform">
                           <LogOut size={20} />
                         </div>
-                        {sidebarOpen && <span className="text-sm font-bold uppercase tracking-widest text-[10px]">Terminate Session</span>}
+                        {sidebarOpen && <span className="text-sm font-bold uppercase tracking-widest text-[10px]">Logout</span>}
                     </button>
                     
                     {sidebarOpen && (
