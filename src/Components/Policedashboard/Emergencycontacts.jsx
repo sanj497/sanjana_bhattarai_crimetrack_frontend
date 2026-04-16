@@ -14,7 +14,8 @@ import {
   X,
   ChevronRight,
   Radio,
-  ExternalLink
+  ExternalLink,
+  ShieldCheck
 } from "lucide-react";
 
 const API_BASE = `${import.meta.env.VITE_BACKEND_URL}/api/emergency`;
@@ -609,12 +610,7 @@ export default function EmergencyContactsApp() {
                 ))}
               </div>
             )}
-
-             <div className="flex flex-col items-center pt-16 pb-8 opacity-30">
-               <p className="text-[9px] font-black text-slate-400 dark:text-slate-600 uppercase tracking-[6px] mb-4">Registry Integrity: Verified • {filtered.length} Active Nodes</p>
-               <div className="h-1 w-20 bg-slate-100 dark:bg-slate-800 rounded-full" />
-            </div>
-          </>
+           </div>
         )}
       </div>
 
@@ -626,27 +622,6 @@ export default function EmergencyContactsApp() {
         .no-scrollbar::-webkit-scrollbar { display: none; }
         .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
       `}</style>
-    </div>
-  );
-}
-) : (
-              <div className="grid gap-4">
-                {filtered.map((contact) => (
-                  <ContactCard key={contact._id} contact={contact} onDelete={handleDelete} isResponder={isResponder} />
-                ))}
-              </div>
-            )}
-
-            <p className="text-center text-xs text-gray-400 pb-4">
-              {filtered.length} contact{filtered.length !== 1 ? "s" : ""} available
-            </p>
-          </>
-        )}
-      </div>
-
-      {showModal && (
-        <AddContactModal onClose={() => setShowModal(false)} onSaved={(c) => setContacts((prev) => [c, ...prev])} />
-      )}
     </div>
   );
 }
