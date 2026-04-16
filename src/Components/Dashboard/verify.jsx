@@ -323,11 +323,11 @@ const Verify = () => {
          <div className="max-w-6xl mx-auto flex flex-col md:flex-row md:items-center justify-between gap-8">
             <div>
                <div className="flex items-center gap-3 mb-4 text-blue-500">
-                  <span className="text-[10px] font-black uppercase tracking-[3px] bg-blue-500/10 px-3 py-1 rounded-full border border-blue-500/20">Case Review Protocol</span>
+                  <span className="text-[10px] font-black uppercase tracking-[3px] bg-blue-500/10 px-3 py-1 rounded-full border border-blue-500/20">Case Review</span>
                   <ChevronRight size={14} className="text-slate-600" />
                   <span className="text-[10px] font-black text-slate-500 uppercase tracking-[3px]">{report._id.slice(-8)}</span>
                </div>
-               <h1 className="text-4xl font-black text-white tracking-tighter uppercase leading-none">{report.title || "Unclassified Intelligence"}</h1>
+               <h1 className="text-4xl font-black text-white tracking-tighter uppercase leading-none">{report.title || "Untitled Report"}</h1>
             </div>
 
             <div className="flex items-center gap-3">
@@ -338,7 +338,7 @@ const Verify = () => {
                   </div>
                )}
                <div className={`px-6 py-2 rounded-2xl border text-[10px] font-black uppercase tracking-[2px] ${getStatusBadge(report.status)}`}>
-                  System Status: {report.status}
+                  Status: {report.status}
                </div>
             </div>
          </div>
@@ -358,29 +358,29 @@ const Verify = () => {
                      <ShieldCheck size={24} />
                   </div>
                   <div>
-                     <h3 className="text-white text-lg font-black tracking-tight uppercase">Crime Intelligence Narrative</h3>
-                     <p className="text-slate-500 text-[10px] font-bold uppercase tracking-widest">Incident breakdown & Evidence Profile</p>
+                     <h3 className="text-white text-lg font-black tracking-tight uppercase">Case Details</h3>
+                     <p className="text-slate-500 text-[10px] font-bold uppercase tracking-widest">What happened & Evidence</p>
                   </div>
                </div>
 
                <div className="space-y-10">
                   <div>
-                     <label className="text-[9px] font-black text-slate-600 uppercase tracking-[2px] block mb-3">Incident Description</label>
+                     <label className="text-[9px] font-black text-slate-600 uppercase tracking-[2px] block mb-3">What Happened</label>
                      <div className="bg-slate-950/50 p-6 rounded-3xl border border-slate-800/30 text-slate-300 text-sm font-medium leading-relaxed italic border-l-4 border-l-blue-600">
-                        "{report.description || "No descriptive intelligence provided for this case."}"
+                        "{report.description || "No description provided for this case."}"
                      </div>
                   </div>
 
                   <div className="grid grid-cols-2 gap-8">
                      <div>
-                        <label className="text-[9px] font-black text-slate-600 uppercase tracking-[2px] block mb-2">Category Tag</label>
+                        <label className="text-[9px] font-black text-slate-600 uppercase tracking-[2px] block mb-2">Type</label>
                         <div className="flex items-center gap-2 text-white font-black text-xs uppercase tracking-widest">
                            <AlertTriangle size={14} className="text-blue-500" />
-                           {report.crimeType || "Unidentified"}
+                           {report.crimeType || "Unknown"}
                         </div>
                      </div>
                      <div>
-                        <label className="text-[9px] font-black text-slate-600 uppercase tracking-[2px] block mb-2">Timestamp</label>
+                        <label className="text-[9px] font-black text-slate-600 uppercase tracking-[2px] block mb-2">Reported On</label>
                         <div className="flex items-center gap-2 text-white font-black text-xs uppercase tracking-widest">
                            <Clock size={14} className="text-slate-400" />
                            {new Date(report.createdAt).toLocaleDateString()} @ {new Date(report.createdAt).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}
@@ -389,7 +389,7 @@ const Verify = () => {
                   </div>
 
                   <div>
-                     <label className="text-[9px] font-black text-slate-600 uppercase tracking-[2px] block mb-3">Field Deployment Map / Intelligence</label>
+                     <label className="text-[9px] font-black text-slate-600 uppercase tracking-[2px] block mb-3">Location</label>
                      <div className="rounded-3xl border border-slate-800/50 overflow-hidden h-64 w-full shadow-2xl mb-4">
                        {report.location?.lat && report.location?.lng ? (
                          <iframe
@@ -403,7 +403,7 @@ const Verify = () => {
                        ) : (
                          <div className="w-full h-full bg-slate-950 flex flex-col items-center justify-center text-slate-600 gap-2">
                            <MapPin size={32} className="opacity-20" />
-                           <span className="text-[10px] font-black uppercase tracking-widest opacity-40">Coordinate Data Missing</span>
+                           <span className="text-[10px] font-black uppercase tracking-widest opacity-40">Location Not Available</span>
                          </div>
                        )}
                      </div>
@@ -411,7 +411,7 @@ const Verify = () => {
                      <div className="flex items-start gap-3 p-5 bg-slate-950/30 rounded-3xl border border-slate-800/30">
                         <MapPin size={20} className="text-blue-600 shrink-0 mt-0.5" />
                         <div>
-                           <div className="text-white text-sm font-black tracking-tight mb-1">{report.location?.address || "Coordinate Vectors Only"}</div>
+                           <div className="text-white text-sm font-black tracking-tight mb-1">{report.location?.address || "Address not provided"}</div>
                            <div className="text-slate-500 text-[9px] font-bold">Lat: {report.location?.lat || report.location?.coordinates?.[1] || "—"} / Lon: {report.location?.lng || report.location?.coordinates?.[0] || "—"}</div>
                         </div>
                      </div>
@@ -419,7 +419,7 @@ const Verify = () => {
 
                   {report.evidence?.length > 0 && (
                      <div>
-                        <label className="text-[9px] font-black text-slate-600 uppercase tracking-[2px] block mb-4">Visual Evidence Artifacts</label>
+                        <label className="text-[9px] font-black text-slate-600 uppercase tracking-[2px] block mb-4">Evidence Photos</label>
                         <div className="grid grid-cols-2 gap-4">
                            {report.evidence.map((img, idx) => (
                               <img 
@@ -446,12 +446,12 @@ const Verify = () => {
                      <div className="h-10 w-10 bg-slate-900 rounded-2xl flex items-center justify-center text-white">
                         <ShieldCheck size={20} />
                      </div>
-                     <h3 className="text-slate-900 text-lg font-black tracking-tighter uppercase">Administrative Decision</h3>
+                     <h3 className="text-slate-900 text-lg font-black tracking-tighter uppercase">Your Decision</h3>
                   </div>
 
                   <div className="space-y-8">
                      <div>
-                        <label className="text-[10px] font-black text-slate-400 uppercase tracking-[2px] block mb-3">Assign Status Decision</label>
+                        <label className="text-[10px] font-black text-slate-400 uppercase tracking-[2px] block mb-3">Choose Action</label>
                         <div className="grid grid-cols-2 gap-3">
                            <button 
                               type="button" 
@@ -459,7 +459,7 @@ const Verify = () => {
                               className={`py-6 rounded-3xl border-2 transition-all flex flex-col items-center justify-center gap-3 ${action === "verify" ? 'border-emerald-500 bg-emerald-50 text-emerald-600 shadow-xl shadow-emerald-500/10' : 'border-slate-50 hover:border-slate-100 text-slate-400'}`}
                            >
                               <CheckCircle2 size={24} />
-                              <span className="text-[10px] font-black uppercase tracking-widest">Verify Intelligence</span>
+                              <span className="text-[10px] font-black uppercase tracking-widest">Verify</span>
                            </button>
                            <button 
                               type="button" 
@@ -467,18 +467,18 @@ const Verify = () => {
                               className={`py-6 rounded-3xl border-2 transition-all flex flex-col items-center justify-center gap-3 ${action === "reject" ? 'border-rose-500 bg-rose-50 text-rose-600 shadow-xl shadow-rose-500/10' : 'border-slate-50 hover:border-slate-100 text-slate-400'}`}
                            >
                               <XCircle size={24} />
-                              <span className="text-[10px] font-black uppercase tracking-widest">Reject as Invalid</span>
+                              <span className="text-[10px] font-black uppercase tracking-widest">Reject</span>
                            </button>
                         </div>
                      </div>
 
                      <div>
-                        <label className="text-[10px] font-black text-slate-400 uppercase tracking-[2px] block mb-3">Justification Notes</label>
+                        <label className="text-[10px] font-black text-slate-400 uppercase tracking-[2px] block mb-3">Add Notes (Optional)</label>
                         <div className="relative">
                            <MessageSquare className="absolute top-4 left-4 text-slate-300" size={18} />
                            <textarea 
                               className="w-full bg-slate-50 border-2 border-slate-50 rounded-[32px] p-12 pl-12 text-sm font-semibold outline-none focus:border-blue-500/20 focus:bg-white transition-all min-h-[160px] text-slate-700 placeholder:text-slate-300"
-                              placeholder="Describe the reasoning for this administrative action..."
+                              placeholder="Explain why you're verifying or rejecting this report..."
                               value={adminNotes}
                               onChange={(e) => setAdminNotes(e.target.value)}
                               required
@@ -491,7 +491,7 @@ const Verify = () => {
                         disabled={loading}
                         className={`w-full py-5 rounded-[32px] text-xs font-black uppercase tracking-[3px] shadow-2xl transition-all active:scale-95 flex items-center justify-center gap-3 ${action === "verify" ? 'bg-emerald-600 text-white hover:bg-emerald-500 shadow-emerald-600/20' : 'bg-rose-600 text-white hover:bg-rose-500 shadow-rose-600/20'} disabled:opacity-30`}
                       >
-                        {loading ? 'Processing Transaction...' : (action === "verify" ? 'Confirm Intelligence Verification' : 'Finalize Incident Rejection')}
+                        {loading ? 'Saving...' : (action === "verify" ? 'Verify Report' : 'Reject Report')}
                         <ChevronRight size={16} />
                      </button>
                   </div>
@@ -500,11 +500,11 @@ const Verify = () => {
                <div className="bg-slate-900/40 rounded-[40px] border border-slate-800/50 p-8 space-y-4">
                   <div className="flex items-center gap-3 text-slate-400">
                      <User size={16} className="text-blue-600" />
-                     <span className="text-[10px] font-black uppercase tracking-widest">Reporter Profile</span>
+                     <span className="text-[10px] font-black uppercase tracking-widest">Reported By</span>
                   </div>
                   <div className="flex items-center justify-between">
-                     <span className="text-sm font-black text-white">{report.isAnonymous ? "Anonymous Signal" : (report.userId?.username || "Verified Citizen")}</span>
-                     <span className="text-[9px] font-black text-slate-500 uppercase tracking-widest px-2 py-1 bg-slate-800 rounded-lg">{report.isAnonymous ? "Low Confidence" : "Verified Identity"}</span>
+                     <span className="text-sm font-black text-white">{report.isAnonymous ? "Anonymous" : (report.userId?.username || "Citizen")}</span>
+                     <span className="text-[9px] font-black text-slate-500 uppercase tracking-widest px-2 py-1 bg-slate-800 rounded-lg">{report.isAnonymous ? "Anonymous" : "Verified"}</span>
                   </div>
                   {!report.isAnonymous && <div className="text-[10px] text-slate-500 font-bold">{report.userId?.email}</div>}
                </div>
@@ -512,16 +512,6 @@ const Verify = () => {
                 {/* FORWARD TO POLICE SECTION */}
                 {report.status === "Verified" && (
                   <div className="space-y-6">
-                    {/* ALERT COMMUNITY BUTTON */}
-                    <button 
-                      onClick={handleBroadcastAlert}
-                      disabled={loading}
-                      className="w-full py-6 bg-rose-600 text-white rounded-[40px] text-xs font-black uppercase tracking-[3px] shadow-2xl shadow-rose-600/30 hover:bg-rose-500 transition-all flex items-center justify-center gap-3 active:scale-95 disabled:opacity-30"
-                    >
-                      <Bell size={18} className="animate-bounce" />
-                      Broadcast Community Alert
-                    </button>
-
                     <div className="bg-blue-600 rounded-[40px] p-8 shadow-2xl shadow-blue-600/20 space-y-6">
                       <div className="flex items-center gap-3 text-white">
                         <ShieldAlert size={20} className="animate-pulse" />
@@ -529,16 +519,16 @@ const Verify = () => {
                       </div>
                       
                       <p className="text-blue-100 text-[11px] font-bold leading-relaxed">
-                        Verification complete. Select the nearest deployment unit in <span className="underline decoration-2 underline-offset-4">{report.location?.address}</span> to initialize Field Investigation.
+                        This case has been verified. Select a nearby police officer to start the investigation in <span className="underline decoration-2 underline-offset-4">{report.location?.address}</span>.
                       </p>
 
                       <div className="space-y-3">
-                        <label className="text-[9px] font-black text-blue-200 uppercase tracking-widest block">Nearest Units Identified</label>
+                        <label className="text-[9px] font-black text-blue-200 uppercase tracking-widest block">Nearby Officers</label>
                         
                         {fetchingPolice ? (
                           <div className="py-8 flex flex-col items-center justify-center gap-2">
                              <div className="h-5 w-5 border-2 border-blue-400 border-t-white rounded-full animate-spin" />
-                             <span className="text-[9px] font-black text-blue-200 uppercase tracking-widest">Scanning Jurisdictions...</span>
+                             <span className="text-[9px] font-black text-blue-200 uppercase tracking-widest">Finding officers...</span>
                           </div>
                         ) : nearbyPolice.length > 0 ? (
                           <div className="space-y-2">
@@ -553,10 +543,10 @@ const Verify = () => {
                                     {officer.name || officer.username}
                                   </div>
                                   <div className={`text-[10px] font-bold ${selectedOfficer?._id === officer._id ? 'text-blue-500' : 'text-blue-200'}`}>
-                                    Station: {officer.stationDistrict || "Unknown Sector"}
+                                    Station: {officer.stationDistrict || "Unknown"}
                                   </div>
                                   <div className={`text-[10px] font-bold ${selectedOfficer?._id === officer._id ? 'text-blue-500' : 'text-blue-200'}`}>
-                                    Distance: {officer.distanceText || "Distance unavailable"}
+                                    Distance: {officer.distanceText || "Not available"}
                                   </div>
                                 </div>
                                 {selectedOfficer?._id === officer._id && <CheckCircle2 size={18} className="text-blue-600" />}
@@ -565,7 +555,7 @@ const Verify = () => {
                           </div>
                         ) : (
                           <div className="p-4 bg-blue-700/50 rounded-2xl border border-blue-500/30 text-[10px] font-bold text-blue-200 text-center">
-                            No matching units found for this zone.
+                            No officers found in this area.
                           </div>
                         )}
                       </div>
@@ -575,57 +565,11 @@ const Verify = () => {
                         disabled={!selectedOfficer || isForwarding}
                         className="w-full py-5 bg-white text-blue-700 rounded-3xl text-xs font-black uppercase tracking-[2px] shadow-xl hover:bg-slate-100 transition-all active:scale-95 disabled:opacity-30 flex items-center justify-center gap-2"
                       >
-                        {isForwarding ? "Deploying..." : "Initialize Field Assignment"}
+                        {isForwarding ? "Sending..." : "Forward to Officer"}
                         <ChevronRight size={16} />
                       </button>
                     </div>
                   </div>
-                )}
-
-                {/* TARGETED COMMUNITY ALERT */}
-                {report.status === "Verified" && (
-                   <div className="bg-slate-900/60 rounded-[40px] border border-slate-800/50 p-8 space-y-6">
-                      <div className="flex items-center gap-3 text-white">
-                         <div className="h-10 w-10 bg-rose-500/10 rounded-2xl flex items-center justify-center text-rose-500">
-                           <MapPin size={20} className="animate-pulse" />
-                         </div>
-                         <div>
-                            <h3 className="text-white text-md font-black tracking-tighter uppercase leading-none">Geofenced Safety Alert</h3>
-                            <p className="text-slate-500 text-[9px] font-bold uppercase tracking-widest mt-1">Targeted Proximity Broadcast</p>
-                         </div>
-                      </div>
-
-                      <p className="text-slate-400 text-[11px] font-bold leading-relaxed">
-                         Issue a targeted alert to citizens registered within <span className="text-amber-500">10km</span> of this incident. This will send an urgent email and dashboard notification.
-                      </p>
-
-                      <div className="space-y-4">
-                         <div className="bg-slate-950/50 rounded-2xl p-4 border border-slate-800/50">
-                            <div className="flex justify-between items-center">
-                               <span className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Nearby Citizens</span>
-                               <span className="bg-blue-600/10 text-blue-500 px-2 py-0.5 rounded-md text-[9px] font-black">{fetchingCitizens ? "Scanning..." : `${nearbyCitizens.length} Identified`}</span>
-                            </div>
-                         </div>
-
-                         <div className="relative">
-                            <textarea 
-                               className="w-full bg-slate-950/50 border border-slate-800/50 rounded-2xl p-6 text-xs font-medium text-slate-300 outline-none focus:border-rose-500/50 transition-all min-h-[120px] placeholder:text-slate-600 resize-none shadow-inner"
-                               placeholder="Optional: Describe the fraud or incident to warn locals... (Default alert used if blank)"
-                               value={safeMessage}
-                               onChange={(e) => setSafeMessage(e.target.value)}
-                            />
-                         </div>
-
-                         <button 
-                            onClick={handleBroadcastSafeAlert}
-                            disabled={isBroadcasting || fetchingCitizens || nearbyCitizens.length === 0}
-                            className="w-full py-5 bg-rose-600/10 border border-rose-500/20 text-rose-500 rounded-[24px] text-[10px] font-black uppercase tracking-[3px] hover:bg-rose-600 hover:text-white transition-all active:scale-95 disabled:opacity-20 flex items-center justify-center gap-2 shadow-lg hover:shadow-rose-600/20"
-                         >
-                            {isBroadcasting ? "Dispatching..." : "Alert Local Community"}
-                            <Send size={14} />
-                         </button>
-                      </div>
-                   </div>
                 )}
             </div>
          </div>

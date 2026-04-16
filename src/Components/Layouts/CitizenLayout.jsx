@@ -190,7 +190,7 @@ export default function CitizenLayout() {
         <div className="p-6 border-t border-slate-800/50">
           <Link to="/logout" title={!sidebarOpen ? "Logout" : ""} className="flex items-center gap-4 px-4 py-3.5 rounded-2xl text-slate-500 hover:text-white hover:bg-slate-800 transition-all">
             <LogOut size={20} />
-            {sidebarOpen && <span className="text-xs font-black uppercase tracking-widest">Terminate Session</span>}
+            {sidebarOpen && <span className="text-xs font-black uppercase tracking-widest">Logout</span>}
           </Link>
         </div>
       </aside>

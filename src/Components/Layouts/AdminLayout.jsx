@@ -130,8 +130,6 @@ export default function AdminLayout() {
             { name: "Reports", icon: <FileText size={20} />,        path: "/adReport"  },
             { name: "Users",  icon: <Users size={20} />,           path: "/user"      },
             {name: "Verify",   icon: <ShieldAlert size={20} />,     path: "/forward-admin" },
-            { name: "Complaints", icon: <Settings size={20} />,        path: "/admin/complaints"      },
-            { name: "Notifications",    icon: <Bell size={20} />,            path: "/notifications" },
             { name: "Feedback",    icon: <MessageSquare size={20} />,   path: "/admin/feedback" },
             { name: "Performance",    icon: <BarChart3 size={20} />,       path: "/admin/performance" },
             { name: "Emergency",      icon: <AlertTriangle size={20} />,   path: "/admin/emergency" },
@@ -226,7 +224,7 @@ export default function AdminLayout() {
                         {sidebarOpen && <span className="text-sm font-bold uppercase tracking-widest text-[10px]">Logout</span>}
                     </button>
                     
-                    {sidebarOpen && (
+                    {/* {sidebarOpen && (
                       <div className="mt-4 px-4 py-3 bg-white/5 rounded-2xl flex items-center gap-3 border border-white/5">
                         <div className="h-8 w-8 bg-[#112445] rounded-lg border border-white/10 flex items-center justify-center text-[10px] font-black text-[#00B8D9]">
                           V1.2
@@ -236,7 +234,7 @@ export default function AdminLayout() {
                           <span className="text-[10px] font-black text-[#00B8D9] uppercase mt-1">Encrypted</span>
                         </div>
                       </div>
-                    )}
+                    )} */}
                 </div>
             </aside>
 

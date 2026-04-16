@@ -269,37 +269,45 @@ function AddContactModal({ onClose, onSaved }) {
   };
 
   return (
-    <div className="fixed inset-0 bg-black/40 z-50 flex items-center justify-center p-4">
-      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md p-6">
-        <div className="flex justify-between items-center mb-5">
-          <h2 className="text-xl font-bold text-gray-800">Add Emergency Contact</h2>
-          <button onClick={onClose} className="text-gray-400 hover:text-gray-700 text-2xl leading-none">×</button>
+    <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+      <div className="bg-slate-900 border border-slate-800 rounded-[32px] shadow-2xl w-full max-w-md p-8 relative overflow-hidden">
+        <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-blue-600 to-indigo-600" />
+        
+        <div className="flex justify-between items-center mb-6">
+          <div>
+            <h2 className="text-2xl font-black text-white uppercase tracking-tight">Add Emergency Contact</h2>
+            <p className="text-xs text-slate-400 font-medium mt-1">Create new emergency response entry</p>
+          </div>
+          <button onClick={onClose} className="text-slate-500 hover:text-white text-3xl leading-none hover:bg-slate-800 rounded-xl p-2 transition-all">×</button>
         </div>
-        {error && <p className="text-red-500 text-sm mb-3 bg-red-50 p-2 rounded-lg">{error}</p>}
-        <div className="space-y-3">
+        
+        {error && <p className="text-rose-400 text-sm mb-4 bg-rose-900/20 border border-rose-800 p-3 rounded-xl">{error}</p>}
+        
+        <div className="space-y-4">
           {[["name","Contact Name","text"],["number","Phone Number","tel"],["region","Region","text"]].map(([key,label,type]) => (
             <div key={key}>
-              <label className="text-sm font-medium text-gray-600 block mb-1">{label}</label>
+              <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest block mb-2">{label}</label>
               <input type={type} value={form[key]} onChange={e => setForm({...form,[key]:e.target.value})}
-                className="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-red-400" placeholder={label} />
+                className="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:ring-2 focus:ring-blue-600/50 focus:border-blue-600 transition-all placeholder:text-slate-600" placeholder={label} />
             </div>
           ))}
           <div>
-            <label className="text-sm font-medium text-gray-600 block mb-1">Category</label>
+            <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest block mb-2">Category</label>
             <select value={form.category} onChange={e => setForm({...form,category:e.target.value})}
-              className="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-red-400">
-              {Object.keys(categoryConfig).map(c => <option key={c} value={c}>{categoryConfig[c].icon} {c.charAt(0).toUpperCase()+c.slice(1)}</option>)}
+              className="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:ring-2 focus:ring-blue-600/50 focus:border-blue-600 transition-all">
+              {Object.keys(categoryConfig).map(c => <option key={c} value={c} className="bg-slate-900">{categoryConfig[c].icon} {c.charAt(0).toUpperCase()+c.slice(1)}</option>)}
             </select>
           </div>
           <div>
-            <label className="text-sm font-medium text-gray-600 block mb-1">Description</label>
+            <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest block mb-2">Description</label>
             <textarea value={form.description} onChange={e => setForm({...form,description:e.target.value})}
-              className="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-red-400" rows={2} placeholder="Brief description (optional)" />
+              className="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:ring-2 focus:ring-blue-600/50 focus:border-blue-600 transition-all placeholder:text-slate-600 resize-none" rows={3} placeholder="Brief description (optional)" />
           </div>
         </div>
-        <div className="flex gap-3 mt-5">
-          <button onClick={onClose} className="flex-1 py-2.5 rounded-xl border border-gray-200 text-gray-600 text-sm font-medium hover:bg-gray-50">Cancel</button>
-          <button onClick={handleSubmit} disabled={loading} className="flex-1 py-2.5 rounded-xl bg-red-600 text-white text-sm font-semibold hover:bg-red-700 disabled:opacity-50 transition">
+        
+        <div className="flex gap-3 mt-6">
+          <button onClick={onClose} className="flex-1 py-3.5 rounded-xl border border-slate-700 text-slate-300 text-xs font-black uppercase tracking-widest hover:bg-slate-800 transition-all">Cancel</button>
+          <button onClick={handleSubmit} disabled={loading} className="flex-1 py-3.5 rounded-xl bg-blue-600 text-white text-xs font-black uppercase tracking-widest hover:bg-blue-500 disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-lg shadow-blue-600/20">
             {loading ? "Saving..." : "Save Contact"}
           </button>
         </div>
