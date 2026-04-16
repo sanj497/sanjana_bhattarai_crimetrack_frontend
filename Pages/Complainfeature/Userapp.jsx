@@ -1,15 +1,64 @@
 import { useState, useEffect } from "react";
 import React from "react";
+import { 
+  FileText, 
+  MessageSquare, 
+  Clock, 
+  MapPin, 
+  User, 
+  Search, 
+  Send, 
+  ShieldAlert, 
+  Plus, 
+  X,
+  History,
+  Activity,
+  ArrowRight
+} from "lucide-react";
+import { toast } from "react-toastify";
 
 const API = `${import.meta.env.VITE_BACKEND_URL}/api`;
 const CATEGORIES = ["Theft", "Assault", "Vandalism", "Fraud", "Other"];
 
-const STATUS_COLORS = {
-  Pending:       { bg: "#FFF3CD", text: "#856404", dot: "#FFC107" },
-  Verified:      { bg: "#CCE5FF", text: "#004085", dot: "#0D6EFD" },
-  "In Progress": { bg: "#D4EDDA", text: "#155724", dot: "#28A745" },
-  Solved:        { bg: "#D1ECF1", text: "#0C5460", dot: "#17A2B8" },
+const StatusBadge = ({ status }) => {
+  const config = {
+    Pending: { label: "Pending", color: "warning" },
+    Verified: { label: "Verified", color: "info" },
+    "In Progress": { label: "In Progress", color: "primary" },
+    Solved: { label: "Solved", color: "success" },
+  };
+  
+  const ctx = config[status] || { label: status, color: "secondary" };
+  
+  return (
+    <div className={`px-4 py-1.5 bg-accent-gold/10 text-accent-gold rounded-full text-[10px] font-black uppercase tracking-widest border border-accent-gold/20 flex items-center gap-1.5`}>
+      <div className="w-1.5 h-1.5 rounded-full bg-accent-gold shadow-[0_0_8px_rgba(212,175,55,0.6)]" />
+      {ctx.label}
+    </div>
+  );
 };
+
+const Timeline = ({ history }) => (
+  <div className="space-y-6 mt-6">
+    {history.map((h, i) => (
+      <div key={i} className="flex gap-4 relative group">
+        <div className="flex flex-col items-center">
+          <div className="w-2.5 h-2.5 rounded-full bg-accent-gold z-10 shadow-[0_0_10px_rgba(212,175,55,0.4)]" />
+          {i < history.length - 1 && <div className="w-0.5 flex-1 bg-border-subtle my-1" />}
+        </div>
+        <div className="pb-4 -mt-1 flex-1">
+          <div className="flex items-center justify-between mb-2">
+            <StatusBadge status={h.status} />
+            <span className="text-[10px] font-bold text-text-secondary uppercase">{new Date(h.changedAt).toLocaleDateString()}</span>
+          </div>
+          <p className="text-sm font-medium text-text-primary bg-primary-dark/50 p-4 rounded-xl border border-border-subtle group-hover:border-accent-gold/30 transition-all">
+            {h.note}
+          </p>
+        </div>
+      </div>
+    ))}
+  </div>
+);
 
 const authFetch = async (url, options = {}) => {
   const token = localStorage.getItem("token");
@@ -26,78 +75,6 @@ const authFetch = async (url, options = {}) => {
   return data;
 };
 
-// ─── Components ───────────────────────────────────────────────────────────────
-
-const StatusBadge = ({ status }) => {
-  const c = STATUS_COLORS[status] || { bg: "#eee", text: "#333", dot: "#999" };
-  return (
-    <span style={{ background: c.bg, color: c.text, padding: "3px 10px", borderRadius: 20, fontSize: 12, fontWeight: 700, display: "inline-flex", alignItems: "center", gap: 5 }}>
-      <span style={{ width: 7, height: 7, borderRadius: "50%", background: c.dot, display: "inline-block" }} />
-      {status}
-    </span>
-  );
-};
-
-const Timeline = ({ history }) => (
-  <div style={{ marginTop: 10 }}>
-    {history.map((h, i) => (
-      <div key={i} style={{ display: "flex", gap: 10, marginBottom: 10 }}>
-        <div style={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
-          <div style={{ width: 10, height: 10, borderRadius: "50%", marginTop: 4, flexShrink: 0, background: STATUS_COLORS[h.status]?.dot || "#ccc" }} />
-          {i < history.length - 1 && <div style={{ width: 2, flex: 1, background: "#e5e7eb", marginTop: 3 }} />}
-        </div>
-        <div style={{ paddingBottom: 4 }}>
-          <StatusBadge status={h.status} />
-          <div style={{ fontSize: 12, color: "#6b7280", marginTop: 3 }}>{h.note}</div>
-          <div style={{ fontSize: 11, color: "#9ca3af" }}>{new Date(h.changedAt).toLocaleString()}</div>
-        </div>
-      </div>
-    ))}
-  </div>
-);
-
-const Input = ({ label, ...props }) => (
-  <div style={{ marginBottom: 14 }}>
-    {label && <label style={{ display: "block", fontSize: 13, fontWeight: 600, marginBottom: 5, color: "#374151" }}>{label}</label>}
-    <input style={{ width: "100%", padding: "9px 12px", border: "1.5px solid #e5e7eb", borderRadius: 8, fontSize: 14, outline: "none", boxSizing: "border-box" }} {...props} />
-  </div>
-);
-
-const Select = ({ label, options, ...props }) => (
-  <div style={{ marginBottom: 14 }}>
-    {label && <label style={{ display: "block", fontSize: 13, fontWeight: 600, marginBottom: 5, color: "#374151" }}>{label}</label>}
-    <select style={{ width: "100%", padding: "9px 12px", border: "1.5px solid #e5e7eb", borderRadius: 8, fontSize: 14, outline: "none", boxSizing: "border-box", background: "#fff" }} {...props}>
-      {options.map(o => <option key={o}>{o}</option>)}
-    </select>
-  </div>
-);
-
-const Textarea = ({ label, ...props }) => (
-  <div style={{ marginBottom: 14 }}>
-    {label && <label style={{ display: "block", fontSize: 13, fontWeight: 600, marginBottom: 5, color: "#374151" }}>{label}</label>}
-    <textarea rows={3} style={{ width: "100%", padding: "9px 12px", border: "1.5px solid #e5e7eb", borderRadius: 8, fontSize: 14, outline: "none", boxSizing: "border-box", resize: "vertical" }} {...props} />
-  </div>
-);
-
-const Btn = ({ children, color = "#1d4ed8", textColor = "#fff", ...props }) => (
-  <button style={{ padding: "9px 18px", borderRadius: 8, border: "none", cursor: "pointer", fontWeight: 600, fontSize: 13, background: color, color: textColor }} {...props}>{children}</button>
-);
-
-const Modal = ({ title, onClose, children }) => (
-  <div style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.4)", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 100 }} onClick={onClose}>
-    <div style={{ background: "#fff", borderRadius: 16, padding: 28, width: "100%", maxWidth: 500, maxHeight: "90vh", overflowY: "auto", boxShadow: "0 20px 60px rgba(0,0,0,0.2)" }} onClick={e => e.stopPropagation()}>
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 18 }}>
-        <h3 style={{ margin: 0, fontSize: 17, fontWeight: 700 }}>{title}</h3>
-        <button onClick={onClose} style={{ border: "none", background: "none", fontSize: 22, cursor: "pointer", color: "#6b7280" }}>×</button>
-      </div>
-      {children}
-    </div>
-  </div>
-);
-
-// ═══════════════════════════════════════════════════════════════════════════════
-// USER APP — no login, reads token from localStorage
-// ═══════════════════════════════════════════════════════════════════════════════
 export default function UserApp() {
   const [complaints, setComplaints] = useState([]);
   const [trackData, setTrackData]   = useState(null);
@@ -106,14 +83,15 @@ export default function UserApp() {
   const [error, setError]           = useState("");
   const [submitForm, setSubmitForm] = useState({ title: "", description: "", category: "Theft", address: "" });
 
-  const card = { background: "#fff", borderRadius: 12, padding: 18, border: "1px solid #f0f0f0", boxShadow: "0 2px 8px rgba(0,0,0,0.06)", marginBottom: 12 };
-
   const fetchMyComplaints = async () => {
     setLoading(true);
     try {
       const data = await authFetch("/complaints/my");
       setComplaints(data.complaints);
-    } catch (e) { setError(e.message); }
+    } catch (e) { 
+      setError(e.message); 
+      toast.error(e.message);
+    }
     setLoading(false);
   };
 
@@ -121,11 +99,17 @@ export default function UserApp() {
     try {
       const data = await authFetch(`/complaints/${id}/track`);
       setTrackData(data.complaint);
-    } catch (e) { setError(e.message); }
+    } catch (e) { 
+      setError(e.message); 
+      toast.error(e.message);
+    }
   };
 
   const submitComplaint = async () => {
-    if (!submitForm.title || !submitForm.description) { setError("Title and description are required."); return; }
+    if (!submitForm.title || !submitForm.description) { 
+      toast.warning("Title and description are required."); 
+      return; 
+    }
     setLoading(true);
     try {
       await authFetch("/complaints", {
@@ -140,102 +124,213 @@ export default function UserApp() {
       setShowSubmit(false);
       setSubmitForm({ title: "", description: "", category: "Theft", address: "" });
       fetchMyComplaints();
-    } catch (e) { setError(e.message); }
+      toast.success("Complaint submitted successfully.");
+    } catch (e) { 
+      setError(e.message); 
+      toast.error(e.message);
+    }
     setLoading(false);
   };
 
   useEffect(() => { fetchMyComplaints(); }, []);
 
   return (
-    <div style={{ minHeight: "100vh", background: "#f8fafc", fontFamily: "system-ui,sans-serif" }}>
-
-      {/* Navbar */}
-      <div style={{ background: "#1e3a8a", color: "#fff", padding: "0 24px", display: "flex", alignItems: "center", height: 56, boxShadow: "0 2px 12px rgba(0,0,0,0.15)" }}>
-        <span style={{ fontSize: 20, marginRight: 10 }}>🙋</span>
-        <span style={{ fontWeight: 800, fontSize: 15 }}>User Portal — My Complaints</span>
-      </div>
-
-      <div style={{ maxWidth: 780, margin: "0 auto", padding: "28px 16px" }}>
-        {error && (
-          <div style={{ background: "#fee2e2", color: "#dc2626", padding: "10px 16px", borderRadius: 10, marginBottom: 16, fontSize: 13 }}>
-            {error}
-            <button onClick={() => setError("")} style={{ float: "right", border: "none", background: "none", cursor: "pointer", color: "#dc2626" }}>×</button>
-          </div>
-        )}
-
-        {/* Header */}
-        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 20 }}>
+    <div className="min-h-screen bg-primary-dark font-body text-text-primary px-8 py-10">
+      
+      {/* HEADER */}
+      <div className="max-w-5xl mx-auto mb-10 animate-fade-in">
+        <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
           <div>
-            <h2 style={{ margin: 0, fontSize: 20, fontWeight: 800, color: "#1e293b" }}>My Complaints</h2>
-            <p style={{ margin: 0, color: "#64748b", fontSize: 13 }}>{complaints.length} submitted</p>
-          </div>
-          <Btn onClick={() => setShowSubmit(true)}>+ Submit Complaint</Btn>
-        </div>
-
-        {loading && <div style={{ textAlign: "center", padding: 40, color: "#94a3b8" }}>Loading…</div>}
-
-        {!loading && complaints.length === 0 && (
-          <div style={{ ...card, textAlign: "center", padding: 48, color: "#94a3b8" }}>
-            <div style={{ fontSize: 36, marginBottom: 10 }}>📋</div>
-            <div style={{ fontWeight: 600 }}>No complaints yet</div>
-            <div style={{ fontSize: 13, marginTop: 4 }}>Click "Submit Complaint" to get started</div>
-          </div>
-        )}
-
-        {complaints.map(c => (
-          <div key={c._id} style={card}>
-            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
-              <div>
-                <div style={{ fontWeight: 700, fontSize: 15, color: "#1e293b" }}>{c.title}</div>
-                <div style={{ fontSize: 12, color: "#94a3b8", marginTop: 2 }}>
-                  {c.category} · {new Date(c.createdAt).toLocaleDateString()}
-                </div>
+            <div className="flex items-center gap-3 mb-2">
+              <div className="p-3 bg-accent-gold/10 text-accent-gold rounded-xl border border-accent-gold/20 shadow-lg">
+                 <MessageSquare size={24} />
               </div>
-              <StatusBadge status={c.status} />
+              <h1 className="text-4xl font-bold tracking-tight font-heading">Citizen <span className="text-accent-gold">Complaints</span></h1>
             </div>
-            <div style={{ marginTop: 10 }}>
-              <Btn color="#f3f4f6" textColor="#374151" onClick={() => trackStatus(c._id)}>
-                🔍 Track Status
-              </Btn>
-            </div>
+            <p className="text-text-secondary font-medium ml-1">Official grievance and incident escalation portal.</p>
           </div>
-        ))}
+          <button 
+            onClick={() => setShowSubmit(true)}
+            className="ct-btn-primary flex items-center gap-2 group"
+          >
+            <Plus size={18} className="group-hover:rotate-90 transition-transform" />
+            Submit New Formal Complaint
+          </button>
+        </div>
       </div>
 
-      {/* Track Status Modal */}
+      <div className="max-w-5xl mx-auto">
+        {loading && !complaints.length ? (
+          <div className="flex justify-center items-center py-20">
+             <Activity className="h-10 w-10 text-accent-gold animate-spin" />
+          </div>
+        ) : complaints.length === 0 ? (
+          <div className="ct-card p-20 text-center flex flex-col items-center border-dashed border-2 animate-fade-in">
+             <div className="h-20 w-20 bg-secondary-dark rounded-3xl flex items-center justify-center mb-6 border border-border-subtle text-text-secondary opacity-30">
+                <FileText size={40} />
+             </div>
+             <h3 className="text-xl font-bold font-heading mb-2">No Active Records</h3>
+             <p className="text-text-secondary max-w-sm mb-8">You haven't filed any complaints yet. All reported grievances will appear here with tracking data.</p>
+             <button onClick={() => setShowSubmit(true)} className="ct-btn-secondary">File First Complaint</button>
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 animate-fade-in">
+            {complaints.map((c) => (
+              <div key={c._id} className="ct-card border border-border-subtle hover:border-accent-gold/40 group transition-all">
+                <div className="flex justify-between items-start mb-6">
+                  <span className="text-[10px] font-bold text-accent-gold uppercase tracking-widest bg-accent-gold/10 px-2 py-1 rounded-lg">
+                    {c.category}
+                  </span>
+                  <StatusBadge status={c.status} />
+                </div>
+                <h4 className="text-lg font-bold text-text-primary mb-2 line-clamp-1 group-hover:text-accent-gold transition-colors">{c.title}</h4>
+                <div className="flex items-center gap-2 text-text-secondary text-xs font-medium mb-8">
+                  <Clock size={12} />
+                  {new Date(c.createdAt).toLocaleDateString()}
+                </div>
+                <button 
+                  onClick={() => trackStatus(c._id)}
+                  className="w-full py-3 bg-primary-dark border border-border-subtle rounded-xl text-[10px] font-bold uppercase tracking-widest text-text-secondary hover:bg-accent-gold hover:text-primary-dark hover:border-accent-gold transition-all flex items-center justify-center gap-2"
+                >
+                  <Search size={14} /> 
+                  Track Full Timeline
+                </button>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+
+      {/* TRACK MODAL */}
       {trackData && (
-        <Modal title="Complaint Status" onClose={() => setTrackData(null)}>
-          <div style={{ marginBottom: 12 }}>
-            <div style={{ fontWeight: 700, fontSize: 16 }}>{trackData.title}</div>
-            <div style={{ fontSize: 13, color: "#6b7280", marginTop: 2 }}>{trackData.category}</div>
-            {trackData.assignedOfficer && (
-              <div style={{ fontSize: 13, color: "#3b82f6", marginTop: 4 }}>👮 Officer: {trackData.assignedOfficer.name}</div>
-            )}
+        <div className="fixed inset-0 bg-primary-dark/80 backdrop-blur-sm flex items-center justify-center p-6 z-50 animate-fade-in">
+          <div className="bg-secondary-dark w-full max-w-xl rounded-[32px] border border-border-subtle shadow-2xl p-10 max-h-[90vh] overflow-y-auto">
+            <div className="flex justify-between items-start mb-8">
+               <div className="flex items-center gap-3">
+                  <div className="p-2.5 bg-accent-gold/10 text-accent-gold rounded-xl border border-accent-gold/20">
+                    <History size={20} />
+                  </div>
+                  <div>
+                    <h3 className="text-xl font-bold text-text-primary font-heading">Complaint Terminal</h3>
+                    <p className="text-xs text-text-secondary font-medium">Case ID: {trackData._id.slice(-8).toUpperCase()}</p>
+                  </div>
+               </div>
+               <button onClick={() => setTrackData(null)} className="p-2 text-text-secondary hover:text-danger transition-colors">
+                  <X size={24} />
+               </button>
+            </div>
+
+            <div className="mb-10 bg-primary-dark/50 p-6 rounded-2xl border border-border-subtle">
+               <div className="flex justify-between items-center mb-4">
+                  <h4 className="text-lg font-bold text-text-primary">{trackData.title}</h4>
+                  <StatusBadge status={trackData.status} />
+               </div>
+               <p className="text-sm text-text-secondary leading-relaxed mb-6 font-medium italic">"{trackData.description}"</p>
+               
+               {trackData.assignedOfficer && (
+                 <div className="flex items-center gap-3 p-3 bg-accent-gold/5 rounded-xl border border-accent-gold/10">
+                   <div className="h-8 w-8 bg-accent-gold text-primary-dark rounded-lg flex items-center justify-center font-bold">
+                      <User size={16} />
+                   </div>
+                   <div>
+                      <p className="text-[10px] font-bold text-accent-gold uppercase tracking-widest leading-none">Handling Operative</p>
+                      <p className="text-sm font-bold text-text-primary mt-1">{trackData.assignedOfficer.name}</p>
+                   </div>
+                 </div>
+               )}
+            </div>
+
+            <div className="flex items-center gap-2 mb-6 text-text-secondary/60 text-[10px] uppercase font-bold tracking-[3px]">
+               <Plus className="rotate-45" size={12} /> Live Status Feed
+            </div>
+            <Timeline history={trackData.statusHistory || []} />
+
+            <div className="mt-10 flex justify-end">
+               <button onClick={() => setTrackData(null)} className="ct-btn-secondary px-8">Close Terminal</button>
+            </div>
           </div>
-          <div style={{ fontWeight: 600, fontSize: 13, color: "#374151", marginBottom: 6 }}>Status History</div>
-          <Timeline history={trackData.statusHistory || []} />
-          <div style={{ marginTop: 16, textAlign: "right" }}>
-            <Btn color="#f3f4f6" textColor="#374151" onClick={() => setTrackData(null)}>Close</Btn>
-          </div>
-        </Modal>
+        </div>
       )}
 
-      {/* Submit Complaint Modal */}
+      {/* SUBMIT MODAL */}
       {showSubmit && (
-        <Modal title="Submit New Complaint" onClose={() => setShowSubmit(false)}>
-          <Input label="Title" placeholder="e.g. Mobile snatching near market"
-            value={submitForm.title} onChange={e => setSubmitForm({ ...submitForm, title: e.target.value })} />
-          <Textarea label="Description" placeholder="Describe the incident..."
-            value={submitForm.description} onChange={e => setSubmitForm({ ...submitForm, description: e.target.value })} />
-          <Select label="Category" options={CATEGORIES}
-            value={submitForm.category} onChange={e => setSubmitForm({ ...submitForm, category: e.target.value })} />
-          <Input label="Location / Address" placeholder="e.g. New Road, Kathmandu"
-            value={submitForm.address} onChange={e => setSubmitForm({ ...submitForm, address: e.target.value })} />
-          <div style={{ display: "flex", gap: 8, justifyContent: "flex-end", marginTop: 8 }}>
-            <Btn color="#f3f4f6" textColor="#374151" onClick={() => setShowSubmit(false)}>Cancel</Btn>
-            <Btn onClick={submitComplaint} disabled={loading}>{loading ? "Submitting…" : "Submit"}</Btn>
+        <div className="fixed inset-0 bg-primary-dark/80 backdrop-blur-sm flex items-center justify-center p-6 z-50 animate-fade-in">
+          <div className="bg-secondary-dark w-full max-w-xl rounded-[32px] border border-border-subtle shadow-2xl p-10 max-h-[90vh] overflow-y-auto">
+            <div className="flex justify-between items-start mb-10">
+               <div className="flex items-center gap-3">
+                  <div className="p-2.5 bg-accent-gold/10 text-accent-gold rounded-xl border border-accent-gold/20">
+                    <Send size={20} />
+                  </div>
+                  <h3 className="text-xl font-bold text-text-primary font-heading">Lodge Complaint</h3>
+               </div>
+               <button onClick={() => setShowSubmit(false)} className="p-2 text-text-secondary hover:text-danger transition-colors">
+                  <X size={24} />
+               </button>
+            </div>
+
+            <div className="space-y-6">
+              <div>
+                <label className="text-[11px] font-bold uppercase text-text-secondary mb-2 block ml-1 tracking-widest">Case Title</label>
+                <input 
+                  type="text" 
+                  placeholder="Summarize the core grievance..." 
+                  className="w-full px-5 py-3.5 bg-primary-dark border border-border-subtle rounded-2xl text-text-primary focus:ring-2 focus:ring-accent-gold/20 focus:border-accent-gold outline-none transition-all font-medium text-sm"
+                  value={submitForm.title} onChange={e => setSubmitForm({ ...submitForm, title: e.target.value })} 
+                />
+              </div>
+
+              <div>
+                <label className="text-[11px] font-bold uppercase text-text-secondary mb-2 block ml-1 tracking-widest">Incident Category</label>
+                <select 
+                  className="w-full px-5 py-3.5 bg-primary-dark border border-border-subtle rounded-2xl text-text-primary focus:ring-2 focus:ring-accent-gold/20 focus:border-accent-gold outline-none transition-all font-medium text-sm appearance-none cursor-pointer"
+                  value={submitForm.category} onChange={e => setSubmitForm({ ...submitForm, category: e.target.value })}
+                >
+                  {CATEGORIES.map(o => <option key={o} value={o}>{o}</option>)}
+                </select>
+              </div>
+
+              <div>
+                <label className="text-[11px] font-bold uppercase text-text-secondary mb-2 block ml-1 tracking-widest">Incident Location</label>
+                <div className="relative">
+                  <MapPin className="absolute left-5 top-1/2 -translate-y-1/2 text-border-subtle" size={16} />
+                  <input 
+                    type="text" 
+                    placeholder="Specific area or point of interest..." 
+                    className="w-full pl-12 pr-5 py-3.5 bg-primary-dark border border-border-subtle rounded-2xl text-text-primary focus:ring-2 focus:ring-accent-gold/20 focus:border-accent-gold outline-none transition-all font-medium text-sm"
+                    value={submitForm.address} onChange={e => setSubmitForm({ ...submitForm, address: e.target.value })} 
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label className="text-[11px] font-bold uppercase text-text-secondary mb-2 block ml-1 tracking-widest">Full Description</label>
+                <textarea 
+                  rows={4} 
+                  placeholder="Provide comprehensive details about the incident for the handling officer..." 
+                  className="w-full px-5 py-3.5 bg-primary-dark border border-border-subtle rounded-2xl text-text-primary focus:ring-2 focus:ring-accent-gold/20 focus:border-accent-gold outline-none transition-all font-medium text-sm resize-none"
+                  value={submitForm.description} onChange={e => setSubmitForm({ ...submitForm, description: e.target.value })} 
+                />
+              </div>
+
+              <div className="flex gap-4 items-center p-4 bg-primary-dark/50 rounded-2xl border border-border-subtle border-l-danger border-l-4">
+                 <ShieldAlert className="text-danger flex-shrink-0" size={20} />
+                 <p className="text-[10px] font-bold text-text-secondary leading-tight uppercase tracking-wider">Note: All complaints are legally binding reports. False claims are punishable under cyber law.</p>
+              </div>
+
+              <div className="flex gap-4 pt-4">
+                <button onClick={() => setShowSubmit(false)} className="ct-btn-secondary flex-1">Abort Submission</button>
+                <button 
+                  onClick={submitComplaint} 
+                  disabled={loading}
+                  className="ct-btn-primary flex-1 flex items-center justify-center gap-2"
+                >
+                  {loading ? <Activity className="animate-spin" size={18} /> : <span>Broadcast Formal Report</span>}
+                  <ArrowRight size={18} />
+                </button>
+              </div>
+            </div>
           </div>
-        </Modal>
+        </div>
       )}
     </div>
   );

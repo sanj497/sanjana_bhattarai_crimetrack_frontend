@@ -137,16 +137,12 @@ function App() {
           <Route path="/citizen" element={<CitizenDashboard />} />
           <Route path="/citizen/alerts" element={<CitizenAlerts />} />
           <Route path="/citizen/tracking" element={<IncidentTracking />} />
-          <Route path="/community" element={<CommunityBoard />} />
-          <Route path="/transparency" element={<TransparencyHub />} />
           <Route path="/notifications" element={<Notifications />} />
           <Route path="/feedback" element={<SendFeedback />} />
           <Route path="/report" element={<ReportCrime />} />
           <Route path="/complaints" element={<UserApp />} />
-          <Route path="/map-citizen" element={<CrimeMap />} />
           <Route path="/emergency" element={<EmergencyContactsApp />} />
           <Route path="/citizen/settings" element={<CitizenSettings />} />
-          <Route path="/citizen/alerts" element={<CitizenAlerts />} />
         </Route>
 
         {/* ── SHARED AUTHENTICATED ROUTES (any role) ──────────────── */}

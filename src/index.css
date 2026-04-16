@@ -261,92 +261,43 @@
    CUSTOM SCROLLBAR
    ======================================== */
 ::-webkit-scrollbar {
-  width: 8px;
-  height: 8px;
+  width: 6px;
+  height: 6px;
 }
 ::-webkit-scrollbar-track {
   @apply bg-primary-dark;
 }
 ::-webkit-scrollbar-thumb {
-  @apply bg-border-subtle;
-  border-radius: 4px;
+  @apply bg-border-subtle rounded-full;
+  transition: background-color 0.3s ease;
 }
 ::-webkit-scrollbar-thumb:hover {
-  @apply bg-text-secondary;
+  @apply bg-accent-gold;
 }
 
 /* ========================================
-   MAP THEME (DARK)
+   TACTICAL UTILITIES
    ======================================== */
-.leaflet-container {
-  @apply bg-primary-dark;
-}
-.leaflet-tile {
-  filter: invert(100%) hue-rotate(180deg) brightness(95%) contrast(90%);
-}
+@layer utilities {
+  .custom-scrollbar::-webkit-scrollbar {
+    width: 4px;
+    height: 4px;
+  }
+  .custom-scrollbar::-webkit-scrollbar-thumb {
+    @apply bg-accent-gold/20 rounded-full hover:bg-accent-gold transition-colors duration-500;
+  }
+  
+  .animate-slow-pan {
+    animation: pan 120s linear infinite;
+  }
+  
+  @keyframes pan {
+    from { background-position: 0% 0%; }
+    to { background-position: 100% 100%; }
+  }
 
-/* ========================================
-   MICRO-INTERACTIONS & ANIMATIONS
-   ======================================== */
-@keyframes slide-in-right {
-  from {
-    transform: translateX(100%);
-    opacity: 0;
-  }
-  to {
-    transform: translateX(0);
-    opacity: 1;
-  }
-}
-
-@keyframes fade-in {
-  from {
-    opacity: 0;
-  }
-  to {
-    opacity: 1;
+  .glass-card {
+    @apply bg-secondary-dark/40 backdrop-blur-xl border border-border-subtle/50;
   }
 }
 
-@keyframes pulse-glow {
-  0%, 100% {
-    box-shadow: 0 0 0 0 rgba(212, 175, 55, 0.4);
-  }
-  50% {
-    box-shadow: 0 0 20px 5px rgba(212, 175, 55, 0.2);
-  }
-}
-
-.animate-slide-in-right {
-  animation: slide-in-right 0.3s ease-out;
-}
-
-.animate-fade-in {
-  animation: fade-in 0.4s ease-out;
-}
-
-.animate-pulse-glow {
-  animation: pulse-glow 2s infinite;
-}
-
-/* Loading Skeleton */
-.ct-skeleton {
-  @apply bg-secondary-dark;
-  background: linear-gradient(
-    90deg,
-    var(--color-secondary-dark) 25%,
-    var(--color-row-hover) 50%,
-    var(--color-secondary-dark) 75%
-  );
-  background-size: 200% 100%;
-  animation: loading 1.5s infinite;
-}
-
-@keyframes loading {
-  0% {
-    background-position: 200% 0;
-  }
-  100% {
-    background-position: -200% 0;
-  }
-}

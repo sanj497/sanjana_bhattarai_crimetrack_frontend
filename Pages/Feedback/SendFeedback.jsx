@@ -1,6 +1,7 @@
 import { useState } from "react";
 import axios from "axios";
 import React from "react";
+import { Activity, ShieldAlert, Send, CheckCircle } from "lucide-react";
 const API = `${import.meta.env.VITE_BACKEND_URL}/api/feedback/auth`;
 
 export default function SendFeedback() {
@@ -31,86 +32,87 @@ export default function SendFeedback() {
   const threatColors = ["", "text-green-400", "text-lime-400", "text-yellow-400", "text-orange-400", "text-red-500"];
 
   return (
-    <div className="min-h-screen bg-zinc-950 relative overflow-hidden px-4 py-12">
+    <div className="min-h-screen bg-primary-dark font-body text-text-primary px-4 py-12">
+      
+      {/* Background Subtle Gradient */}
+      <div className="fixed inset-0 pointer-events-none z-0">
+        <div className="w-full h-full bg-[radial-gradient(circle_at_top_right,_rgba(212,175,55,0.05),transparent_70%)]" />
+      </div>
 
-      {/* scanlines */}
-      <div className="fixed inset-0 pointer-events-none z-0"
-        style={{
-          backgroundImage: "repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(255,255,255,0.015) 2px,rgba(255,255,255,0.015) 4px)"
-        }}
-      />
-
-      <div className="relative z-10 max-w-lg mx-auto">
+      <div className="relative z-10 max-w-lg mx-auto animate-fade-in">
 
         {/* ── HEADER ── */}
-        <div className="text-center mb-6">
-          <span className="inline-block bg-red-600 text-white text-xs tracking-widest px-3 py-1 mb-4 font-mono">
-            ⚠ CLASSIFIED
-          </span>
-          <h1 className="font-serif text-6xl font-black text-stone-100 uppercase leading-none tracking-tight">
-            WITNESS<br />
-            <span className="text-amber-600">REPORT</span>
+        <div className="text-center mb-8">
+          <div className="inline-flex items-center gap-2 px-3 py-1 bg-danger/10 text-danger border border-danger/20 text-[10px] font-bold tracking-widest uppercase mb-6 rounded-lg">
+            <ShieldAlert size={14} /> Classified Intelligence
+          </div>
+          <h1 className="font-heading text-5xl font-bold text-text-primary uppercase leading-tight tracking-tighter">
+            Witness<br />
+            <span className="text-accent-gold">Report</span>
           </h1>
-          <p className="font-mono text-zinc-600 text-xs tracking-widest mt-3">{caseId} · OPEN</p>
-          <div className="h-px bg-gradient-to-r from-transparent via-amber-700 to-transparent mt-5" />
+          <p className="font-mono text-text-secondary text-[10px] tracking-[4px] mt-4 opacity-50">{caseId} // STATUS: PRIORITY-1</p>
+          <div className="h-px bg-gradient-to-r from-transparent via-border-subtle to-transparent mt-6" />
         </div>
 
-        {/* ── POLICE TAPE ── */}
-        <div className="bg-amber-600 text-zinc-950 font-mono text-xs tracking-widest py-1.5 text-center overflow-hidden whitespace-nowrap">
-          ▓▓▓ DO NOT CROSS — EVIDENCE SUBMISSION FORM — DO NOT CROSS ▓▓▓
+        {/* ── TACTICAL BAR ── */}
+        <div className="bg-accent-gold text-primary-dark font-bold text-[10px] tracking-[3px] py-2 px-4 rounded-xl text-center uppercase shadow-lg shadow-accent-gold/20 mb-10">
+          Official Evidence Submission Profile
         </div>
 
         {/* ── NO TOKEN WARNING ── */}
         {!token && (
-          <div className="mt-4 px-4 py-3 border border-red-700 border-l-4 border-l-red-500 bg-red-950/40 font-mono text-red-400 text-xs tracking-widest">
-            🔒 NO CREDENTIALS DETECTED — LOGIN REQUIRED TO FILE A REPORT
+          <div className="mb-8 p-4 bg-danger/10 border border-danger/30 rounded-2xl flex items-center gap-4 text-danger animate-pulse">
+            <ShieldAlert size={20} />
+            <p className="text-[10px] font-bold uppercase tracking-widest">Unauthorized Access: Verified Login Required</p>
           </div>
         )}
 
         {/* ── FORM ── */}
-        <form onSubmit={handleSubmit} className="mt-8 flex flex-col gap-5">
+        <form onSubmit={handleSubmit} className="space-y-8">
 
           {/* Statement */}
-          <div className="flex flex-col gap-2">
-            <label className="font-mono text-xs tracking-widest text-amber-600">
-              STATEMENT <span className="text-red-500">*</span>
+          <div className="space-y-3">
+            <label className="text-[11px] font-bold tracking-widest text-accent-gold uppercase ml-1 flex items-center gap-2">
+              <Activity size={12} /> Eyewitness Statement
             </label>
             <textarea
               name="message"
               rows={5}
-              placeholder="Describe what you witnessed in full detail..."
+              placeholder="Provide a comprehensive chronological log of the situation as witnessed..."
               value={form.message}
               onChange={handleChange}
               required
-              className="bg-zinc-900 border border-zinc-800 border-l-4 border-l-amber-700
-                text-stone-200 placeholder-zinc-700 font-mono text-sm px-4 py-3
-                outline-none resize-y focus:border-l-amber-500 focus:border-zinc-600
-                transition-colors"
+              className="w-full bg-secondary-dark border border-border-subtle border-l-accent-gold border-l-4
+                text-text-primary placeholder-text-secondary/30 font-medium text-sm px-5 py-4
+                outline-none resize-none rounded-r-2xl focus:border-accent-gold transition-all"
             />
           </div>
 
           {/* Threat Level */}
-          <div className="flex flex-col gap-2">
-            <label className="font-mono text-xs tracking-widest text-amber-600">
-              THREAT LEVEL
+          <div className="space-y-3">
+            <label className="text-[11px] font-bold tracking-widest text-accent-gold uppercase ml-1">
+              Urgency Assessment
             </label>
-            <div className="flex items-center gap-2">
-              {[1, 2, 3, 4, 5].map((r) => (
-                <button
-                  key={r}
-                  type="button"
-                  onClick={() => setForm({ ...form, rating: r })}
-                  className={`text-2xl transition-all duration-150 cursor-pointer border-none bg-transparent
-                    ${Number(form.rating) >= r
-                      ? "text-amber-500 scale-110"
-                      : "text-zinc-800 hover:text-zinc-600"
+            <div className="flex items-center gap-4 bg-secondary-dark p-6 rounded-2xl border border-border-subtle">
+              <div className="flex gap-2">
+                {[1, 2, 3, 4, 5].map((r) => (
+                  <button
+                    key={r}
+                    type="button"
+                    onClick={() => setForm({ ...form, rating: r })}
+                    className={`text-2xl transition-all duration-300 transform ${
+                      Number(form.rating) >= r
+                        ? "text-accent-gold scale-125 drop-shadow-[0_0_8px_rgba(212,175,55,0.6)]"
+                        : "text-border-subtle hover:text-text-secondary"
                     }`}
-                >
-                  ◆
-                </button>
-              ))}
-              <span className={`font-mono text-xs tracking-widest ml-2 ${threatColors[form.rating] || "text-zinc-600"}`}>
-                {threatLabels[form.rating] || "UNRATED"}
+                  >
+                    ◆
+                  </button>
+                ))}
+              </div>
+              <div className="h-8 w-px bg-border-subtle mx-2" />
+              <span className={`text-[10px] font-bold tracking-[2px] uppercase ${threatColors[form.rating] || "text-text-secondary"}`}>
+                {threatLabels[form.rating] || "Unrated"}
               </span>
             </div>
           </div>
@@ -119,40 +121,40 @@ export default function SendFeedback() {
           <button
             type="submit"
             disabled={!token || status === "sending"}
-            className={`mt-2 py-4 font-mono text-xs font-bold tracking-widest transition-all
+            className={`w-full py-4 rounded-2xl font-bold text-xs tracking-[4px] uppercase transition-all flex items-center justify-center gap-3
               ${!token || status === "sending"
-                ? "bg-zinc-800 text-zinc-600 cursor-not-allowed"
-                : "bg-amber-600 text-zinc-950 hover:bg-amber-500 cursor-pointer active:scale-95"
+                ? "bg-secondary-dark text-text-secondary cursor-not-allowed opacity-50"
+                : "bg-accent-gold text-primary-dark hover:bg-soft-gold active:scale-[0.98] shadow-xl shadow-accent-gold/20"
               }`}
           >
-            {status === "sending" ? "▶ TRANSMITTING..." : "▶ FILE REPORT"}
+            {status === "sending" ? (
+              <Activity className="animate-spin" size={18} />
+            ) : (
+              <Send size={18} />
+            )}
+            {status === "sending" ? "Transmitting Log..." : "File Official Report"}
           </button>
 
           {/* ── STATUS TOASTS ── */}
           {status === "success" && (
-            <div className="border border-amber-700 bg-amber-950/30 text-amber-500
-              font-mono text-xs tracking-widest text-center px-4 py-3 animate-pulse">
-              ✓ REPORT FILED — {caseId} UNDER REVIEW
+            <div className="p-4 bg-success/10 border border-success/30 text-success rounded-2xl flex items-center justify-center gap-3 animate-fade-in shadow-lg">
+              <CheckCircle size={18} />
+              <p className="text-[10px] font-bold tracking-widest uppercase">Report Filed // Intelligence Synced</p>
             </div>
           )}
-          {status === "noauth" && (
-            <div className="border border-red-700 bg-red-950/30 text-red-400
-              font-mono text-xs tracking-widest text-center px-4 py-3">
-              🔒 UNAUTHORIZED — SESSION EXPIRED OR NOT LOGGED IN
-            </div>
-          )}
+          
           {status === "error" && (
-            <div className="border border-red-700 bg-red-950/30 text-red-400
-              font-mono text-xs tracking-widest text-center px-4 py-3">
-              ✗ TRANSMISSION FAILED — TRY AGAIN
+            <div className="p-4 bg-danger/10 border border-danger/30 text-danger rounded-2xl flex items-center justify-center gap-3 animate-fade-in">
+              <ShieldAlert size={18} />
+              <p className="text-[10px] font-bold tracking-widest uppercase">Transmission Error // Retry Encryption</p>
             </div>
           )}
         </form>
 
         {/* ── FOOTER ── */}
-        <div className="mt-12 pt-5 border-t border-zinc-900 font-mono text-xs
-          text-zinc-800 text-center tracking-widest">
-          CONFIDENTIAL · METROPOLITAN INVESTIGATION BUREAU · ALL REPORTS MONITORED
+        <div className="mt-16 pt-8 border-t border-border-subtle/30 text-[9px]
+          text-text-secondary/40 text-center tracking-[4px] uppercase font-bold">
+          Confidential · Intelligence Bureau · Automated Recording Active
         </div>
 
       </div>

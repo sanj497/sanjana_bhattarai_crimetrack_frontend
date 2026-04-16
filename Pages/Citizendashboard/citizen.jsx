@@ -294,16 +294,16 @@ export default function CitizenDashboard() {
       {/* Overview Stat Cards */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-default mb-section">
          {[
-           { label: "Alerts Dispatched", val: unreadCount > 0 ? unreadCount : "0 New", icon: <Bell />, color: "danger" },
-           { label: "Intelligence Logs", val: myCrimes.length, icon: <FileText />, color: "accent-gold" },
-           { label: "Trust Score", val: "Optimal", icon: <Shield />, color: "success" },
+           { label: "Active Alerts", val: unreadCount > 0 ? unreadCount : "0 New", icon: <Bell />, color: "danger" },
+           { label: "Reported Cases", val: myCrimes.length, icon: <FileText />, color: "accent-gold" },
+           { label: "Assigned Units", val: myCrimes.filter(c => c.status !== 'Pending').length, icon: <Shield />, color: "success" },
          ].map((stat, i) => (
-           <div key={i} className="ct-card flex items-center gap-default group">
-              <div className={`p-default bg-${stat.color}/10 text-${stat.color} rounded-lg group-hover:bg-${stat.color} group-hover:text-white transition-all shadow-lg`}>
+           <div key={i} className="ct-card flex items-center gap-default group border border-border-subtle hover:border-accent-gold transition-all">
+              <div className={`p-default bg-${stat.color === 'accent-gold' ? 'accent-gold' : stat.color}/10 text-${stat.color === 'accent-gold' ? 'accent-gold' : stat.color} rounded-lg group-hover:bg-${stat.color === 'accent-gold' ? 'accent-gold' : stat.color} group-hover:text-primary-dark transition-all shadow-lg`}>
                  {stat.icon}
               </div>
               <div className="relative z-10">
-                 <p className="text-xs text-text-secondary mb-0.5 font-medium">{stat.label}</p>
+                 <p className="text-xs text-text-secondary mb-0.5 font-medium uppercase tracking-wider">{stat.label}</p>
                  <h3 className="text-2xl font-bold text-text-primary leading-none">{stat.val}</h3>
               </div>
            </div>

@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
 import { Link } from "react-router-dom";
-import { 
+import {
   AlertCircle, Shield, Phone, MapPin, FileText, Siren,
   Users, ChevronRight, Menu, X, LogOut, Lock, Clock, Bell, Activity, LayoutDashboard, Radio
 } from "lucide-react";
@@ -85,11 +85,10 @@ export default function CrimeReportingHome() {
                 >
                   {[...liveAlerts, ...liveAlerts].map((alert, i) => (
                     <span key={i} className="inline-flex items-center gap-2 text-xs text-gray-300">
-                      <span className={`inline-block w-2 h-2 rounded-full flex-shrink-0 ${
-                        alert.priority === 'Critical' ? 'bg-red-500' :
-                        alert.priority === 'High' ? 'bg-orange-400' :
-                        'bg-yellow-400'
-                      }`} />
+                      <span className={`inline-block w-2 h-2 rounded-full flex-shrink-0 ${alert.priority === 'Critical' ? 'bg-red-500' :
+                          alert.priority === 'High' ? 'bg-orange-400' :
+                            'bg-yellow-400'
+                        }`} />
                       <span className="text-[#E63946] font-bold">[{alert.crimeType}]</span>
                       <span className="font-medium text-white">{alert.title}</span>
                       <span className="text-gray-500">—</span>
@@ -216,14 +215,14 @@ export default function CrimeReportingHome() {
           <div className="absolute inset-0 bg-gradient-to-br from-[#0B1F3B] via-[#0B1F3B]/90 to-transparent z-10" />
           <div className="w-full h-full bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-[#1E5EFF]/50 via-[#0B1F3B] to-[#0B1F3B]" />
         </div>
-        
+
         <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-32 pb-48 md:pt-40 md:pb-64 text-center md:text-left flex flex-col items-center md:items-start">
           <div className="max-w-3xl">
             <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-[#1E5EFF]/10 text-[#00B8D9] font-semibold text-sm mb-8 border border-[#1E5EFF]/30 shadow-sm backdrop-blur-sm">
               <Activity className="h-4 w-4" /> Real-time tracking system
             </div>
             <h1 className="text-6xl md:text-7xl font-extrabold text-white mb-8 leading-[1.1]" style={{ fontFamily: "Poppins, sans-serif", letterSpacing: "-0.02em" }}>
-              Secure. Report. <br/> <span className="text-[#00B8D9]">Stay Safe.</span>
+              Secure. Report. <br /> <span className="text-[#00B8D9]">Stay Safe.</span>
             </h1>
             <p className="text-xl md:text-2xl text-gray-300 mb-12 max-w-2xl leading-relaxed mx-auto md:mx-0">
               Our high-end security and emergency response platform connects you directly with local law enforcement. Quick, anonymous, and encrypted.
@@ -297,7 +296,7 @@ export default function CrimeReportingHome() {
           <div className="grid md:grid-cols-3 gap-12 relative">
             {/* Connection Line */}
             <div className="hidden md:block absolute top-[48px] left-[15%] right-[15%] h-0.5 bg-[#F7F9FC] border-t-2 border-dashed border-gray-200 z-0" />
-            
+
             <div className="relative z-10 text-center">
               <div className="w-24 h-24 mx-auto rounded-full bg-[#1E5EFF] text-white flex items-center justify-center shadow-[0_8px_20px_rgb(30,94,255,0.3)] mb-6">
                 <FileText className="h-8 w-8" />
@@ -356,7 +355,7 @@ export default function CrimeReportingHome() {
                 </div>
               </div>
             </div>
-            
+
             <div className="bg-[#112445] p-12 md:p-16 flex items-center justify-center relative">
               <div className="w-full max-w-sm rounded-[16px] bg-[#0B1F3B] border border-white/10 p-6 shadow-2xl relative z-10">
                 <div className="text-center pb-6 border-b border-white/10">
@@ -380,7 +379,7 @@ export default function CrimeReportingHome() {
             Join and help make your community safer
           </h2>
           <p className="text-xl text-[#6B7280] mb-12 max-w-2xl mx-auto leading-relaxed">
-            It takes all of us to maintain peace. Register today to access maps, resources, and live updates directly from local authorities. 
+            It takes all of us to maintain peace. Register today to access maps, resources, and live updates directly from local authorities.
           </p>
           <div className="flex flex-col sm:flex-row justify-center gap-6">
             <Link to="/register" className="bg-[#1E5EFF] text-white px-10 py-4 rounded-[12px] font-bold hover:bg-blue-600 transition-all shadow-[0_8px_20px_0_rgba(30,94,255,0.3)] text-lg hover:-translate-y-1">
@@ -406,7 +405,7 @@ export default function CrimeReportingHome() {
                 Bridging the gap between citizens and authorities through real-time communication.
               </p>
             </div>
-            
+
             <div>
               <h4 className="font-bold text-white mb-6" style={{ fontFamily: "Poppins, sans-serif" }}>Platform</h4>
               <ul className="space-y-3">
@@ -415,7 +414,7 @@ export default function CrimeReportingHome() {
                 <li><a href="#" className="text-gray-400 hover:text-[#00B8D9] transition text-sm">Contact Support</a></li>
               </ul>
             </div>
-            
+
             <div>
               <h4 className="font-bold text-white mb-6" style={{ fontFamily: "Poppins, sans-serif" }}>Legal</h4>
               <ul className="space-y-3">
@@ -436,7 +435,7 @@ export default function CrimeReportingHome() {
               </div>
             </div>
           </div>
-          
+
           <div className="border-t border-[#112445] pt-8 flex flex-col md:flex-row justify-between items-center">
             <p className="text-sm text-gray-500 mb-4 md:mb-0">
               © {new Date().getFullYear()} Crime Track System. All rights reserved.

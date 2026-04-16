@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from "react";
 import React from "react";
-import { Activity } from "lucide-react";
+import { Activity, ShieldAlert, Search, ShieldCheck, Plus, Phone } from "lucide-react";
 
 const API_BASE = `${import.meta.env.VITE_BACKEND_URL}/api/emergency`;
 
@@ -378,26 +378,54 @@ export default function EmergencyContactsApp() {
   );
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-red-50 via-white to-orange-50">
+    <div className="min-h-screen bg-primary-dark font-body text-text-primary">
+      
       {/* Header */}
-      <div className="bg-gradient-to-r from-red-600 to-red-700 text-white px-4 pt-10 pb-6 shadow-lg">
-        <div className="max-w-2xl mx-auto">
-          <div className="flex items-center gap-3 mb-1">
-            <span className="text-3xl">🚨</span>
-            <h1 className="text-2xl font-extrabold tracking-tight">Emergency Helpline</h1>
+      <div className="p-8 md:p-10 animate-fade-in">
+        <div className="p-8 md:p-12 rounded-[40px] bg-secondary-dark text-white relative overflow-hidden shadow-2xl border border-border-subtle">
+          <div className="absolute inset-0 z-0 opacity-10">
+            <div className="w-full h-full bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-danger via-primary-dark to-primary-dark" />
           </div>
-          <p className="text-red-100 text-sm ml-12">Call directly in one tap · Immediate help</p>
+          
+          <div className="relative z-10">
+            <div className="flex flex-col md:flex-row md:items-center justify-between gap-8">
+              <div>
+                <div className="flex items-center gap-3 mb-4">
+                  <div className="h-12 w-12 bg-danger text-white rounded-2xl flex items-center justify-center shadow-lg shadow-danger/20">
+                    <ShieldAlert size={28} />
+                  </div>
+                  <h1 className="text-4xl md:text-5xl font-bold tracking-tighter uppercase font-heading">
+                    Emergency <span className="text-danger">Helpline</span>
+                  </h1>
+                </div>
+                <p className="text-text-secondary font-bold text-[10px] mt-2 uppercase tracking-[3px] flex items-center gap-2">
+                   <Activity size={12} className="text-danger animate-pulse" /> Verified Rapid Response Protocols
+                </p>
+              </div>
+
+              <div className="flex items-center gap-6">
+                 <div className="text-right hidden sm:block">
+                    <p className="text-[10px] font-bold text-text-secondary uppercase tracking-widest mb-1">Response Latency</p>
+                    <p className="text-2xl font-bold tabular-nums text-text-primary">Sub-2m Average</p>
+                 </div>
+                 <div className="h-16 w-px bg-border-subtle" />
+                 <div className="h-16 w-16 bg-primary-dark/50 backdrop-blur-md rounded-2xl border border-border-subtle flex items-center justify-center text-danger">
+                    <Activity size={28} className="animate-pulse" />
+                 </div>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
 
       {/* Tab Bar */}
-      <div className="sticky top-0 z-20 bg-white border-b border-gray-100 shadow-sm">
-        <div className="max-w-2xl mx-auto flex">
+      <div className="sticky top-0 z-20 bg-primary-dark/80 backdrop-blur-xl border-b border-border-subtle">
+        <div className="max-w-4xl mx-auto flex px-6">
           {!isResponder && (
             <button
               onClick={() => setActiveTab("sos")}
-              className={`flex-1 py-3.5 text-sm font-bold transition-all border-b-2 ${
-                activeTab === "sos" ? "border-red-600 text-red-600" : "border-transparent text-gray-400 hover:text-gray-600"
+              className={`flex-1 py-5 text-sm font-bold transition-all border-b-2 tracking-widest uppercase font-heading ${
+                activeTab === "sos" ? "border-danger text-danger" : "border-transparent text-text-secondary hover:text-text-primary"
               }`}
             >
               🆘 SOS Signal
@@ -405,8 +433,8 @@ export default function EmergencyContactsApp() {
           )}
           <button
             onClick={() => setActiveTab("contacts")}
-            className={`flex-1 py-3.5 text-sm font-bold transition-all border-b-2 ${
-              activeTab === "contacts" ? "border-red-600 text-red-600" : "border-transparent text-gray-400 hover:text-gray-600"
+            className={`flex-1 py-5 text-sm font-bold transition-all border-b-2 tracking-widest uppercase font-heading ${
+              activeTab === "contacts" ? "border-accent-gold text-accent-gold" : "border-transparent text-text-secondary hover:text-text-primary"
             }`}
           >
             📋 Emergency Directory
@@ -414,117 +442,146 @@ export default function EmergencyContactsApp() {
         </div>
       </div>
 
-      <div className="max-w-2xl mx-auto px-4 py-6 space-y-6">
+      <div className="max-w-4xl mx-auto px-6 py-10 space-y-10">
         {/* ── SOS TAB ── */}
         {!isResponder && activeTab === "sos" && (
-          <>
-            {/* SOS Button */}
-            <div className="bg-white rounded-3xl shadow-lg border border-red-100 p-8 flex flex-col items-center gap-2">
-              <p className="text-xs font-bold uppercase tracking-widest text-red-400 mb-2 animate-pulse">🚨 CRITICAL EMERGENCY</p>
-              <SOSButton />
+          <div className="space-y-10 animate-fade-in">
+            {/* SOS Button Area */}
+            <div className="bg-secondary-dark rounded-[48px] shadow-2xl border border-border-subtle p-12 flex flex-col items-center gap-8 relative overflow-hidden">
+               <div className="absolute top-0 right-0 w-64 h-64 bg-danger/5 rounded-full blur-[80px] -mr-32 -mt-32 pointer-events-none" />
+               <p className="text-[11px] font-bold uppercase tracking-[5px] text-danger mb-2 animate-pulse flex items-center gap-2">
+                  <Activity size={14} /> Critical SOS Terminal
+               </p>
+               <SOSButton />
             </div>
 
-            {/* Quick Call Buttons */}
+            {/* Quick Call Area */}
             <div>
-              <p className="text-xs font-bold uppercase tracking-widest text-gray-400 mb-3 px-1">Quick Call</p>
+              <p className="text-[10px] font-bold uppercase tracking-[4px] text-text-secondary mb-6 ml-2 flex items-center gap-2">
+                 <ShieldAlert size={12} /> Strategic Response Links
+              </p>
               <QuickCallButtons />
             </div>
 
-            {/* Tip */}
-            <div className="bg-red-50 border border-red-200 rounded-2xl p-4 text-sm text-red-800">
-              <p className="font-semibold mb-1">CRITICAL SOS INFORMATION</p>
-              <ul className="list-disc list-inside space-y-1 text-red-700">
-                <li>Tap <strong>SOS</strong> to dispatch ALL police units immediately</li>
-                <li>Your <strong>live GPS location</strong> is shared with emergency services</li>
-                <li><strong>No internet needed</strong> for emergency calls - SIM only</li>
-                <li>This alert <strong>bypasses normal verification</strong> for immediate response</li>
+            {/* Intel Card */}
+            <div className="bg-primary-dark border border-border-subtle border-l-[6px] border-l-danger rounded-[32px] p-8 shadow-inner group overflow-hidden relative">
+              <div className="absolute bottom-0 right-0 p-8 opacity-5">
+                 <ShieldAlert size={120} className="text-danger" />
+              </div>
+              <h4 className="text-sm font-bold font-heading text-text-primary mb-4 uppercase tracking-widest flex items-center gap-2">
+                 <ShieldCheck size={16} className="text-danger" /> Intelligence Briefing
+              </h4>
+              <ul className="space-y-4">
+                {[
+                  "Global SOS Broadcast notifies all certified active units",
+                  "Verified Live GPS Telemetry establishes priority tracking",
+                  "Protocol-4 override ensures immediate dispatcher attention",
+                  "Encrypted telemetry syncs automatically with nearest local command"
+                ].map((tip, i) => (
+                  <li key={i} className="flex items-start gap-3 group/tip">
+                    <div className="h-5 w-5 rounded-full bg-danger/10 text-danger flex items-center justify-center text-[10px] font-bold mt-0.5 group-hover/tip:scale-110 transition-transform">{i+1}</div>
+                    <p className="text-sm text-text-secondary font-medium leading-relaxed">{tip}</p>
+                  </li>
+                ))}
               </ul>
             </div>
-          </>
+          </div>
         )}
 
         {/* ── CONTACTS TAB ── */}
         {activeTab === "contacts" && (
-          <>
-            {/* Search */}
-            <div className="bg-white border border-gray-200 rounded-2xl flex items-center px-4 py-2.5 gap-2 shadow-sm">
-              <span className="text-gray-400">🔍</span>
-              <input
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                placeholder="Search contacts or numbers..."
-                className="bg-transparent text-gray-700 text-sm flex-1 outline-none"
-              />
+          <div className="space-y-8 animate-fade-in">
+            {/* Filter & Search Bar */}
+            <div className="flex flex-col md:flex-row gap-4">
+              <div className="flex-1 bg-secondary-dark border border-border-subtle rounded-2xl flex items-center px-6 py-4 gap-4 shadow-xl focus-within:border-accent-gold/50 transition-all">
+                <Search className="text-text-secondary" size={20} />
+                <input
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  placeholder="Query directory database..."
+                  className="bg-transparent text-text-primary text-sm font-medium flex-1 outline-none placeholder:text-text-secondary/30"
+                />
+              </div>
+
+              <div className="flex gap-2 overflow-x-auto pb-4 md:pb-0 scrollbar-hide">
+                {["all", ...Object.keys(categoryConfig)].map((cat) => (
+                  <button
+                    key={cat}
+                    onClick={() => setFilterCategory(cat)}
+                    className={`flex-shrink-0 px-6 py-2 rounded-xl text-[10px] font-bold uppercase tracking-widest transition-all ${
+                      filterCategory === cat
+                        ? "bg-accent-gold text-primary-dark shadow-xl shadow-accent-gold/10"
+                        : "bg-secondary-dark text-text-secondary border border-border-subtle hover:border-accent-gold/40"
+                    }`}
+                  >
+                    {cat === "all" ? "All Logs" : `${categoryConfig[cat].icon} ${cat}`}
+                  </button>
+                ))}
+              </div>
             </div>
 
-            {/* Category Filter */}
-            <div className="flex gap-2 overflow-x-auto pb-1">
-              {["all", ...Object.keys(categoryConfig)].map((cat) => (
-                <button
-                  key={cat}
-                  onClick={() => setFilterCategory(cat)}
-                  className={`flex-shrink-0 px-4 py-2 rounded-full text-sm font-medium transition-all ${
-                    filterCategory === cat
-                      ? "bg-red-600 text-white shadow-md"
-                      : "bg-white text-gray-600 border border-gray-200 hover:border-red-300"
-                  }`}
-                >
-                  {cat === "all" ? "🔴 All" : `${categoryConfig[cat].icon} ${cat.charAt(0).toUpperCase() + cat.slice(1)}`}
-                </button>
-              ))}
-            </div>
-
-            {/* Actions */}
+            {/* Admin Actions */}
             {isResponder && (
-              <div className="flex gap-3">
+              <div className="flex gap-4 p-4 bg-primary-dark/50 rounded-3xl border border-border-subtle">
                 <button
                   onClick={() => setShowModal(true)}
-                  className="flex-1 bg-red-600 text-white py-3 rounded-xl font-semibold text-sm hover:bg-red-700 active:scale-95 transition-all shadow"
+                  className="ct-btn-primary flex-1 py-4 flex items-center justify-center gap-3"
                 >
-                  + Add Contact
+                  <Plus size={18} /> Register Authorized Entity
                 </button>
                 <button
                   onClick={handleSeed}
                   disabled={seeding}
-                  className="flex-1 bg-white border border-gray-200 text-gray-700 py-3 rounded-xl font-semibold text-sm hover:bg-gray-50 active:scale-95 transition-all disabled:opacity-50"
+                  className="ct-btn-secondary flex-1 py-4 flex items-center justify-center gap-3"
                 >
-                  {seeding ? "Seeding..." : "🌱 Load Defaults"}
+                   {seeding ? <Activity className="animate-spin" size={18} /> : <span>Sync Default Records</span>}
                 </button>
               </div>
             )}
 
             {error && (
-              <div className="bg-red-50 border border-red-200 text-red-600 text-sm p-3 rounded-xl flex justify-between">
-                {error}
-                <button onClick={() => setError("")} className="font-bold">
-                  ×
-                </button>
+              <div className="p-4 bg-danger/10 border border-danger/20 text-danger rounded-2xl flex justify-between items-center animate-shake">
+                <div className="flex items-center gap-3">
+                   <ShieldAlert size={18} />
+                   <p className="text-[10px] font-bold uppercase tracking-widest">{error}</p>
+                </div>
+                <button onClick={() => setError("")} className="hover:text-text-primary transition-colors">×</button>
               </div>
             )}
 
             {loading ? (
-              <div className="text-center py-16 text-gray-400">
-                <div className="text-4xl mb-3 animate-pulse">📡</div>
-                <p>Loading contacts...</p>
+              <div className="text-center py-24 flex flex-col items-center gap-4">
+                 <div className="h-16 w-16 bg-secondary-dark rounded-[24px] flex items-center justify-center border border-border-subtle shadow-xl">
+                    <Activity className="h-8 w-8 text-accent-gold animate-bounce" />
+                 </div>
+                 <p className="text-[10px] font-bold text-text-secondary uppercase tracking-[4px]">Initializing Directory...</p>
               </div>
             ) : filtered.length === 0 ? (
-              <div className="text-center py-16 text-gray-400">
-                <div className="text-5xl mb-3">📭</div>
-                <p className="font-medium">No contacts found</p>
-                <p className="text-sm mt-1">Click "Load Defaults" to seed Nepal emergency numbers</p>
+              <div className="ct-card p-24 text-center border-dashed border-2 flex flex-col items-center">
+                 <div className="h-20 w-20 bg-primary-dark rounded-[30px] flex items-center justify-center mb-6 text-text-secondary/20">
+                    <ShieldCheck size={48} />
+                 </div>
+                 <h3 className="text-xl font-bold font-heading text-text-primary uppercase tracking-widest mb-2">No Verified Logs Found</h3>
+                 <p className="text-sm text-text-secondary font-medium max-w-sm mb-3">The current query returned no matching intelligence assets.</p>
+                 {isResponder && <button onClick={handleSeed} className="text-accent-gold text-[10px] font-bold uppercase tracking-widest hover:underline">Re-Sync Defaults</button>}
               </div>
             ) : (
-              <div className="grid gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 {filtered.map((contact) => (
-                  <ContactCard key={contact._id} contact={contact} onDelete={handleDelete} isResponder={isResponder} />
+                  <ContactCard 
+                    key={contact._id} 
+                    contact={contact} 
+                    onDelete={handleDelete} 
+                    isResponder={isResponder} 
+                  />
                 ))}
               </div>
             )}
 
-            <p className="text-center text-xs text-gray-400 pb-4">
-              {filtered.length} contact{filtered.length !== 1 ? "s" : ""} available
-            </p>
-          </>
+            <div className="text-center text-[10px] font-bold text-text-secondary uppercase tracking-[3px] py-10 opacity-30">
+              End of Official Record Set · {filtered.length} Validated Assets
+            </div>
+          </div>
         )}
       </div>
 
