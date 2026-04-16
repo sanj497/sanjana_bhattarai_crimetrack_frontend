@@ -230,7 +230,7 @@ export default function CitizenDashboard() {
   const [feedbackCrime, setFeedbackCrime] = useState(null);
 
   return (
-    <div className="p-6 md:p-10 font-sans min-h-full bg-slate-950 text-slate-300">
+    <div className="p-section md:p-section font-body min-h-full bg-primary-dark text-text-secondary">
       {feedbackCrime && (
          <FeedbackModal 
            crime={feedbackCrime} 
@@ -239,48 +239,47 @@ export default function CitizenDashboard() {
          />
       )}
       {/* Welcome Banner */}
-      <div className="mb-8 p-8 md:p-12 rounded-[32px] bg-[#020617] text-white relative overflow-hidden shadow-2xl shadow-blue-900/10 border border-slate-800">
-        <div className="absolute inset-0 z-0 opacity-20">
-          <div className="w-full h-full bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-blue-600 via-[#020617] to-[#020617]" />
+      <div className="mb-section p-section md:p-section rounded-card bg-secondary-dark text-text-primary relative overflow-hidden shadow-xl border border-border-subtle">
+        <div className="absolute inset-0 z-0 opacity-10">
+          <div className="w-full h-full bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-accent-gold via-primary-dark to-primary-dark" />
         </div>
         <div className="relative z-10 flex justify-between items-center">
           <div>
-            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-blue-500/10 text-blue-400 font-bold text-[10px] mb-6 uppercase tracking-widest border border-blue-500/20 backdrop-blur-sm">
+            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-accent-gold/10 text-accent-gold font-semibold text-xs mb-default uppercase tracking-wide border border-accent-gold/20 backdrop-blur-sm">
               <ShieldCheck className="h-4 w-4" /> Secure Citizen Access
             </div>
-            <h1 className="text-4xl md:text-5xl font-black mb-4 leading-none tracking-tighter uppercase whitespace-pre-line">
-               Welcome back, {"\n"}<span className="text-blue-500">{user.username || 'Citizen'}</span>
+            <h1 className="text-3xl md:text-4xl font-bold mb-default leading-tight">
+               Welcome back, {"\n"}<span className="text-accent-gold">{user.username || 'Citizen'}</span>
             </h1>
-            <p className="text-slate-400 max-w-lg leading-relaxed text-sm font-medium mb-8">
+            <p className="text-text-secondary max-w-lg leading-relaxed text-sm mb-section">
                Your gateway to community safety. Monitor your reported incidents, receive real-time updates from dispatch, and access critical transparency metrics.
             </p>
             <div>
-                <Link to="/report" className="inline-flex items-center justify-center gap-3 bg-blue-600 text-white px-8 py-4 rounded-2xl font-black uppercase text-xs tracking-widest hover:bg-blue-500 transition-all shadow-xl shadow-blue-600/20">
+                <Link to="/report" className="ct-btn-primary inline-flex items-center justify-center gap-2">
                    File Intelligence Report <ChevronRight className="h-4 w-4" />
                 </Link>
             </div>
           </div>
           <div className="hidden lg:flex opacity-10">
-            <Shield className="h-48 w-48 text-white" />
+            <Shield className="h-48 w-48 text-text-primary" />
           </div>
         </div>
       </div>
 
       {/* Overview Stat Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-default mb-section">
          {[
-           { label: "Alerts Dispatched", val: unreadCount > 0 ? unreadCount : "0 New", icon: <Bell />, color: "rose" },
-           { label: "Intelligence Logs", val: myCrimes.length, icon: <FileText />, color: "blue" },
-           { label: "Trust Score", val: "Optimal", icon: <Shield />, color: "emerald" },
+           { label: "Alerts Dispatched", val: unreadCount > 0 ? unreadCount : "0 New", icon: <Bell />, color: "danger" },
+           { label: "Intelligence Logs", val: myCrimes.length, icon: <FileText />, color: "accent-gold" },
+           { label: "Trust Score", val: "Optimal", icon: <Shield />, color: "success" },
          ].map((stat, i) => (
-           <div key={i} className="bg-slate-900/40 border border-slate-800/50 p-8 rounded-[40px] flex items-center gap-6 group hover:border-blue-500/20 transition-all shadow-2xl relative overflow-hidden">
-              <div className="absolute top-0 right-0 h-20 w-20 bg-blue-500/5 rounded-full -mr-10 -mt-10 group-hover:bg-blue-500/10 transition-colors" />
-              <div className={`p-5 bg-${stat.color}-500/10 text-${stat.color}-500 rounded-3xl group-hover:bg-${stat.color}-500 group-hover:text-white transition-all shadow-lg`}>
+           <div key={i} className="ct-card flex items-center gap-default group">
+              <div className={`p-default bg-${stat.color}/10 text-${stat.color} rounded-lg group-hover:bg-${stat.color} group-hover:text-white transition-all shadow-lg`}>
                  {stat.icon}
               </div>
               <div className="relative z-10">
-                 <p className="text-[10px] text-slate-500 font-black mb-1 uppercase tracking-[3px]">{stat.label}</p>
-                 <h3 className="text-3xl font-black text-white leading-none tracking-tight">{stat.val}</h3>
+                 <p className="text-xs text-text-secondary mb-0.5 font-medium">{stat.label}</p>
+                 <h3 className="text-2xl font-bold text-text-primary leading-none">{stat.val}</h3>
               </div>
            </div>
          ))}
@@ -332,51 +331,51 @@ export default function CitizenDashboard() {
 
 
       {/* Emergency SOS Signal Section - Tactical Response Unit */}
-      <div className="bg-slate-950 rounded-[64px] p-10 md:p-20 shadow-[0_40px_100px_rgba(0,0,0,0.4)] relative overflow-hidden group border border-slate-800/50">
+      <div className="bg-primary-dark rounded-[48px] p-section md:p-section shadow-xl relative overflow-hidden group border border-border-subtle">
         {/* Dynamic Background Elements */}
-        <div className="absolute top-0 right-0 h-[500px] w-[500px] bg-rose-600/10 rounded-full translate-x-1/2 -translate-y-1/2 blur-[120px] group-hover:bg-rose-500/20 transition-colors duration-1000" />
-        <div className="absolute bottom-0 left-0 h-64 w-64 bg-blue-600/5 rounded-full -translate-x-1/2 translate-y-1/2 blur-[80px]" />
+        <div className="absolute top-0 right-0 h-[500px] w-[500px] bg-danger/10 rounded-full translate-x-1/2 -translate-y-1/2 blur-[120px] group-hover:bg-danger/20 transition-colors duration-1000" />
+        <div className="absolute bottom-0 left-0 h-64 w-64 bg-accent-gold/5 rounded-full -translate-x-1/2 translate-y-1/2 blur-[80px]" />
         
         {/* Decorative Grid */}
         <div className="absolute inset-0 opacity-[0.03] pointer-events-none" 
              style={{ backgroundImage: 'radial-gradient(circle, #fff 1px, transparent 1px)', backgroundSize: '32px 32px' }} />
 
-        <div className="flex flex-col xl:flex-row items-center justify-between gap-16 relative z-10">
-           <div className="flex flex-col items-center md:items-start gap-10 text-center md:text-left max-w-2xl">
-              <div className="flex items-center gap-6">
-                 <div className="h-24 w-24 bg-rose-600 rounded-[32px] flex items-center justify-center shadow-[0_20px_60px_rgba(225,29,72,0.4)] relative group-hover:scale-110 transition-transform duration-500">
-                    <div className="absolute inset-0 rounded-[32px] border-4 border-white/20 animate-ping opacity-20" />
-                    <Activity className="h-12 w-12 text-white animate-pulse" />
+        <div className="flex flex-col xl:flex-row items-center justify-between gap-section relative z-10">
+           <div className="flex flex-col items-center md:items-start gap-section text-center md:text-left max-w-2xl">
+              <div className="flex items-center gap-default">
+                 <div className="h-20 w-20 bg-danger rounded-xl flex items-center justify-center shadow-xl relative group-hover:scale-110 transition-transform duration-500">
+                    <div className="absolute inset-0 rounded-xl border-4 border-white/20 animate-ping opacity-20" />
+                    <Activity className="h-10 w-10 text-text-primary animate-pulse" />
                  </div>
                  <div>
-                    <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-rose-500/10 text-rose-500 text-[10px] font-black uppercase tracking-[3px] border border-rose-500/20 mb-3">
+                    <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-danger/10 text-danger text-xs font-semibold uppercase tracking-wide border border-danger/20 mb-2">
                        <Shield className="h-3 w-3" /> Priority Alpha Channel
                     </div>
-                    <h3 className="text-4xl md:text-5xl font-black text-white uppercase tracking-tighter leading-none">
-                       Tactical <span className="text-rose-600">SOS</span> Dispatch
+                    <h3 className="text-3xl md:text-4xl font-bold text-text-primary uppercase leading-tight">
+                       Tactical <span className="text-danger">SOS</span> Dispatch
                     </h3>
                  </div>
               </div>
               
-              <div className="space-y-6">
-                 <p className="text-slate-400 text-lg font-medium leading-relaxed">
-                    Instantly broadcast your encrypted telemetry to the <span className="text-white font-bold">Central Police Command</span>. Once triggered, this bypasses all secondary verification protocols for an immediate physical field response.
+              <div className="space-y-default">
+                 <p className="text-text-secondary text-base leading-relaxed">
+                    Instantly broadcast your encrypted telemetry to the <span className="text-text-primary font-semibold">Central Police Command</span>. Once triggered, this bypasses all secondary verification protocols for an immediate physical field response.
                  </p>
                  
-                 <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+                 <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
                     {[
                        { label: "GPS Telemetry", icon: <MapPin size={14} /> },
                        { label: "Identity Hash", icon: <ShieldCheck size={14} /> },
                     ].map((feat, i) => (
-                       <div key={i} className="flex items-center gap-2 text-[10px] font-black text-slate-500 uppercase tracking-widest bg-white/5 px-4 py-2.5 rounded-xl border border-white/5">
-                          <span className="text-rose-500">{feat.icon}</span> {feat.label}
+                       <div key={i} className="flex items-center gap-2 text-xs font-semibold text-text-secondary bg-white/5 px-default py-2 rounded-lg border border-white/5">
+                          <span className="text-danger">{feat.icon}</span> {feat.label}
                        </div>
                     ))}
                  </div>
               </div>
            </div>
            
-           <div className="w-full xl:w-auto flex flex-col items-center gap-6">
+           <div className="w-full xl:w-auto flex flex-col items-center gap-default">
              <button 
                onClick={async () => {
                  if (!window.confirm("CONFIRM CRITICAL SOS DISPATCH? All police units will be alerted to your location immediately.")) return;
@@ -419,22 +418,22 @@ export default function CitizenDashboard() {
                    });
                  }
                }}
-               className="group/btn relative w-full md:w-80 h-80 rounded-full flex items-center justify-center transition-all duration-500 active:scale-95"
+               className="group/btn relative w-full md:w-72 h-72 rounded-full flex items-center justify-center transition-all duration-500 active:scale-95"
              >
                {/* Orbital Rings */}
-               <div className="absolute inset-0 rounded-full border-2 border-rose-600/30 animate-[spin_10s_linear_infinite]" />
-               <div className="absolute inset-4 rounded-full border border-rose-600/10 animate-[spin_15s_linear_infinite_reverse]" />
+               <div className="absolute inset-0 rounded-full border-2 border-danger/30 animate-[spin_10s_linear_infinite]" />
+               <div className="absolute inset-4 rounded-full border border-danger/10 animate-[spin_15s_linear_infinite_reverse]" />
                
-               <div className="absolute inset-10 bg-rose-600 rounded-full shadow-[0_0_80px_rgba(225,29,72,0.6)] group-hover/btn:scale-105 transition-transform duration-500 flex flex-col items-center justify-center gap-4 text-center p-8 border-8 border-slate-950">
-                  <Activity className="h-10 w-10 text-white animate-pulse" />
+               <div className="absolute inset-10 bg-danger rounded-full shadow-xl group-hover/btn:scale-105 transition-transform duration-500 flex flex-col items-center justify-center gap-2 text-center p-section border-8 border-primary-dark">
+                  <Activity className="h-8 w-8 text-text-primary animate-pulse" />
                   <div>
-                    <span className="block text-[10px] font-black text-rose-200 uppercase tracking-[4px] mb-1">Critical</span>
-                    <span className="block text-4xl font-black text-white uppercase tracking-tighter">TRIGGER</span>
-                    <span className="block text-[10px] font-black text-rose-200 uppercase tracking-[4px] mt-1">SOS SIGNAL</span>
+                    <span className="block text-xs font-semibold text-danger-200 uppercase tracking-wide mb-1">Critical</span>
+                    <span className="block text-3xl font-bold text-text-primary uppercase">TRIGGER</span>
+                    <span className="block text-xs font-semibold text-danger-200 uppercase tracking-wide mt-1">SOS SIGNAL</span>
                   </div>
                </div>
              </button>
-             <p className="text-[10px] font-black text-slate-500 uppercase tracking-[4px] animate-pulse">Waiting for manual authorization</p>
+             <p className="text-xs font-semibold text-text-secondary uppercase tracking-wide animate-pulse">Waiting for manual authorization</p>
            </div>
         </div>
       </div>

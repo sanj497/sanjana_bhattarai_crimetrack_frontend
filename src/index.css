@@ -1,60 +1,352 @@
 @import "tailwindcss";
-
-/* Leaflet Map Styles */
 @import "leaflet/dist/leaflet.css";
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&family=Inter:wght@300;400;500;600;700&display=swap');
+
+/* ========================================
+   PROFESSIONAL DESIGN SYSTEM - CRIMETRACK
+   ======================================== */
+
+@theme {
+  /* Color Palette */
+  --color-primary-dark: #0B1E2D;
+  --color-secondary-dark: #132F4C;
+  --color-accent-gold: #D4AF37;
+  --color-soft-gold: #E6C766;
+  --color-text-primary: #F5F7FA;
+  --color-text-secondary: #A9B4C2;
+  --color-danger: #E53935;
+  --color-success: #2ECC71;
+  --color-warning: #F39C12;
+  --color-row-hover: #1C3A5A;
+  --color-border-subtle: #2C4A6B;
+  
+  /* Typography */
+  --font-heading: 'Poppins', 'Inter', system-ui, sans-serif;
+  --font-body: 'Inter', 'Roboto', system-ui, sans-serif;
+  
+  /* Spacing */
+  --spacing-micro: 4px;
+  --spacing-small: 8px;
+  --spacing-default: 16px;
+  --spacing-section: 24px;
+  --spacing-large: 32px;
+  --spacing-page: 48px;
+  
+  /* Layout */
+  --sidebar-width: 240px;
+  --topbar-height: 64px;
+  
+  /* Border Radius */
+  --radius-button: 8px;
+  --radius-card: 12px;
+}
 
 @layer base {
   body {
-    @apply bg-[#020617] text-slate-200 antialiased;
-    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    @apply bg-primary-dark text-text-primary antialiased;
+    font-family: var(--font-body);
+    font-size: 16px;
+    font-weight: 400;
+  }
+  
+  h1 {
+    font-family: var(--font-heading);
+    font-size: 32px;
+    font-weight: 700;
+  }
+  
+  h2 {
+    font-family: var(--font-heading);
+    font-size: 24px;
+    font-weight: 600;
+  }
+  
+  h3 {
+    font-family: var(--font-heading);
+    font-size: 20px;
+    font-weight: 600;
   }
 }
 
 @layer components {
-  /* Unified Modern Dashboard Card */
+  /* ========================================
+     CARD COMPONENTS
+     ======================================== */
   .ct-card {
-    @apply bg-slate-900/40 border border-slate-800/50 backdrop-blur-xl rounded-[32px] transition-all duration-300;
+    @apply bg-secondary-dark rounded-card p-section;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+    border: 1px solid var(--color-border-subtle);
+    transition: all 0.3s ease;
   }
   
   .ct-card:hover {
-    @apply border-blue-500/20 bg-slate-900/60 shadow-2xl shadow-blue-900/10;
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.4);
+    border-color: var(--color-accent-gold);
   }
-
-  /* Professional Dashboard Section Title */
-  .ct-section-title {
-    @apply text-xl font-black text-white uppercase tracking-tight flex items-center gap-3;
-  }
-
-  .ct-section-subtitle {
-    @apply text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] mb-1;
-  }
-
-  /* Tactical Button */
+  
+  /* ========================================
+     BUTTON COMPONENTS
+     ======================================== */
   .ct-btn-primary {
-    @apply bg-blue-600 text-white rounded-2xl font-black uppercase tracking-widest text-[10px] py-4 px-6 hover:bg-blue-500 active:scale-95 transition-all shadow-lg shadow-blue-600/20;
+    @apply bg-accent-gold text-primary-dark font-medium;
+    padding: 10px 18px;
+    border-radius: var(--radius-button);
+    font-weight: 500;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 15px rgba(212, 175, 55, 0.3);
+  }
+  
+  .ct-btn-primary:hover {
+    @apply bg-soft-gold;
+    box-shadow: 0 6px 20px rgba(212, 175, 55, 0.4);
+    transform: translateY(-2px);
+  }
+  
+  .ct-btn-primary:active {
+    transform: translateY(0);
+  }
+  
+  .ct-btn-secondary {
+    @apply bg-transparent text-text-primary border border-text-secondary;
+    padding: 10px 18px;
+    border-radius: var(--radius-button);
+    font-weight: 500;
+    transition: all 0.3s ease;
+  }
+  
+  .ct-btn-secondary:hover {
+    @apply border-accent-gold text-accent-gold;
+    box-shadow: 0 4px 15px rgba(212, 175, 55, 0.2);
+  }
+  
+  .ct-btn-danger {
+    @apply bg-danger text-white font-medium;
+    padding: 10px 18px;
+    border-radius: var(--radius-button);
+    font-weight: 500;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 15px rgba(229, 57, 53, 0.3);
+  }
+  
+  .ct-btn-danger:hover {
+    box-shadow: 0 6px 20px rgba(229, 57, 53, 0.4);
+    transform: translateY(-2px);
+  }
+  
+  /* ========================================
+     SECTION TITLES
+     ======================================== */
+  .ct-section-title {
+    @apply text-text-primary font-heading;
+    font-size: 24px;
+    font-weight: 600;
+    letter-spacing: -0.02em;
+  }
+  
+  .ct-section-subtitle {
+    @apply text-text-secondary font-body;
+    font-size: 14px;
+    font-weight: 400;
+    margin-bottom: var(--spacing-small);
+  }
+  
+  /* ========================================
+     SIDEBAR COMPONENTS
+     ======================================== */
+  .ct-sidebar {
+    @apply bg-primary-dark;
+    width: var(--sidebar-width);
+  }
+  
+  .ct-sidebar-item {
+    @apply text-text-secondary transition-all duration-200;
+    padding: 12px 16px;
+    border-left: 4px solid transparent;
+  }
+  
+  .ct-sidebar-item:hover {
+    @apply bg-secondary-dark text-text-primary;
+  }
+  
+  .ct-sidebar-item.active {
+    @apply bg-secondary-dark text-accent-gold;
+    border-left-color: var(--color-accent-gold);
+  }
+  
+  /* ========================================
+     TABLE COMPONENTS
+     ======================================== */
+  .ct-table {
+    @apply w-full text-text-primary;
+  }
+  
+  .ct-table thead {
+    @apply bg-secondary-dark;
+  }
+  
+  .ct-table thead th {
+    padding: 16px;
+    font-weight: 600;
+    font-size: 14px;
+    border-bottom: 2px solid var(--color-border-subtle);
+  }
+  
+  .ct-table tbody tr {
+    @apply border-b border-border-subtle;
+    transition: background-color 0.2s ease;
+  }
+  
+  .ct-table tbody tr:hover {
+    @apply bg-row-hover;
+  }
+  
+  .ct-table tbody td {
+    padding: 16px;
+    font-size: 14px;
+  }
+  
+  /* ========================================
+     TOPBAR COMPONENTS
+     ======================================== */
+  .ct-topbar {
+    @apply bg-primary-dark;
+    height: var(--topbar-height);
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+  }
+  
+  /* ========================================
+     BADGE COMPONENTS
+     ======================================== */
+  .ct-badge-success {
+    @apply bg-success/10 text-success;
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 600;
+  }
+  
+  .ct-badge-warning {
+    @apply bg-warning/10 text-warning;
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 600;
+  }
+  
+  .ct-badge-danger {
+    @apply bg-danger/10 text-danger;
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 600;
+  }
+  
+  /* ========================================
+     MAP MARKERS
+     ======================================== */
+  .ct-map-marker-crime {
+    @apply text-danger;
+  }
+  
+  .ct-map-marker-resolved {
+    @apply text-success;
+  }
+  
+  .ct-map-marker-ongoing {
+    @apply text-warning;
   }
 }
 
-/* Custom Scrollbar for modern look */
+/* ========================================
+   CUSTOM SCROLLBAR
+   ======================================== */
 ::-webkit-scrollbar {
-  width: 6px;
-  height: 6px;
+  width: 8px;
+  height: 8px;
 }
 ::-webkit-scrollbar-track {
-  background: transparent;
+  @apply bg-primary-dark;
 }
 ::-webkit-scrollbar-thumb {
-  background: rgba(148, 163, 184, 0.1);
-  border-radius: 10px;
+  @apply bg-border-subtle;
+  border-radius: 4px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: rgba(148, 163, 184, 0.2);
+  @apply bg-text-secondary;
 }
 
-/* Map Theming */
+/* ========================================
+   MAP THEME (DARK)
+   ======================================== */
 .leaflet-container {
-  background: #020617 !important;
+  @apply bg-primary-dark;
 }
 .leaflet-tile {
   filter: invert(100%) hue-rotate(180deg) brightness(95%) contrast(90%);
+}
+
+/* ========================================
+   MICRO-INTERACTIONS & ANIMATIONS
+   ======================================== */
+@keyframes slide-in-right {
+  from {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes pulse-glow {
+  0%, 100% {
+    box-shadow: 0 0 0 0 rgba(212, 175, 55, 0.4);
+  }
+  50% {
+    box-shadow: 0 0 20px 5px rgba(212, 175, 55, 0.2);
+  }
+}
+
+.animate-slide-in-right {
+  animation: slide-in-right 0.3s ease-out;
+}
+
+.animate-fade-in {
+  animation: fade-in 0.4s ease-out;
+}
+
+.animate-pulse-glow {
+  animation: pulse-glow 2s infinite;
+}
+
+/* Loading Skeleton */
+.ct-skeleton {
+  @apply bg-secondary-dark;
+  background: linear-gradient(
+    90deg,
+    var(--color-secondary-dark) 25%,
+    var(--color-row-hover) 50%,
+    var(--color-secondary-dark) 75%
+  );
+  background-size: 200% 100%;
+  animation: loading 1.5s infinite;
+}
+
+@keyframes loading {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
 }

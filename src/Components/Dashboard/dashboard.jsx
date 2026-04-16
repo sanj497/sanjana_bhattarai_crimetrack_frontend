@@ -108,21 +108,18 @@ export default function Dashboard() {
     );
 
     const StatCard = ({ title, value, sub, icon, color }) => (
-        <div
-            className="bg-slate-900/40 border border-slate-800/50 rounded-[40px] p-8 shadow-2xl hover:border-blue-500/20 transition-all cursor-default relative overflow-hidden group"
-        >
-            <div className="absolute top-0 right-0 h-24 w-24 bg-blue-500/5 rounded-full -mr-12 -mt-12 group-hover:bg-blue-500/10 transition-colors" />
-            <div className="flex justify-between items-start relative z-10">
+        <div className="ct-card group">
+            <div className="flex justify-between items-start">
                 <div>
-                    <div className="text-[10px] font-black text-slate-500 uppercase tracking-[3px] mb-2">{title}</div>
-                    <div className="text-4xl font-black text-white tracking-tighter">{loading ? "..." : value}</div>
-                    <div className="mt-4 text-[10px] text-slate-500 font-black uppercase tracking-widest flex items-center gap-2">
-                        <Clock size={12} className="text-blue-500"/> {sub}
+                    <div className="text-xs text-text-secondary mb-1 font-medium">{title}</div>
+                    <div className="text-3xl font-bold text-text-primary">{loading ? "..." : value}</div>
+                    <div className="mt-3 text-xs text-text-secondary font-medium flex items-center gap-1">
+                        <Clock size={12} className="text-accent-gold"/> {sub}
                     </div>
                 </div>
                 <div
-                    className="w-14 h-14 rounded-2xl flex items-center justify-center shadow-lg transition-transform group-hover:scale-110"
-                    style={{ background: `${color}15`, color: color }}
+                    className="w-12 h-12 rounded-lg flex items-center justify-center transition-transform group-hover:scale-110"
+                    style={{ background: `${color}20`, color: color }}
                 >
                     {icon}
                 </div>
@@ -150,30 +147,30 @@ export default function Dashboard() {
     };
 
     return (
-        <div className="min-h-screen bg-slate-950 p-8 text-slate-300">
+        <div className="min-h-screen bg-primary-dark p-section text-text-secondary font-body">
             {/* Header */}
-            <div className="flex items-center justify-between mb-12">
+            <div className="flex items-center justify-between mb-section">
                 <div>
-                    <h2 className="text-3xl font-black text-white tracking-tighter uppercase mb-1">Executive Command Center</h2>
-                    <p className="text-[10px] font-black text-slate-500 uppercase tracking-[4px]">Verified Operational Intelligence</p>
+                    <h1 className="text-text-primary mb-1">Executive Command Center</h1>
+                    <p className="text-text-secondary text-sm">Verified Operational Intelligence</p>
                 </div>
 
-                <div className="flex items-center gap-4">
-                    <div className="flex items-center gap-3 px-6 py-3 bg-slate-900 border border-slate-800 rounded-2xl text-[10px] font-black text-white uppercase tracking-widest shadow-xl">
-                        <div className="w-2.5 h-2.5 bg-emerald-500 rounded-full animate-pulse shadow-[0_0_10px_rgba(16,185,129,0.5)]"/>
+                <div className="flex items-center gap-default">
+                    <div className="flex items-center gap-2 px-4 py-2 bg-secondary-dark border border-border-subtle rounded-lg text-xs font-medium text-text-primary shadow-lg">
+                        <div className="w-2 h-2 bg-success rounded-full animate-pulse"/>
                         System Synchronized
                     </div>
                 </div>
             </div>
 
             {/* Main Grid */}
-            <div className="grid grid-cols-1 lg:grid-cols-[1fr_360px] gap-8">
+            <div className="grid grid-cols-1 lg:grid-cols-[1fr_360px] gap-section">
                 
                 {/* Left Side: Stats and Activity */}
-                <div className="flex flex-col gap-8">
+                <div className="flex flex-col gap-section">
                     
                     {/* Stat Cards */}
-                    <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6">
+                    <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-default">
                         <StatCard 
                             title="Total Cases" 
                             value={stats.total} 
@@ -205,7 +202,7 @@ export default function Dashboard() {
                     </div>
 
                     {/* Live Intelligence Map & Dispatcher Queue */}
-                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 w-full">
+                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-default w-full">
                         {/* Live Tactical Map Preview */}
                         <div className="bg-slate-900 rounded-[32px] overflow-hidden flex flex-col relative h-[250px] shadow-xl group border border-slate-800">
                           <div className="absolute top-4 left-4 z-20 pointer-events-none flex items-center gap-2 bg-slate-900/80 backdrop-blur-md px-4 py-2 rounded-xl border border-slate-700/50">
@@ -243,16 +240,16 @@ export default function Dashboard() {
                         {/* Dispatch Queue Card */}
                         <div
                             onClick={() => navigate("/forward-admin")}
-                            className="bg-gradient-to-br from-indigo-600 to-violet-700 rounded-[32px] p-8 flex items-center gap-6 cursor-pointer hover:-translate-y-1 transition-all shadow-xl h-[250px]"
+                            className="bg-gradient-to-br from-accent-gold to-soft-gold rounded-card p-section flex items-center gap-6 cursor-pointer hover:-translate-y-1 transition-all shadow-xl h-[250px]"
                         >
-                            <div className="w-16 h-16 rounded-3xl bg-white/20 flex flex-col items-center justify-center text-white shrink-0 shadow-inner">
+                            <div className="w-14 h-14 rounded-lg bg-primary-dark/20 flex flex-col items-center justify-center text-primary-dark shrink-0 shadow-inner">
                                 <Send size={24}/>
                             </div>
                             <div>
-                                <h3 className="text-white text-2xl font-black uppercase tracking-tight">Dispatcher Queue</h3>
-                                <p className="text-indigo-100 text-sm font-medium mt-2 leading-relaxed">{stats.verified} reports have been verified by intelligence officers and are pending immediate police assignment.</p>
+                                <h3 className="text-primary-dark text-xl font-bold">Dispatcher Queue</h3>
+                                <p className="text-primary-dark/80 text-sm mt-2 leading-relaxed">{stats.verified} reports have been verified and are pending police assignment.</p>
                                 
-                                <button className="mt-6 px-6 py-2.5 bg-white text-indigo-700 rounded-xl text-[10px] font-black uppercase tracking-widest shadow-lg hover:shadow-xl hover:scale-105 transition-all">
+                                <button className="mt-4 px-6 py-2.5 bg-primary-dark text-accent-gold rounded-button text-xs font-semibold shadow-lg hover:shadow-xl hover:scale-105 transition-all">
                                   Assign Units Now
                                 </button>
                             </div>
@@ -260,13 +257,13 @@ export default function Dashboard() {
                     </div>
 
                     {/* Chart Analytics Section */}
-                    <div className="bg-slate-900/40 border border-slate-800/50 rounded-[48px] p-10 shadow-2xl backdrop-blur-md w-full relative overflow-hidden">
-                        <div className="flex justify-between items-center mb-10 relative z-10">
-                            <div className="flex items-center gap-3">
-                                <div className="p-3 bg-blue-500/10 rounded-2xl text-blue-500">
+                    <div className="ct-card w-full">
+                        <div className="flex justify-between items-center mb-section">
+                            <div className="flex items-center gap-2">
+                                <div className="p-2 bg-accent-gold/10 rounded-lg text-accent-gold">
                                     <BarChart3 size={20}/>
                                 </div>
-                                <h3 className="text-xl font-black text-white uppercase tracking-tight italic underline decoration-blue-500/20 underline-offset-8">Intelligence Distribution</h3>
+                                <h3 className="text-lg font-semibold text-text-primary">Intelligence Distribution</h3>
                             </div>
                         </div>
                         <div className="h-[350px] w-full relative z-10">
@@ -287,49 +284,49 @@ export default function Dashboard() {
                     </div>
 
                     {/* Activity Feed */}
-                    <div className="bg-slate-900/40 border border-slate-800/50 rounded-[48px] p-10 shadow-2xl">
-                        <div className="flex justify-between items-center mb-10">
-                            <div className="flex items-center gap-3">
-                                <div className="p-3 bg-emerald-500/10 rounded-2xl text-emerald-500">
+                    <div className="ct-card">
+                        <div className="flex justify-between items-center mb-section">
+                            <div className="flex items-center gap-2">
+                                <div className="p-2 bg-success/10 rounded-lg text-success">
                                     <Activity size={20}/>
                                 </div>
-                                <h3 className="text-xl font-black text-white uppercase tracking-tight">Active Intelligence Stream</h3>
+                                <h3 className="text-lg font-semibold text-text-primary">Active Intelligence Stream</h3>
                             </div>
                             <button 
                                 onClick={fetchDashboardData}
-                                className="text-[10px] font-black text-blue-500 uppercase tracking-[2px] flex items-center gap-2 hover:text-white transition-colors"
+                                className="text-xs font-medium text-accent-gold flex items-center gap-1 hover:text-soft-gold transition-colors"
                             >
-                                <RefreshCw size={14}/> Force Re-Sync
+                                <RefreshCw size={14}/> Refresh
                             </button>
                         </div>
 
-                        <div className="flex flex-col gap-5">
+                        <div className="flex flex-col gap-default">
                             {loading ? (
-                                [1,2,3,4].map(i => <div key={i} className="h-24 bg-slate-900 border border-slate-800 rounded-3xl animate-pulse"/>)
+                                [1,2,3,4].map(i => <div key={i} className="h-20 bg-primary-dark rounded-card animate-pulse"/>)
                             ) : activities.length > 0 ? (
                                 activities.map((a, i) => (
-                                    <div key={i} className="flex justify-between items-center p-6 bg-slate-950/50 border border-slate-800/50 rounded-3xl hover:border-slate-600 transition-all group">
-                                        <div className="flex gap-5 items-center">
-                                            <div className="w-12 h-12 rounded-2xl bg-slate-900 border border-slate-800 flex items-center justify-center text-slate-500 group-hover:text-blue-500 transition-colors">
-                                                <FileText size={20}/>
+                                    <div key={i} className="flex justify-between items-center p-default bg-primary-dark/50 border border-border-subtle rounded-card hover:border-text-secondary transition-all group">
+                                        <div className="flex gap-default items-center">
+                                            <div className="w-10 h-10 rounded-lg bg-secondary-dark border border-border-subtle flex items-center justify-center text-text-secondary group-hover:text-accent-gold transition-colors">
+                                                <FileText size={18}/>
                                             </div>
                                             <div>
-                                                <div className="font-black text-base text-white tracking-tight uppercase group-hover:text-blue-400 transition-colors">{a.title}</div>
-                                                <div className="text-[10px] font-black text-slate-500 uppercase tracking-widest mt-1">{a.meta}</div>
+                                                <div className="font-semibold text-sm text-text-primary group-hover:text-accent-gold transition-colors">{a.title}</div>
+                                                <div className="text-xs text-text-secondary mt-0.5">{a.meta}</div>
                                             </div>
                                         </div>
-                                        <span className={`px-4 py-2 rounded-xl text-[9px] font-black uppercase tracking-widest border ${
-                                          a.badge === "Resolved" || a.badge === "Verified" ? "bg-emerald-500/10 text-emerald-500 border-emerald-500/20" : 
-                                          a.badge === "Pending" ? "bg-amber-500/10 text-amber-500 border-amber-500/20" : 
-                                          "bg-blue-500/10 text-blue-500 border-blue-500/20"
+                                        <span className={`px-3 py-1.5 rounded-lg text-xs font-semibold border ${
+                                          a.badge === "Resolved" || a.badge === "Verified" ? "bg-success/10 text-success border-success/20" : 
+                                          a.badge === "Pending" ? "bg-warning/10 text-warning border-warning/20" : 
+                                          "bg-accent-gold/10 text-accent-gold border-accent-gold/20"
                                         }`}>
                                           {a.badge === "ForwardedToPolice" ? "Escalated" : a.badge}
                                         </span>
                                     </div>
                                 ))
                             ) : (
-                                <div className="text-center py-20 text-slate-600 font-black uppercase tracking-widest text-xs">
-                                    Archive Signal Lost — No Active Logs
+                                <div className="text-center py-16 text-text-secondary font-medium text-sm">
+                                    No Active Logs
                                 </div>
                             )}
                         </div>
@@ -337,19 +334,19 @@ export default function Dashboard() {
                 </div>
 
                 {/* Right Side: Emergency Hub & Actions */}
-                <div className="flex flex-col gap-8">
+                <div className="flex flex-col gap-section">
                     
                     {/* EMERGENCY RESPONSE QUEUE */}
-                    <div className="bg-slate-900/60 border-2 border-rose-500/20 rounded-[48px] p-10 shadow-3xl relative overflow-hidden group">
-                        <div className="absolute top-0 right-0 w-2 h-full bg-rose-600 opacity-50"/>
+                    <div className="bg-secondary-dark/60 border-2 border-danger/20 rounded-card p-section shadow-lg relative overflow-hidden">
+                        <div className="absolute top-0 right-0 w-1 h-full bg-danger opacity-50"/>
                         
-                        <div className="flex justify-between items-center mb-8 relative z-10">
+                        <div className="flex justify-between items-center mb-default">
                           <div>
-                            <h3 className="text-base font-black text-white uppercase tracking-[3px]">Emergency Hub</h3>
-                            <p className="text-[9px] font-black text-rose-500 uppercase mt-1">Critical Dispatch Queue</p>
+                            <h3 className="text-base font-semibold text-text-primary">Emergency Hub</h3>
+                            <p className="text-xs text-danger mt-0.5">Critical Dispatch Queue</p>
                           </div>
                           {alertQueue.length > 0 && (
-                            <span className="bg-rose-600 h-10 w-10 rounded-2xl flex items-center justify-center text-white text-sm font-black shadow-2xl shadow-rose-600/50 animate-bounce">
+                            <span className="bg-danger h-8 w-8 rounded-lg flex items-center justify-center text-white text-sm font-bold shadow-lg animate-bounce">
                               {alertQueue.length}
                             </span>
                           )}

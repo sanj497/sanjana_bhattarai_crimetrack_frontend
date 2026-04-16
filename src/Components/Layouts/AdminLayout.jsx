@@ -21,7 +21,8 @@ import {
   Bell,
   RefreshCw,
   BarChart3,
-  ShieldAlert
+  ShieldAlert,
+  Activity
 } from "lucide-react";
 
 export default function AdminLayout() {
