@@ -203,7 +203,8 @@ export default function CrimeMap() {
                onClick={() => setActiveTab("global")}
                className={`px-6 py-3 rounded-xl flex items-center gap-2 text-xs font-black uppercase transition-all ${activeTab === 'global' ? 'bg-blue-600 text-white shadow-lg' : 'text-slate-400 hover:bg-slate-50'}`}
              >
-               <Globe size={16} /> Community
+               <Globe size={16} /> 
+               {localStorage.getItem("user") && JSON.parse(localStorage.getItem("user")).role === "police" ? "Forwarded Intelligence" : "Community Feed"}
              </button>
           </div>
         </div>
@@ -215,7 +216,7 @@ export default function CrimeMap() {
           <div className="flex items-center justify-between mb-6">
             <h2 className="text-xl font-black text-slate-900 tracking-tight flex items-center gap-2">
               <ShieldAlert className="text-red-500" size={20} />
-              {activeTab === 'nearby' ? 'Nearby Alerts' : 'Community Feed'}
+              {activeTab === 'nearby' ? 'Nearby Alerts' : (localStorage.getItem("user") && JSON.parse(localStorage.getItem("user")).role === "police" ? 'Assigned Cases' : 'Community Feed')}
             </h2>
             <span className="bg-slate-100 text-slate-500 h-6 w-6 rounded-full flex items-center justify-center text-[10px] font-black">{filtered.length}</span>
           </div>

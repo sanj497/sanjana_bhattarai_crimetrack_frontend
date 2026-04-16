@@ -82,13 +82,22 @@ export default function NewBoard() {
           <p className="text-slate-500 text-sm font-medium mt-1 uppercase tracking-widest">Real-time Precinct Oversight</p>
         </div>
         <div className="flex gap-4">
-           <div className="bg-slate-900 border border-slate-800 p-4 rounded-3xl flex items-center gap-4">
-              <div className="h-10 w-10 bg-blue-500/10 text-blue-500 rounded-2xl flex items-center justify-center">
-                 <Shield size={20} />
+           <div className="bg-slate-900 border border-slate-800 p-4 rounded-3xl flex items-center gap-4 shadow-xl">
+              <div className="h-10 w-10 bg-emerald-500/10 text-emerald-500 rounded-2xl flex items-center justify-center">
+                 <Shield size={20} className="animate-pulse" />
               </div>
               <div>
-                 <div className="text-[10px] font-black text-slate-500 uppercase tracking-widest leading-none mb-1">System Status</div>
-                 <div className="text-sm font-bold text-white uppercase">Secured</div>
+                 <div className="text-[10px] font-black text-slate-500 uppercase tracking-widest leading-none mb-1">Precinct Status</div>
+                 <div className="text-sm font-black text-white uppercase tracking-tight">Active Duty</div>
+              </div>
+           </div>
+           <div className="hidden lg:flex bg-slate-900 border border-slate-800 p-4 rounded-3xl items-center gap-4 shadow-xl">
+              <div className="h-10 w-10 bg-blue-500/10 text-blue-500 rounded-2xl flex items-center justify-center">
+                 <Activity size={20} />
+              </div>
+              <div>
+                 <div className="text-[10px] font-black text-slate-500 uppercase tracking-widest leading-none mb-1">Network Intel</div>
+                 <div className="text-sm font-black text-white uppercase tracking-tight">Synchronized</div>
               </div>
            </div>
         </div>
@@ -204,8 +213,8 @@ export default function NewBoard() {
                         <h4 className="text-lg font-black text-white tracking-tight uppercase leading-tight group-hover:text-blue-400 transition-colors line-clamp-1">{crime.title}</h4>
                       </div>
                     </div>
-                    <span className={`px-4 py-1.5 rounded-full bg-${cfg.color}-500/10 text-${cfg.color}-400 border border-${cfg.color}-500/20 text-[9px] font-black uppercase tracking-widest flex items-center gap-1.5 shrink-0`}>
-                      {cfg.icon} {cfg.label}
+                    <span className={`px-4 py-1.5 rounded-full bg-${cfg.color}-500/10 text-${cfg.color}-400 border border-${cfg.color}-500/20 text-[9px] font-black uppercase tracking-widest flex items-center gap-1.5 shrink-0 shadow-[0_0_15px_rgba(0,0,0,0.2)]`}>
+                      <span className="w-1.5 h-1.5 rounded-full bg-current animate-pulse" /> {cfg.label}
                     </span>
                   </div>
 
@@ -234,31 +243,31 @@ export default function NewBoard() {
                   </div>
                 </div>
 
-                {/* Evidence Section */}
+                {/* Evidence Section - Tactical View */}
                 {crime.evidence && crime.evidence.length > 0 && (
-                  <div className="px-8 pb-4">
-                    <p className="text-[9px] font-black text-slate-500 uppercase tracking-[2px] mb-3 flex items-center gap-2">
-                      <Image size={12} className="text-blue-500" /> Evidence ({crime.evidence.length})
+                  <div className="px-8 pb-6">
+                    <p className="text-[9px] font-black text-slate-500 uppercase tracking-[2px] mb-4 flex items-center gap-2">
+                       <div className="w-1 h-3 bg-blue-500 rounded-full" /> TACTICAL EVIDENCE ARTIFACTS ({crime.evidence.length})
                     </p>
-                    <div className="flex gap-3 overflow-x-auto pb-2 no-scrollbar">
+                    <div className="flex gap-4 overflow-x-auto pb-2 no-scrollbar">
                       {crime.evidence.map((file, idx) => (
                         <a
                           key={idx}
                           href={file.url}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="relative shrink-0 w-28 h-20 rounded-2xl overflow-hidden border border-slate-800 hover:border-blue-500/50 transition-all group/ev"
+                          className="relative shrink-0 w-32 h-24 rounded-2xl overflow-hidden border border-slate-800 hover:border-blue-500 transition-all group/ev shadow-lg"
                         >
                           {file.resourceType === "video" ? (
                             <video src={file.url} className="w-full h-full object-cover" muted />
                           ) : (
                             <img src={file.url} alt={`Evidence ${idx + 1}`} className="w-full h-full object-cover" />
                           )}
-                          <div className="absolute inset-0 bg-black/50 opacity-0 group-hover/ev:opacity-100 transition-opacity flex items-center justify-center">
-                            <ExternalLink size={14} className="text-white" />
+                          <div className="absolute inset-0 bg-slate-900/60 opacity-0 group-hover/ev:opacity-100 transition-all flex items-center justify-center backdrop-blur-[2px]">
+                            <ExternalLink size={20} className="text-white transform scale-90 group-hover/ev:scale-100 transition-transform" />
                           </div>
-                          <div className="absolute bottom-1 right-1 px-1.5 py-0.5 bg-slate-900/90 text-slate-300 text-[7px] font-black uppercase rounded border border-slate-700">
-                            {file.resourceType || "img"}
+                          <div className="absolute bottom-2 left-2 px-2 py-0.5 bg-blue-600 text-white text-[7px] font-black uppercase rounded shadow-lg">
+                            {file.resourceType || "IMG"}
                           </div>
                         </a>
                       ))}
@@ -266,39 +275,45 @@ export default function NewBoard() {
                   </div>
                 )}
 
-                {/* Map Location */}
+                {/* Map Location - Tactical Grid */}
                 {crime.location?.lat && crime.location?.lng && (
-                  <div className="px-8 pb-4">
-                    <p className="text-[9px] font-black text-slate-500 uppercase tracking-[2px] mb-3 flex items-center gap-2">
-                      <MapPin size={12} className="text-blue-500" /> Incident Map
+                  <div className="px-8 pb-6">
+                    <p className="text-[9px] font-black text-slate-500 uppercase tracking-[2px] mb-4 flex items-center gap-2">
+                       <div className="w-1 h-3 bg-rose-500 rounded-full" /> INCIDENT GROUND ZERO
                     </p>
-                    <div className="rounded-2xl overflow-hidden border border-slate-800 h-40">
+                    <div className="rounded-[28px] overflow-hidden border border-slate-800 h-48 relative group/map shadow-inner">
+                      <div className="absolute inset-0 bg-blue-500/5 pointer-events-none z-10" />
                       <iframe
                         title={`Location - ${crime._id}`}
                         width="100%"
                         height="100%"
-                        style={{ border: 0 }}
+                        style={{ border: 0, filter: 'contrast(1.1) brightness(0.9) saturate(1.2)' }}
                         loading="lazy"
-                        referrerPolicy="no-referrer-when-downgrade"
                         src={`https://www.openstreetmap.org/export/embed.html?bbox=${Number(crime.location.lng) - 0.005}%2C${Number(crime.location.lat) - 0.005}%2C${Number(crime.location.lng) + 0.005}%2C${Number(crime.location.lat) + 0.005}&layer=mapnik&marker=${Number(crime.location.lat)}%2C${Number(crime.location.lng)}`}
                       />
+                      <div className="absolute bottom-4 right-4 z-20 bg-slate-900/80 backdrop-blur-md px-3 py-1.5 rounded-lg border border-slate-700 text-[8px] font-bold text-slate-300">
+                        GPS: {Number(crime.location.lat).toFixed(6)} N, {Number(crime.location.lng).toFixed(6)} E
+                      </div>
                     </div>
-                    <p className="text-slate-600 text-[10px] font-bold mt-2 uppercase tracking-wider">
-                      Coords: {Number(crime.location.lat).toFixed(6)}, {Number(crime.location.lng).toFixed(6)}
-                    </p>
                   </div>
                 )}
 
-                {/* Card Footer */}
-                <div className="px-8 py-5 border-t border-slate-800/50 flex items-center justify-between bg-slate-900/50">
-                  <div className="text-[9px] font-black text-slate-600 uppercase tracking-widest">
-                    Reporter: {crime.userId?.username || "Anonymous"}
+                {/* Card Footer - Intelligence Metadata */}
+                <div className="px-8 py-6 border-t border-slate-800/50 flex flex-col sm:flex-row items-center justify-between bg-slate-900/30 gap-4">
+                  <div className="flex items-center gap-4">
+                    <div className="h-10 w-10 rounded-full bg-slate-800 border border-slate-700 flex items-center justify-center text-slate-400">
+                      <Users size={18} />
+                    </div>
+                    <div>
+                      <div className="text-[9px] font-black text-slate-500 uppercase tracking-widest">Reporter Intel</div>
+                      <div className="text-xs font-bold text-white uppercase">{crime.userId?.username || "Anonymous Source"}</div>
+                    </div>
                   </div>
                   <Link
                     to="/police/reports"
-                    className="flex items-center gap-2 text-[10px] font-black text-blue-500 hover:text-blue-400 uppercase tracking-widest transition-colors"
+                    className="w-full sm:w-auto flex items-center justify-center gap-3 bg-blue-600/10 hover:bg-blue-600 text-blue-500 hover:text-white px-6 py-3 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all border border-blue-500/20 shadow-lg"
                   >
-                    Open Full Case <ChevronRight size={14} />
+                    Open Full Dossier <ChevronRight size={14} />
                   </Link>
                 </div>
               </div>

@@ -278,17 +278,44 @@ const Policereport = () => {
                       <div>Priority: <span className={crime.priority === 'High' ? 'text-red-500' : 'text-blue-500'}>{crime.priority || 'Medium'}</span></div>
                    </div>
                    
-                   {crime.evidence && crime.evidence.length > 0 && (
-                      <div className="pt-4 border-t border-slate-800/20">
-                         <div className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-3">Evidence Artifacts</div>
-                         <div className="grid grid-cols-3 gap-2">
-                           {crime.evidence.map((file, idx) => (
-                             <a key={idx} href={file.url} target="_blank" rel="noreferrer" className="h-20 bg-slate-900 rounded-xl overflow-hidden border border-slate-800 block">
-                               <img src={file.url} className="w-full h-full object-cover opacity-50 hover:opacity-100 transition-opacity" alt="Evidence" />
-                             </a>
-                           ))}
-                         </div>
-                      </div>
+                   {/* Tactical Map Location */}
+                    {crime.location?.lat && crime.location?.lng && (
+                       <div className="pt-4 border-t border-slate-800/20">
+                          <div className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-3">Incident Ground Zero</div>
+                          <div className="rounded-2xl overflow-hidden border border-slate-800 h-48 relative group shadow-inner bg-slate-900">
+                             <iframe
+                                title="Incident Location"
+                                width="100%"
+                                height="100%"
+                                style={{ border: 0, filter: 'contrast(1.2) brightness(0.8) saturate(1.4)' }}
+                                loading="lazy"
+                                src={`https://www.openstreetmap.org/export/embed.html?bbox=${Number(crime.location.lng) - 0.005}%2C${Number(crime.location.lat) - 0.005}%2C${Number(crime.location.lng) + 0.005}%2C${Number(crime.location.lat) + 0.005}&layer=mapnik&marker=${Number(crime.location.lat)}%2C${Number(crime.location.lng)}`}
+                             />
+                             <div className="absolute bottom-3 right-3 bg-slate-950/80 backdrop-blur-md px-2 py-1 rounded text-[8px] font-bold text-slate-400 border border-slate-800">
+                                {Number(crime.location.lat).toFixed(6)}, {Number(crime.location.lng).toFixed(6)}
+                             </div>
+                          </div>
+                       </div>
+                    )}
+
+                    {crime.evidence && crime.evidence.length > 0 && (
+                       <div className="pt-4 border-t border-slate-800/20">
+                          <div className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-3">Audited Evidence Artifacts ({crime.evidence.length})</div>
+                          <div className="grid grid-cols-3 gap-3">
+                            {crime.evidence.map((file, idx) => (
+                              <a 
+                                key={idx} 
+                                href={file.url} 
+                                target="_blank" 
+                                rel="noreferrer" 
+                                className="h-24 bg-slate-900 rounded-2xl overflow-hidden border border-slate-800 block relative group/ev shadow-lg"
+                              >
+                                <img src={file.url} className="w-full h-full object-cover opacity-60 hover:opacity-100 transition-all group-hover/ev:scale-110" alt="Evidence" />
+                                <div className="absolute inset-0 bg-blue-500/10 opacity-0 group-hover/ev:opacity-100 pointer-events-none" />
+                              </a>
+                            ))}
+                          </div>
+                       </div>
                    )}
                 </div>
               )}

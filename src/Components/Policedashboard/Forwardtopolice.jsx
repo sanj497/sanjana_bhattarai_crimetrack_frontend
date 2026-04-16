@@ -11,10 +11,30 @@ const Forwardtopolice = () => {
   const [officers, setOfficers] = useState([]);
   const [selectedOfficer, setSelectedOfficer] = useState("");
   const [fetchingOfficers, setFetchingOfficers] = useState(true);
+  const [crime, setCrime] = useState(null);
+  const [fetchingCrime, setFetchingCrime] = useState(true);
 
   useEffect(() => {
     fetchOfficers();
-  }, []);
+    fetchCrimeDetails();
+  }, [id]);
+
+  const fetchCrimeDetails = async () => {
+    try {
+      const token = localStorage.getItem("token");
+      const res = await fetch(`${import.meta.env.VITE_BACKEND_URL}/api/report/detail/${id}`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      const data = await res.json();
+      if (data.success) {
+        setCrime(data.crime);
+      }
+    } catch (err) {
+      console.error("Fetch crime error:", err);
+    } finally {
+      setFetchingCrime(false);
+    }
+  };
 
   const fetchOfficers = async () => {
     try {
@@ -101,6 +121,54 @@ const Forwardtopolice = () => {
             This action will move the case from <span className="text-amber-500 font-bold">Verified</span> status to <span className="text-amber-500 font-bold">Forwarded</span>. Ensure all evidence has been audited before assignment.
           </p>
         </div>
+
+        {/* Crime Intelligence Preview */}
+        {!fetchingCrime && crime && (
+          <div className="bg-slate-900 border border-slate-800 rounded-[32px] p-8 mb-8 shadow-2xl overflow-hidden relative">
+            <div className="absolute top-0 right-0 p-6 opacity-10">
+               <Shield size={80} />
+            </div>
+            
+            <div className="relative z-10">
+              <div className="text-[10px] font-black text-blue-500 uppercase tracking-[3px] mb-2">{crime.crimeType}</div>
+              <h2 className="text-2xl font-black text-white tracking-tight leading-tight mb-4 uppercase">{crime.title}</h2>
+              <div className="p-5 bg-slate-950/50 rounded-2xl border border-slate-800/50 mb-6 font-medium text-slate-400 text-sm leading-relaxed">
+                "{crime.description}"
+              </div>
+
+              {/* Tactical Evidence */}
+              {crime.evidence && crime.evidence.length > 0 && (
+                <div className="mb-6">
+                  <p className="text-[9px] font-black text-slate-500 uppercase tracking-[2px] mb-3">Audited Evidence Artifacts</p>
+                  <div className="flex gap-3 overflow-x-auto pb-2 no-scrollbar">
+                    {crime.evidence.map((file, idx) => (
+                      <div key={idx} className="shrink-0 w-24 h-16 rounded-xl overflow-hidden border border-slate-800 bg-slate-950">
+                        <img src={file.url} className="w-full h-full object-cover opacity-60 hover:opacity-100 transition-opacity" alt="Evidence" />
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Ground Zero Map */}
+              {crime.location?.lat && crime.location?.lng && (
+                <div>
+                  <p className="text-[9px] font-black text-slate-500 uppercase tracking-[2px] mb-3">Incident Ground Zero</p>
+                  <div className="rounded-2xl overflow-hidden border border-slate-800 h-40 group shadow-inner">
+                    <iframe
+                      title="Incident Location"
+                      width="100%"
+                      height="100%"
+                      style={{ border: 0, filter: 'grayscale(1) invert(0.9) brightness(0.8)' }}
+                      loading="lazy"
+                      src={`https://www.openstreetmap.org/export/embed.html?bbox=${Number(crime.location.lng) - 0.005}%2C${Number(crime.location.lat) - 0.005}%2C${Number(crime.location.lng) + 0.005}%2C${Number(crime.location.lat) + 0.005}&layer=mapnik&marker=${Number(crime.location.lat)}%2C${Number(crime.location.lng)}`}
+                    />
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+        )}
 
         <div className="bg-slate-900/50 backdrop-blur-xl border border-slate-800 rounded-[32px] p-8 shadow-2xl">
           <div className="space-y-8">
