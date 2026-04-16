@@ -195,8 +195,8 @@ export default function CitizenDashboard() {
         setUnreadCount(data.unreadCount || 0);
         if (data.notifications) {
           setLocalPings(data.notifications.filter(n => n.type === "citizen_alert" && !n.isRead));
-          // Capture all admin-sent crime alerts and personal alerts from admin review
-          setAdminAlerts(data.notifications.filter(n => n.type === "citizen_alert" || n.message.toLowerCase().includes("admin")));
+          // Capture exclusively the official proximity-based safety alerts sent to citizens
+          setAdminAlerts(data.notifications.filter(n => n.type === "citizen_alert"));
         }
       }
     } catch (err) {}
