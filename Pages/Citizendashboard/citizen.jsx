@@ -462,6 +462,123 @@ export default function CitizenDashboard() {
            </div>
         </div>
       </div>
+
+      {/* Feedback Section */}
+      <div className="mt-section bg-gradient-to-br from-secondary-dark to-primary-dark rounded-card p-section shadow-xl border border-border-subtle relative overflow-hidden">
+        {/* Background Decoration */}
+        <div className="absolute top-0 left-0 h-64 w-64 bg-accent-gold/5 rounded-full -translate-x-1/2 -translate-y-1/2 blur-[80px]" />
+        <div className="absolute bottom-0 right-0 h-96 w-96 bg-success/5 rounded-full translate-x-1/2 translate-y-1/2 blur-[100px]" />
+        
+        <div className="relative z-10">
+          <div className="flex items-center gap-default mb-section">
+            <div className="p-default bg-accent-gold/10 text-accent-gold rounded-lg">
+              <MessageSquare className="h-6 w-6" />
+            </div>
+            <div>
+              <h2 className="text-2xl font-bold text-text-primary">Submit Your Feedback</h2>
+              <p className="text-text-secondary text-sm">Help us improve community safety services</p>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-section">
+            {/* Quick Feedback Card */}
+            <div className="bg-primary-dark/50 rounded-card p-section border border-border-subtle">
+              <h3 className="text-lg font-semibold text-text-primary mb-default">Rate Our Service</h3>
+              <p className="text-text-secondary text-sm mb-section">
+                Your feedback helps us enhance the platform and improve response times for all citizens.
+              </p>
+              
+              <div className="space-y-default">
+                <div className="flex items-center gap-default p-default bg-secondary-dark rounded-lg border border-border-subtle">
+                  <Star className="h-5 w-5 text-accent-gold" />
+                  <div>
+                    <p className="text-text-primary font-medium text-sm">Rate Your Experience</p>
+                    <p className="text-text-secondary text-xs">Provide a rating for overall platform satisfaction</p>
+                  </div>
+                </div>
+                
+                <div className="flex items-center gap-default p-default bg-secondary-dark rounded-lg border border-border-subtle">
+                  <ShieldCheck className="h-5 w-5 text-success" />
+                  <div>
+                    <p className="text-text-primary font-medium text-sm">Report Quality</p>
+                    <p className="text-text-secondary text-xs">Feedback on crime report handling and resolution</p>
+                  </div>
+                </div>
+                
+                <div className="flex items-center gap-default p-default bg-secondary-dark rounded-lg border border-border-subtle">
+                  <Bell className="h-5 w-5 text-accent-gold" />
+                  <div>
+                    <p className="text-text-primary font-medium text-sm">Communication</p>
+                    <p className="text-text-secondary text-xs">Rate our notification and update system</p>
+                  </div>
+                </div>
+              </div>
+              
+              <button
+                onClick={() => navigate('/feedback')}
+                className="ct-btn-primary w-full mt-section inline-flex items-center justify-center gap-2"
+              >
+                <MessageSquare className="h-4 w-4" />
+                Submit General Feedback
+              </button>
+            </div>
+
+            {/* Case-Specific Feedback */}
+            <div className="bg-primary-dark/50 rounded-card p-section border border-border-subtle">
+              <h3 className="text-lg font-semibold text-text-primary mb-default">Case Feedback</h3>
+              <p className="text-text-secondary text-sm mb-section">
+                Provide feedback on specific incidents that have been assigned to police officers.
+              </p>
+              
+              {loading ? (
+                <div className="space-y-default">
+                  {[1, 2, 3].map(i => (
+                    <div key={i} className="h-20 bg-secondary-dark rounded-card animate-pulse" />
+                  ))}
+                </div>
+              ) : myCrimes.filter(crime => crime.workflow?.assignedToOfficer).length > 0 ? (
+                <div className="space-y-default max-h-[400px] overflow-y-auto pr-2 custom-scrollbar">
+                  {myCrimes
+                    .filter(crime => crime.workflow?.assignedToOfficer)
+                    .slice(0, 5)
+                    .map((crime) => (
+                      <div
+                        key={crime._id}
+                        className="p-default bg-secondary-dark rounded-lg border border-border-subtle hover:border-accent-gold/30 transition-all cursor-pointer group"
+                        onClick={() => setFeedbackCrime(crime)}
+                      >
+                        <div className="flex justify-between items-start mb-2">
+                          <h4 className="text-text-primary font-semibold text-sm group-hover:text-accent-gold transition-colors line-clamp-1">
+                            {crime.title}
+                          </h4>
+                          <span className="text-[10px] px-2 py-1 rounded-full bg-accent-gold/10 text-accent-gold font-medium">
+                            {crime.status}
+                          </span>
+                        </div>
+                        <p className="text-text-secondary text-xs line-clamp-1 mb-2">
+                          {crime.description}
+                        </p>
+                        <div className="flex items-center justify-between">
+                          <p className="text-text-secondary text-xs flex items-center gap-1">
+                            <ShieldCheck className="h-3 w-3 text-success" />
+                            Officer: {crime.workflow.assignedToOfficer.username}
+                          </p>
+                          <ChevronRight className="h-4 w-4 text-text-secondary group-hover:text-accent-gold transition-colors" />
+                        </div>
+                      </div>
+                    ))}
+                </div>
+              ) : (
+                <div className="text-center py-12">
+                  <FileText className="h-12 w-12 text-text-secondary/20 mx-auto mb-default" />
+                  <p className="text-text-secondary text-sm font-medium">No assigned cases yet</p>
+                  <p className="text-text-secondary text-xs mt-1">Feedback available once officer is assigned</p>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
   );
 }

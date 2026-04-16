@@ -16,9 +16,10 @@ const navItems = [
   { icon: <MapPin size={20} />, label: "Safety Map", path: "/map-citizen" },
   { icon: <BarChart3 size={20} />, label: "Transparency", path: "/transparency" },
   { icon: <ShieldAlert size={20} />, label: "Admin Alerts", path: "/citizen/alerts" },
+  { icon: <MessageSquare size={20} />, label: "Feedback", path: "/feedback" },
   { icon: <AlertTriangle size={20} />, label: "Emergency", path: "/emergency", badge: "SOS" },
   { icon: <Bell size={20} />, label: "Notifications", path: "/notifications" },
-  { icon: <MessageSquare size={20} />, label: "Complaints", path: "/complaints" },
+  { icon: <Settings size={20} />, label: "Complaints", path: "/complaints" },
   { icon: <Settings size={20} />, label: "Settings", path: "/citizen/settings" },
 ];
 
