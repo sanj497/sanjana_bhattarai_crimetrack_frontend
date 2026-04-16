@@ -1,8 +1,9 @@
-import React, { useState } from 'react';
-import { Shield, AlertTriangle, FileText, MapPin, Bell, Search, Menu, X, Siren, LogOut, LayoutDashboard, PhoneCall } from 'lucide-react';
+import React, { useState, useRef, useEffect } from 'react';
+import { Shield, AlertTriangle, FileText, MapPin, Bell, Search, Menu, X, Siren, LogOut, LayoutDashboard, PhoneCall, Settings } from 'lucide-react';
 import { useNavigate, Outlet, Link, useLocation } from 'react-router-dom';
 import NotificationDropdown from '../Dashboard/NotificationDropdown';
 import ThemeToggle from '../Dashboard/ThemeToggle';
+import { toast } from 'react-toastify';
 
 const getUser = () => {
   try { return JSON.parse(localStorage.getItem("user")) || {}; } catch { return {}; }
@@ -13,8 +14,62 @@ export default function PoliceLayout() {
   const [unreadCount, setUnreadCount] = useState(0);
   const [sosCount, setSosCount] = useState(0);
   const [notifOpen, setNotifOpen] = useState(false);
+  const [uploadingPicture, setUploadingPicture] = useState(false);
+  const fileInputRef = useRef(null);
   const navigate = useNavigate();
   const location = useLocation();
+
+  const handleProfilePictureClick = () => {
+    fileInputRef.current?.click();
+  };
+
+  const handlePictureUpload = async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    if (!file.type.startsWith("image/")) {
+      toast.error("Please select an image file");
+      return;
+    }
+
+    if (file.size > 5 * 1024 * 1024) {
+      toast.error("Image size must be less than 5MB");
+      return;
+    }
+
+    setUploadingPicture(true);
+    try {
+      const token = localStorage.getItem("token");
+      const formData = new FormData();
+      formData.append("profilePicture", file);
+
+      const res = await fetch(`${import.meta.env.VITE_BACKEND_URL}/api/auth/profile/picture`, {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${token}`
+        },
+        body: formData
+      });
+
+      const data = await res.json();
+      if (res.ok && data.success) {
+        toast.success("Profile picture updated!");
+        
+        const storedUser = JSON.parse(localStorage.getItem("user") || "{}");
+        storedUser.profilePicture = data.user.profilePicture;
+        localStorage.setItem("user", JSON.stringify(storedUser));
+        
+        window.location.reload();
+      } else {
+        toast.error(data.msg || "Failed to upload picture");
+      }
+    } catch (err) {
+      console.error("Upload error:", err);
+      toast.error("Failed to upload picture");
+    } finally {
+      setUploadingPicture(false);
+    }
+  };
 
   const fetchDataCounts = async () => {
     try {
@@ -57,6 +112,7 @@ export default function PoliceLayout() {
     { name: 'SOS Alerts', icon: Siren, path: '/police/sos', badge: sosCount > 0 ? sosCount.toString() : null },
     { name: 'Notifications', icon: Bell, path: '/notifications' },
     { name: 'Emergency', icon: PhoneCall, path: '/police/emergency' },
+    { name: 'Settings', icon: Settings, path: '/police/settings' },
   ];
 
   const currentPage = menuItems.find(item => item.path === location.pathname)?.name || 'Police Dashboard';
@@ -175,9 +231,26 @@ export default function PoliceLayout() {
                       <div className="text-xs font-black text-white uppercase tracking-tighter leading-none">{u.username || "Officer"}</div>
                       <div className="text-[9px] font-black text-slate-500 uppercase tracking-widest mt-1">{u.role || "Patrol Unit"}</div>
                     </div>
-                    <div className="h-12 w-12 bg-blue-600 text-white flex items-center justify-center rounded-2xl font-black text-lg shadow-xl shadow-blue-900/40 relative group cursor-pointer border border-blue-500/50">
-                        <div className="absolute inset-0 bg-white opacity-0 group-hover:opacity-10 transition-opacity rounded-2xl" />
-                        {initials}
+                    <div 
+                      className="h-12 w-12 bg-blue-600 text-white flex items-center justify-center rounded-2xl font-black text-lg shadow-xl shadow-blue-900/40 relative group cursor-pointer border border-blue-500/50 overflow-hidden"
+                      onClick={handleProfilePictureClick}
+                      title="Click to change profile picture"
+                    >
+                        <div className="absolute inset-0 bg-white opacity-0 group-hover:opacity-20 transition-opacity rounded-2xl" />
+                        {uploadingPicture ? (
+                          <div className="h-6 w-6 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                        ) : u.profilePicture ? (
+                          <img src={u.profilePicture} alt="Profile" className="h-full w-full object-cover" />
+                        ) : (
+                          initials
+                        )}
+                        <input 
+                          ref={fileInputRef}
+                          type="file" 
+                          accept="image/*" 
+                          onChange={handlePictureUpload}
+                          className="hidden"
+                        />
                     </div>
                   </div>
                 );

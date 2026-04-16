@@ -1,8 +1,9 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { Link, useLocation, Outlet } from "react-router-dom";
 import { LayoutDashboard, FileText, Bell, MessageSquare, Settings, AlertTriangle, ShieldAlert, LogOut, ChevronLeft, ChevronRight, Shield, Users, BarChart3, MapPin, Activity } from "lucide-react";
 import NotificationDropdown from "../Dashboard/NotificationDropdown";
 import ThemeToggle from "../Dashboard/ThemeToggle";
+import { toast } from "react-toastify";
 
 const getUser = () => {
   try { return JSON.parse(localStorage.getItem("user")) || {}; } catch { return {}; }
@@ -25,7 +26,61 @@ export default function CitizenLayout() {
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [unreadCount, setUnreadCount] = useState(0);
   const [notifOpen, setNotifOpen] = useState(false);
+  const [uploadingPicture, setUploadingPicture] = useState(false);
+  const fileInputRef = useRef(null);
   const location = useLocation();
+
+  const handleProfilePictureClick = () => {
+    fileInputRef.current?.click();
+  };
+
+  const handlePictureUpload = async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    if (!file.type.startsWith("image/")) {
+      toast.error("Please select an image file");
+      return;
+    }
+
+    if (file.size > 5 * 1024 * 1024) {
+      toast.error("Image size must be less than 5MB");
+      return;
+    }
+
+    setUploadingPicture(true);
+    try {
+      const token = localStorage.getItem("token");
+      const formData = new FormData();
+      formData.append("profilePicture", file);
+
+      const res = await fetch(`${import.meta.env.VITE_BACKEND_URL}/api/auth/profile/picture`, {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${token}`
+        },
+        body: formData
+      });
+
+      const data = await res.json();
+      if (res.ok && data.success) {
+        toast.success("Profile picture updated!");
+        
+        const storedUser = JSON.parse(localStorage.getItem("user") || "{}");
+        storedUser.profilePicture = data.user.profilePicture;
+        localStorage.setItem("user", JSON.stringify(storedUser));
+        
+        window.location.reload();
+      } else {
+        toast.error(data.msg || "Failed to upload picture");
+      }
+    } catch (err) {
+      console.error("Upload error:", err);
+      toast.error("Failed to upload picture");
+    } finally {
+      setUploadingPicture(false);
+    }
+  };
 
   const fetchUnreadCount = async () => {
     try {
@@ -173,9 +228,26 @@ export default function CitizenLayout() {
                      <div className="text-xs font-black text-white uppercase tracking-tighter">{u.username || "Authorized Citizen"}</div>
                      <div className="text-[9px] font-black text-slate-500 uppercase tracking-widest mt-0.5">{u.role || "Level 1 Access"}</div>
                    </div>
-                   <div className="h-12 w-12 bg-blue-600 text-white flex items-center justify-center rounded-2xl font-black text-lg shadow-xl shadow-blue-900/40 relative group cursor-pointer border border-blue-500/50">
-                     <div className="absolute inset-0 bg-white opacity-0 group-hover:opacity-10 transition-opacity rounded-2xl" />
-                     {initials}
+                   <div 
+                     className="h-12 w-12 bg-blue-600 text-white flex items-center justify-center rounded-2xl font-black text-lg shadow-xl shadow-blue-900/40 relative group cursor-pointer border border-blue-500/50 overflow-hidden"
+                     onClick={handleProfilePictureClick}
+                     title="Click to change profile picture"
+                   >
+                     <div className="absolute inset-0 bg-white opacity-0 group-hover:opacity-20 transition-opacity rounded-2xl" />
+                     {uploadingPicture ? (
+                       <div className="h-6 w-6 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                     ) : u.profilePicture ? (
+                       <img src={u.profilePicture} alt="Profile" className="h-full w-full object-cover" />
+                     ) : (
+                       initials
+                     )}
+                     <input 
+                       ref={fileInputRef}
+                       type="file" 
+                       accept="image/*" 
+                       onChange={handlePictureUpload}
+                       className="hidden"
+                     />
                    </div>
                  </div>
                );

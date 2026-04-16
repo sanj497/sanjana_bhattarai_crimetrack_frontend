@@ -138,6 +138,7 @@ export default function CitizenDashboard() {
         setUser(parsedUser);
         fetchMyReports(parsedUser._id);
         fetchUnreadCount();
+        fetchProfile(); // Fetch full profile with picture
 
         // Real-time listener
         const handleNotification = () => {
@@ -154,6 +155,22 @@ export default function CitizenDashboard() {
     }
     fetchCrimeAlerts();
   }, []);
+
+  const fetchProfile = async () => {
+    try {
+      const token = localStorage.getItem("token");
+      const res = await fetch(`${import.meta.env.VITE_BACKEND_URL}/api/auth/profile`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      const data = await res.json();
+      if (res.ok && data.success) {
+        setUser(data.user);
+        localStorage.setItem("user", JSON.stringify(data.user));
+      }
+    } catch (err) {
+      console.error("Fetch profile error:", err);
+    }
+  };
 
   const location = useLocation();
   useEffect(() => {

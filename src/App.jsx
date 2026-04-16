@@ -17,6 +17,8 @@ import Notifications from "../Pages/notification/notification.jsx";
 import CitizenDashboard from "../Pages/Citizendashboard/citizen.jsx";
 import CitizenAlerts from "../Pages/Citizendashboard/CitizenAlerts.jsx";
 import CitizenSettings from "../Pages/Citizendashboard/CitizenSettings.jsx";
+import AdminSettings from "../Pages/AdminSettings.jsx";
+import PoliceSettings from "../Pages/police/PoliceSettings.jsx";
 import SendFeedback from "../Pages/Feedback/SendFeedback.jsx";
 import AdminFeedback from "../Pages/Feedback/admingetfeed.jsx";
 import CrimeMap from "../Pages/Citizendashboard/CrimeMap.jsx";
@@ -117,6 +119,7 @@ function App() {
           <Route path="/admin/verify/:id" element={<Verify />} />
           <Route path="/admin/performance" element={<TransparencyHub />} />
           <Route path="/admin/map" element={<CrimeMap />} />
+          <Route path="/admin/settings" element={<AdminSettings />} />
         </Route>
 
         {/* ── POLICE ROUTES (role: police) ──────────────────────────── */}
@@ -127,6 +130,7 @@ function App() {
           <Route path="/police/forward" element={<ForwardToPolice />} />
           <Route path="/police/sos" element={<SOSList />} />
           <Route path="/police/emergency" element={<EmergencyContactsApp />} />
+          <Route path="/police/settings" element={<PoliceSettings />} />
         </Route>
 
         <Route element={<CitizenRoute><CitizenLayout /></CitizenRoute>}>
