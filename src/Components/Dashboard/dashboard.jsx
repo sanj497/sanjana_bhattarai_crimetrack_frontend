@@ -77,7 +77,6 @@ export default function Dashboard() {
             { name: "Reports",   icon: <FileText size={18}/>, path: "/adReport"  },
             { name: "Users",     icon: <UsersIcon size={18}/>, path: "/user"          },
             { name: "Verify",    icon: <ShieldCheck size={18}/>, path: "/forward-admin" },
-            { name: "Complaints", icon: <AlertCircle size={18}/>, path: "/admin/complaints" },
             { name: "Feedback",  icon: <MessageSquare size={18}/>, path: "/admin/feedback" },
         ],
         []
