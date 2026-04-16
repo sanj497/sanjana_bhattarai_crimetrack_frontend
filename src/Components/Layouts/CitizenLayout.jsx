@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { Link, useLocation, Outlet } from "react-router-dom";
 import { LayoutDashboard, FileText, Bell, MessageSquare, Settings, AlertTriangle, ShieldAlert, LogOut, ChevronLeft, ChevronRight, Shield, Users, BarChart3, MapPin, Activity } from "lucide-react";
 import NotificationDropdown from "../Dashboard/NotificationDropdown";
+import ThemeToggle from "../Dashboard/ThemeToggle";
 
 const getUser = () => {
   try { return JSON.parse(localStorage.getItem("user")) || {}; } catch { return {}; }
@@ -66,12 +67,16 @@ export default function CitizenLayout() {
         <div className="h-20 flex items-center justify-between px-5 border-b border-[#112445]">
           {sidebarOpen && (
             <div className="flex items-center gap-3">
-              <Shield className="h-8 w-8 text-[#00B8D9]" />
-              <span className="font-bold text-white text-xl" style={{ fontFamily: "Poppins, sans-serif" }}>CrimeTrack</span>
+              <div className="h-10 w-10 bg-white rounded-xl flex items-center justify-center shadow-lg overflow-hidden border border-[#00B8D9]">
+                <img src="/crimetrack.jpeg" alt="Logo" className="h-full w-full object-cover" />
+              </div>
+              <span className="font-bold text-white text-xl tracking-tight uppercase italic" style={{ fontFamily: "Poppins, sans-serif" }}>CrimeTrack</span>
             </div>
           )}
           {!sidebarOpen && (
-             <Shield className="h-8 w-8 text-[#00B8D9] mx-auto" />
+            <div className="h-10 w-10 bg-white rounded-xl flex items-center justify-center mx-auto shadow-lg overflow-hidden border border-[#00B8D9]">
+              <img src="/crimetrack.jpeg" alt="Logo" className="h-full w-full object-cover" />
+            </div>
           )}
         </div>
         
@@ -164,6 +169,9 @@ export default function CitizenLayout() {
                 </button>
                 <NotificationDropdown isOpen={notifOpen} onClose={() => setNotifOpen(false)} />
              </div>
+             
+             <ThemeToggle />
+
              <div className="h-8 w-px bg-gray-100 hidden sm:block mx-1" />
              <div className="hidden sm:block text-sm text-[#1E5EFF] bg-[#1E5EFF]/10 px-4 py-2 rounded-full font-semibold border border-[#1E5EFF]/20">
                {new Date().toLocaleDateString("en-US", { weekday: "long", year: "numeric", month: "long", day: "numeric" })}

@@ -1,6 +1,7 @@
 import { useMemo, useState, useEffect } from "react";
 import React from "react";
 import { useNavigate } from "react-router-dom";
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell } from 'recharts';
 import { 
   BarChart3, 
   Map as MapIcon, 
@@ -127,6 +128,25 @@ export default function Dashboard() {
         </div>
     );
 
+    const chartData = [
+        { name: 'Pending', value: stats.pending || 0, color: '#f59e0b' },
+        { name: 'Verified', value: stats.verified || 0, color: '#8b5cf6' },
+        { name: 'Resolved', value: stats.resolved || 0, color: '#10b981' },
+        { name: 'Total', value: stats.total || 0, color: '#3b82f6' },
+    ];
+
+    const CustomTooltip = ({ active, payload, label }) => {
+        if (active && payload && payload.length) {
+            return (
+                <div className="bg-slate-900 border border-slate-700 p-3 rounded-xl shadow-xl">
+                    <p className="text-slate-300 text-xs font-bold uppercase tracking-widest mb-1">{label}</p>
+                    <p className="text-white text-lg font-black">{payload[0].value} Cases</p>
+                </div>
+            );
+        }
+        return null;
+    };
+
     return (
         <div className="min-h-screen bg-[#F7F9FC] p-8">
             {/* Header */}
@@ -234,6 +254,33 @@ export default function Dashboard() {
                                   Assign Units Now
                                 </button>
                             </div>
+                        </div>
+                    </div>
+
+                    {/* Chart Analytics Section */}
+                    <div className="bg-white border border-slate-200 rounded-[32px] p-8 shadow-sm w-full">
+                        <div className="flex justify-between items-center mb-8">
+                            <div className="flex items-center gap-3">
+                                <div className="p-2 bg-slate-100 rounded-xl text-blue-600">
+                                    <BarChart3 size={18}/>
+                                </div>
+                                <h3 className="text-lg font-black text-slate-900 uppercase tracking-tight">Case Distribution Analytics</h3>
+                            </div>
+                        </div>
+                        <div className="h-[300px] w-full">
+                            <ResponsiveContainer width="100%" height="100%">
+                                <BarChart data={chartData} margin={{ top: 20, right: 30, left: 0, bottom: 5 }}>
+                                    <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e2e8f0" />
+                                    <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fontSize: 12, fontWeight: 'bold', fill: '#64748b' }} dy={10} />
+                                    <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 12, fontWeight: 'bold', fill: '#64748b' }} />
+                                    <Tooltip content={<CustomTooltip />} cursor={{ fill: '#f1f5f9' }} />
+                                    <Bar dataKey="value" radius={[6, 6, 0, 0]} maxBarSize={60}>
+                                        {chartData.map((entry, index) => (
+                                            <Cell key={`cell-${index}`} fill={entry.color} />
+                                        ))}
+                                    </Bar>
+                                </BarChart>
+                            </ResponsiveContainer>
                         </div>
                     </div>
 

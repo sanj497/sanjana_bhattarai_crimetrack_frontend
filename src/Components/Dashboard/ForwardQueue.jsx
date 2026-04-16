@@ -28,17 +28,23 @@ export default function ForwardQueue() {
   const [loadingPoliceFor, setLoadingPoliceFor] = useState(null);
   const [searchTerm, setSearchTerm] = useState("");
 
-  const fetchVerifiedReports = async () => {
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const itemsPerPage = 8;
+
+  const fetchVerifiedReports = async (page = currentPage) => {
     setLoading(true);
     try {
       const token = localStorage.getItem("token");
-      const res = await fetch(API_BASE, {
+      // Search term could also be added to endpoint if needed, right now we do local filtering or server search
+      const res = await fetch(`${API_BASE}?status=Verified&page=${page}&limit=${itemsPerPage}${searchTerm ? `&search=${searchTerm}` : ""}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       const data = await res.json();
       if (data.crimes) {
-        const verified = data.crimes.filter((c) => c.status === "Verified");
-        setVerifiedCrimes(verified);
+        setVerifiedCrimes(data.crimes);
+        setTotalPages(data.totalPages || 1);
+        setCurrentPage(data.currentPage || 1);
       }
     } catch (err) {
       console.error("Fetch verified reports error:", err);
@@ -48,8 +54,18 @@ export default function ForwardQueue() {
   };
 
   useEffect(() => {
-    fetchVerifiedReports();
+    fetchVerifiedReports(currentPage);
+  }, [currentPage]);
 
+  useEffect(() => {
+    const delayDebounce = setTimeout(() => {
+      setCurrentPage(1);
+      fetchVerifiedReports(1);
+    }, 500);
+    return () => clearTimeout(delayDebounce);
+  }, [searchTerm]);
+
+  useEffect(() => {
     const handler = () => fetchVerifiedReports();
     window.addEventListener("new-notification-received", handler);
     return () => window.removeEventListener("new-notification-received", handler);
@@ -115,14 +131,7 @@ export default function ForwardQueue() {
     }
   };
 
-  const filteredCrimes = verifiedCrimes.filter(
-    (c) =>
-      c.title?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      c.crimeType?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      c.location?.address?.toLowerCase().includes(searchTerm.toLowerCase())
-  );
-
-  if (loading) {
+  if (loading && verifiedCrimes.length === 0) {
     return (
       <div className="flex flex-col items-center justify-center min-h-[500px] bg-[#F7F9FC]">
         <div className="h-12 w-12 border-4 border-slate-200 border-t-blue-600 rounded-full animate-spin mb-4" />
@@ -178,7 +187,7 @@ export default function ForwardQueue() {
       </div>
 
       {/* Empty State */}
-      {filteredCrimes.length === 0 && (
+      {verifiedCrimes.length === 0 && (
         <div className="flex flex-col items-center justify-center py-32 text-slate-400 gap-6">
           <div className="h-24 w-24 rounded-full bg-emerald-50 flex items-center justify-center">
             <ShieldCheck size={48} className="text-emerald-400" />
@@ -195,8 +204,8 @@ export default function ForwardQueue() {
       )}
 
       {/* Cases List */}
-      <div className="space-y-6">
-        {filteredCrimes.map((crime) => {
+      <div className="space-y-6 mb-8">
+        {verifiedCrimes.map((crime) => {
           const isExpanded = expandedId === crime._id;
           const officers = nearbyPolice[crime._id] || [];
           const selectedId = selectedOfficers[crime._id];
@@ -402,6 +411,43 @@ export default function ForwardQueue() {
           );
         })}
       </div>
+
+      {/* Pagination component */}
+      {totalPages > 1 && (
+        <div className="flex items-center justify-center gap-3">
+          <button
+            onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
+            disabled={currentPage === 1}
+            className="px-4 py-2 border border-slate-200 rounded-xl bg-white text-slate-600 hover:bg-slate-50 disabled:opacity-50 disabled:cursor-not-allowed text-xs font-bold uppercase tracking-widest transition-all shadow-sm"
+          >
+            Prev
+          </button>
+          
+          <div className="flex gap-2">
+            {Array.from({ length: totalPages }).map((_, i) => (
+              <button
+                key={i}
+                onClick={() => setCurrentPage(i + 1)}
+                className={`w-10 h-10 rounded-xl flex items-center justify-center text-xs font-black transition-all shadow-sm ${
+                  currentPage === i + 1
+                    ? "bg-blue-600 text-white shadow-blue-500/30"
+                    : "bg-white text-slate-500 border border-slate-200 hover:border-blue-300"
+                }`}
+              >
+                {i + 1}
+              </button>
+            ))}
+          </div>
+
+          <button
+            onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
+            disabled={currentPage === totalPages}
+            className="px-4 py-2 border border-slate-200 rounded-xl bg-white text-slate-600 hover:bg-slate-50 disabled:opacity-50 disabled:cursor-not-allowed text-xs font-bold uppercase tracking-widest transition-all shadow-sm"
+          >
+            Next
+          </button>
+        </div>
+      )}
     </div>
   );
 }

@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Shield, AlertTriangle, FileText, MapPin, Bell, Search, Menu, X, Siren, LogOut, LayoutDashboard, PhoneCall } from 'lucide-react';
 import { useNavigate, Outlet, Link, useLocation } from 'react-router-dom';
 import NotificationDropdown from '../Dashboard/NotificationDropdown';
+import ThemeToggle from '../Dashboard/ThemeToggle';
 
 const getUser = () => {
   try { return JSON.parse(localStorage.getItem("user")) || {}; } catch { return {}; }
@@ -66,9 +67,11 @@ export default function PoliceLayout() {
       <div className={`${sidebarOpen ? 'w-64' : 'w-20'} bg-slate-800 border-r border-slate-700 transition-all duration-300 flex flex-col z-20`}>
         <div className="p-4 flex items-center justify-between border-b border-slate-700">
           {sidebarOpen && (
-            <div className="flex items-center gap-2">
-              <Shield className="text-blue-500" size={24} />
-              <span className="font-bold text-lg tracking-tight">POLICE HQ</span>
+            <div className="flex items-center gap-3">
+              <div className="h-10 w-10 bg-white rounded-xl flex items-center justify-center shadow-lg overflow-hidden border border-blue-500">
+                <img src="/crimetrack.jpeg" alt="Logo" className="h-full w-full object-cover" />
+              </div>
+              <span className="font-black text-lg tracking-tighter text-white uppercase italic">Police HQ</span>
             </div>
           )}
           <button onClick={() => setSidebarOpen(!sidebarOpen)} className="p-1 hover:bg-slate-700 rounded text-slate-400">
@@ -144,6 +147,9 @@ export default function PoliceLayout() {
                 </button>
                 <NotificationDropdown isOpen={notifOpen} onClose={() => setNotifOpen(false)} />
               </div>
+              
+              <ThemeToggle />
+
               {(() => {
                 const u = getUser();
                 const initials = u.username ? u.username.split(" ").map(w => w[0]).join("").toUpperCase().slice(0,2) : "P";

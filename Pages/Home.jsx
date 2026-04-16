@@ -118,8 +118,8 @@ export default function CrimeReportingHome() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-20">
             <div className="flex items-center space-x-3">
-              <Shield className="h-8 w-8 text-[#1E5EFF]" />
-              <span className="text-2xl font-bold text-[#0B1F3B] tracking-tight" style={{ fontFamily: "Poppins, sans-serif" }}>CrimeTrack</span>
+              <img src="/crimetrack.jpeg" alt="CrimeTrack Logo" className="h-12 w-12 object-cover rounded-2xl shadow-xl border-2 border-[#1E5EFF]" />
+              <span className="text-2xl font-black text-[#0B1F3B] tracking-tight uppercase italic" style={{ fontFamily: "Poppins, sans-serif" }}>CrimeTrack</span>
             </div>
 
             {/* Desktop Menu */}
@@ -399,8 +399,8 @@ export default function CrimeReportingHome() {
           <div className="grid grid-cols-1 md:grid-cols-4 gap-12 mb-12">
             <div className="col-span-1 md:col-span-1">
               <div className="flex items-center space-x-2 mb-6">
-                <Shield className="h-8 w-8 text-[#00B8D9]" />
-                <span className="font-bold text-2xl text-white tracking-tight" style={{ fontFamily: "Poppins, sans-serif" }}>CrimeTrack</span>
+                <img src="/crimetrack.jpeg" alt="CrimeTrack Logo" className="h-10 w-10 object-cover rounded-xl" />
+                <span className="font-bold text-2xl text-white tracking-tight uppercase italic" style={{ fontFamily: "Poppins, sans-serif" }}>CrimeTrack</span>
               </div>
               <p className="text-gray-400 text-sm leading-relaxed">
                 Bridging the gap between citizens and authorities through real-time communication.

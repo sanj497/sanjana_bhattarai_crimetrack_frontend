@@ -173,7 +173,7 @@ export default function CommunityBoard() {
                   </div>
                 </div>
               </div>
-            ))}
+            ))
           )}
         </div>
 

@@ -109,8 +109,10 @@ const RegisterAdmin = () => {
         </div>
         <div className="relative z-10">
           <div className="flex items-center space-x-3 mb-16">
-            <Shield className="h-10 w-10 text-[#7C3AED]" />
-            <span className="text-3xl font-bold tracking-tight text-white" style={{ fontFamily: "Poppins, sans-serif" }}>CrimeTrack</span>
+            <div className="h-12 w-12 bg-white rounded-2xl flex items-center justify-center shadow-lg overflow-hidden border-2 border-[#7C3AED]">
+              <img src="/crimetrack.jpeg" alt="Logo" className="h-full w-full object-cover" />
+            </div>
+            <span className="text-3xl font-black tracking-tight text-white uppercase italic" style={{ fontFamily: "Poppins, sans-serif" }}>CrimeTrack</span>
           </div>
           <div className="max-w-md mt-12">
             <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-[8px] bg-white/10 text-[#A78BFA] font-medium text-xs mb-6 border border-white/10">

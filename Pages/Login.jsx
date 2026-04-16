@@ -133,8 +133,10 @@ const Login = () => {
         
         <div className="relative z-10">
           <div className="flex items-center space-x-3 mb-16">
-            <Shield className="h-10 w-10 text-[#00B8D9]" />
-            <span className="text-3xl font-bold tracking-tight text-white" style={{ fontFamily: "Poppins, sans-serif" }}>CrimeTrack</span>
+            <div className="h-12 w-12 bg-white rounded-2xl flex items-center justify-center shadow-lg overflow-hidden border-2 border-[#1E5EFF]">
+              <img src="/crimetrack.jpeg" alt="Logo" className="h-full w-full object-cover" />
+            </div>
+            <span className="text-3xl font-black tracking-tight text-white uppercase italic" style={{ fontFamily: "Poppins, sans-serif" }}>CrimeTrack</span>
           </div>
 
           <div className="max-w-md mt-12">

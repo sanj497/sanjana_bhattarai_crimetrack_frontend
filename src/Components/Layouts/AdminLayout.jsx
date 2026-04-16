@@ -1,6 +1,7 @@
 import React, { useState, useMemo, useEffect } from "react";
 import { Link, useNavigate, Outlet, useLocation } from "react-router-dom";
 import NotificationDropdown from "../Dashboard/NotificationDropdown";
+import ThemeToggle from "../Dashboard/ThemeToggle";
 
 const getUser = () => {
   try { return JSON.parse(localStorage.getItem("user")) || {}; } catch { return {}; }
@@ -87,18 +88,18 @@ export default function AdminLayout() {
                 <div className="h-24 flex items-center justify-between px-6 border-b border-white/5 bg-[#0A1324]/50 backdrop-blur-md">
                     {sidebarOpen && (
                         <div className="flex items-center gap-4 group cursor-pointer" onClick={() => navigate("/dashboard")}>
-                            <div className="h-11 w-11 bg-gradient-to-br from-[#00B8D9] to-[#1E5EFF] rounded-2xl flex items-center justify-center shadow-[0_0_20px_rgba(0,184,217,0.3)] group-hover:scale-105 transition-transform">
-                              <Shield className="h-6 w-6 text-white" />
+                            <div className="h-12 w-12 bg-white rounded-2xl flex items-center justify-center shadow-lg group-hover:scale-105 transition-transform overflow-hidden border-2 border-[#1E5EFF]">
+                              <img src="/crimetrack.jpeg" alt="Logo" className="h-full w-full object-cover" />
                             </div>
                             <div className="flex flex-col">
-                              <span className="font-black text-white text-lg tracking-tight uppercase leading-none">CrimeTrack</span>
-                              <span className="text-[10px] font-bold text-[#00B8D9] tracking-[3px] uppercase mt-1">Admin Ops</span>
+                              <span className="font-black text-white text-lg tracking-tight uppercase leading-none">CrimeTrack </span>
+                              <span className="text-[10px] font-bold text-[#00B8D9] tracking-[3px] uppercase mt-1">Admin HQ</span>
                             </div>
                         </div>
                     )}
                     {!sidebarOpen && (
-                        <div className="h-11 w-11 bg-gradient-to-br from-[#00B8D9] to-[#1E5EFF] rounded-2xl flex items-center justify-center mx-auto shadow-[0_0_20px_rgba(0,184,217,0.3)]">
-                          <Shield className="h-6 w-6 text-white" />
+                        <div className="h-12 w-12 bg-white rounded-2xl flex items-center justify-center mx-auto shadow-lg overflow-hidden border-2 border-[#1E5EFF]">
+                           <img src="/crimetrack.jpeg" alt="Logo" className="h-full w-full object-cover" />
                         </div>
                     )}
                 </div>
@@ -199,6 +200,9 @@ export default function AdminLayout() {
                             </button>
                             <NotificationDropdown isOpen={notifOpen} onClose={() => setNotifOpen(false)} />
                         </div>
+
+                        {/* Dark Mode Toggle */}
+                        <ThemeToggle />
 
                         <div className="h-8 w-px bg-gray-100 hidden md:block" />
                         {(() => {

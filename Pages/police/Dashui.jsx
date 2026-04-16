@@ -2,8 +2,9 @@ import React, { useState, useEffect } from 'react';
 import { 
   Shield, Users, AlertTriangle, FileText, MapPin, Clock, 
   Siren, ChevronRight, CheckCircle2, Activity, Image, 
-  ExternalLink, CheckSquare, ClipboardList
+  ExternalLink, CheckSquare, ClipboardList, BarChart3
 } from 'lucide-react';
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell } from 'recharts';
 import { Link } from 'react-router-dom';
 
 const API_BASE = `${import.meta.env.VITE_BACKEND_URL}/api/report`;
@@ -22,7 +23,7 @@ export default function NewBoard() {
   const fetchCrimes = async () => {
     try {
       const token = localStorage.getItem("token");
-      const res = await fetch(API_BASE, {
+      const res = await fetch(`${API_BASE}?limit=100`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       const data = await res.json();
@@ -52,6 +53,25 @@ export default function NewBoard() {
     ForwardedToPolice: { label: "New Assignment", color: "amber", icon: <FileText size={12} /> },
     UnderInvestigation: { label: "Investigating", color: "indigo", icon: <Activity size={12} /> },
     Resolved: { label: "Resolved", color: "emerald", icon: <CheckCircle2 size={12} /> },
+  };
+
+  const chartData = [
+    { name: 'New Cases', value: forwarded.length, color: '#f59e0b' },
+    { name: 'Investigating', value: investigating.length, color: '#6366f1' },
+    { name: 'Resolved', value: resolved.length, color: '#10b981' },
+    { name: 'Total Assigned', value: crimes.length, color: '#3b82f6' },
+  ];
+
+  const CustomTooltip = ({ active, payload, label }) => {
+      if (active && payload && payload.length) {
+          return (
+              <div className="bg-slate-800 border border-slate-700 p-3 rounded-xl shadow-xl">
+                  <p className="text-slate-400 text-xs font-bold uppercase tracking-widest mb-1">{label}</p>
+                  <p className="text-white text-lg font-black">{payload[0].value} Cases</p>
+              </div>
+          );
+      }
+      return null;
   };
 
   return (
@@ -114,6 +134,33 @@ export default function NewBoard() {
           </span>
           Trigger Dispatch
         </Link>
+      </div>
+
+      {/* Chart Analytics Section */}
+      <div className="bg-slate-900 border border-slate-800 rounded-[32px] p-8 shadow-xl mb-10 w-full hover:border-blue-500/20 transition-all group">
+          <div className="flex justify-between items-center mb-8">
+              <div className="flex items-center gap-3">
+                  <div className="p-2 bg-blue-500/10 rounded-xl text-blue-500 group-hover:scale-110 transition-transform">
+                      <BarChart3 size={18}/>
+                  </div>
+                  <h3 className="text-lg font-black text-white uppercase tracking-tight">Operational Workload Distribution</h3>
+              </div>
+          </div>
+          <div className="h-[300px] w-full">
+              <ResponsiveContainer width="100%" height="100%">
+                  <BarChart data={chartData} margin={{ top: 20, right: 30, left: 0, bottom: 5 }}>
+                      <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#1e293b" />
+                      <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fontSize: 12, fontWeight: 'bold', fill: '#64748b' }} dy={10} />
+                      <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 12, fontWeight: 'bold', fill: '#64748b' }} />
+                      <Tooltip content={<CustomTooltip />} cursor={{ fill: '#0f172a' }} />
+                      <Bar dataKey="value" radius={[6, 6, 0, 0]} maxBarSize={60}>
+                          {chartData.map((entry, index) => (
+                              <Cell key={`cell-${index}`} fill={entry.color} />
+                          ))}
+                      </Bar>
+                  </BarChart>
+              </ResponsiveContainer>
+          </div>
       </div>
 
       {/* Forwarded Cases — Card Grid */}
