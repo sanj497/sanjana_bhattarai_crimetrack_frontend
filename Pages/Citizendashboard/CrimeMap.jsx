@@ -84,8 +84,17 @@ export default function CrimeMap() {
       const token = localStorage.getItem("token");
       const headers = { Authorization: `Bearer ${token}` };
 
-      // Fetch Global
-      const gRes = await fetch(`${API}/community`, { headers });
+      // Determine endpoint based on role
+      const user = JSON.parse(localStorage.getItem("user") || "{}");
+      const isPolice = user.role === "police";
+      const isAdmin = user.role === "admin";
+      
+      // Officers and Admins use the protected base endpoint (Admin sees all, Police sees assigned)
+      // Citizens use the community endpoint
+      const reportEndpoint = (isPolice || isAdmin) ? API : `${API}/community`;
+
+      // Fetch Reports
+      const gRes = await fetch(reportEndpoint, { headers });
       const gJson = await gRes.json();
       
       // Fetch SOS
@@ -93,7 +102,7 @@ export default function CrimeMap() {
       const sJson = await sRes.json();
 
       if (gJson.success) {
-        const reportsData = gJson.reports;
+        const reportsData = gJson.reports || gJson.crimes || []; // Handle both key names from backend
         const sosData = sJson.success ? sJson.data.map(s => ({...s, _isSOS: true, crimeType: "🚨 EMERGENCY SOS", severity: "Critical"})) : [];
         const combined = [...reportsData, ...sosData];
         setReports(combined);

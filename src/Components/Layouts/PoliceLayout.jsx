@@ -10,37 +10,50 @@ const getUser = () => {
 export default function PoliceLayout() {
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [unreadCount, setUnreadCount] = useState(0);
+  const [sosCount, setSosCount] = useState(0);
   const [notifOpen, setNotifOpen] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
 
-  const fetchUnreadCount = async () => {
+  const fetchDataCounts = async () => {
     try {
       const token = localStorage.getItem("token");
-      const res = await fetch(`${import.meta.env.VITE_BACKEND_URL}/api/notifications`, {
-        headers: { "Authorization": `Bearer ${token}` }
-      });
-      const data = await res.json();
-      if (data.success) {
-        setUnreadCount(data.unreadCount || 0);
+      const headers = { "Authorization": `Bearer ${token}` };
+      
+      // Notifications
+      const nRes = await fetch(`${import.meta.env.VITE_BACKEND_URL}/api/notifications`, { headers });
+      const nData = await nRes.json();
+      if (nData.success) setUnreadCount(nData.unreadCount || 0);
+
+      // Active SOS
+      const sRes = await fetch(`${import.meta.env.VITE_BACKEND_URL}/api/emergency/sos`, { headers });
+      const sData = await sRes.json();
+      if (sData.success) {
+        // Count SOS alerts that are not resolved (status not "Resolved")
+        const activeSos = sData.data.filter(s => s.status !== "Resolved").length;
+        setSosCount(activeSos);
       }
     } catch (err) {
-      console.error("Failed to fetch unread count", err);
+      console.error("Failed to fetch counts", err);
     }
   };
 
   React.useEffect(() => {
-    fetchUnreadCount();
-    const handleNewNotification = () => fetchUnreadCount();
-    window.addEventListener("new-notification-received", handleNewNotification);
-    return () => window.removeEventListener("new-notification-received", handleNewNotification);
+    fetchDataCounts();
+    const handleSync = () => fetchDataCounts();
+    window.addEventListener("new-notification-received", handleSync);
+    window.addEventListener("sos-alert-received", handleSync);
+    return () => {
+      window.removeEventListener("new-notification-received", handleSync);
+      window.removeEventListener("sos-alert-received", handleSync);
+    };
   }, []);
 
   const menuItems = [
     { name: 'Dashboard', icon: LayoutDashboard, path: '/police/dashboard' },
     { name: 'Live Map', icon: MapPin, path: '/police/map' },
     { name: 'Reports', icon: FileText, path: '/police/reports' },
-    { name: 'SOS Alerts', icon: Siren, path: '/police/sos', badge: '3' },
+    { name: 'SOS Alerts', icon: Siren, path: '/police/sos', badge: sosCount > 0 ? sosCount.toString() : null },
     { name: 'Notifications', icon: Bell, path: '/notifications' },
     { name: 'Emergency', icon: PhoneCall, path: '/police/emergency' },
   ];

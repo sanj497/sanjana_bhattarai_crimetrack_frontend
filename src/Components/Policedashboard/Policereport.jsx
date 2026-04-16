@@ -11,7 +11,9 @@ import {
   AlertCircle,
   Activity,
   CheckSquare,
-  ClipboardList
+  ClipboardList,
+  RefreshCw,
+  Eye
 } from "lucide-react";
 
 const Policereport = () => {
@@ -22,10 +24,17 @@ const Policereport = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [updatingId, setUpdatingId] = useState(null);
   const [expandedCrimeIds, setExpandedCrimeIds] = useState(new Set());
+  
+  // Server-side Pagination State
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const [totalItems, setTotalItems] = useState(0);
+  const itemsPerPage = 6;
 
   const API_BASE = `${import.meta.env.VITE_BACKEND_URL}/api/report`;
 
   const fetchCrimes = async () => {
+    setLoading(true);
     try {
       const token = localStorage.getItem("token");
       if (!token) {
@@ -34,7 +43,7 @@ const Policereport = () => {
         return;
       }
 
-      const res = await fetch(API_BASE, {
+      const res = await fetch(`${API_BASE}?page=${currentPage}&limit=${itemsPerPage}&status=${filter}&search=${searchTerm}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
 
@@ -42,6 +51,8 @@ const Policereport = () => {
       if (!res.ok) throw new Error(data.error || "Data bridge failure");
       
       setCrimes(Array.isArray(data.crimes) ? data.crimes : []);
+      setTotalPages(data.totalPages || 1);
+      setTotalItems(data.totalItems || 0);
     } catch (err) {
       console.error(err);
       setError(err.message);
@@ -52,7 +63,15 @@ const Policereport = () => {
 
   useEffect(() => {
     fetchCrimes();
-  }, []);
+  }, [currentPage, filter]);
+
+  useEffect(() => {
+    const delayDebounce = setTimeout(() => {
+      setCurrentPage(1);
+      fetchCrimes();
+    }, 500);
+    return () => clearTimeout(delayDebounce);
+  }, [searchTerm]);
 
   const updateStatus = async (id, status) => {
     setUpdatingId(id);
@@ -101,11 +120,7 @@ const Policereport = () => {
     Resolved: { color: "text-cyan-500", bg: "bg-cyan-500/10", border: "border-cyan-500/20", icon: <CheckSquare size={12} /> }
   };
 
-  const filteredCrimes = crimes
-    .filter(c => filter === "All" || c.status === filter)
-    .filter(c => c.title.toLowerCase().includes(searchTerm.toLowerCase()) || c.description.toLowerCase().includes(searchTerm.toLowerCase()));
-
-  if (loading) return (
+  if (loading && crimes.length === 0) return (
     <div className="min-h-screen bg-[#020617] flex flex-col items-center justify-center gap-4">
       <div className="h-10 w-10 border-4 border-slate-800 border-t-blue-500 rounded-full animate-spin" />
       <span className="text-[10px] font-black text-slate-500 uppercase tracking-[4px]">Accessing Field Intelligence...</span>
@@ -114,7 +129,6 @@ const Policereport = () => {
 
   return (
     <div className="min-h-screen bg-[#020617] p-8 lg:p-12 font-sans text-slate-300">
-      {/* Header section */}
       <div className="max-w-7xl mx-auto mb-12 flex flex-col md:flex-row justify-between items-start md:items-center gap-8">
         <div>
           <div className="flex items-center gap-2 text-blue-500 mb-2">
@@ -138,14 +152,11 @@ const Policereport = () => {
         </div>
       </div>
 
-      {/* Stats row */}
       <div className="max-w-7xl mx-auto grid grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
         {[
-          { label: "Total Reports", value: crimes.length, icon: <ClipboardList />, color: "blue" },
-          { label: "Assigned Cases", value: crimes.filter(c => c.status === "ForwardedToPolice").length, icon: <Shield />, color: "amber" },
-          { label: "Investigations", value: crimes.filter(c => c.status === "UnderInvestigation").length, icon: <Activity />, color: "indigo" },
-          { label: "Case Resolved", value: crimes.filter(c => c.status === "Resolved").length, icon: <CheckSquare />, color: "emerald" },
-        ].map((stat, i) => (
+          { label: "Active Intelligence", value: totalItems, icon: <ClipboardList />, color: "blue" },
+          { label: "Pending Response", value: crimes.filter(c => c.status === "ForwardedToPolice").length, icon: <Shield />, color: "amber" },
+        ].slice(0, 4).map((stat, i) => (
           <div key={i} className="bg-slate-900/40 border border-slate-800/50 p-6 rounded-[32px] group hover:border-blue-500/30 transition-all">
             <div className={`p-3 rounded-2xl w-fit mb-4 bg-${stat.color}-500/10 text-${stat.color}-500`}>
               {stat.icon}
@@ -156,12 +167,11 @@ const Policereport = () => {
         ))}
       </div>
 
-      {/* Filter Tabs */}
       <div className="max-w-7xl mx-auto flex gap-3 mb-8 overflow-x-auto pb-4 no-scrollbar">
         {["All", "ForwardedToPolice", "UnderInvestigation", "Resolved", "Rejected"].map((s) => (
           <button
             key={s}
-            onClick={() => setFilter(s)}
+            onClick={() => { setFilter(s); setCurrentPage(1); }}
             className={`px-6 py-2.5 rounded-full text-[10px] font-black uppercase tracking-widest transition-all whitespace-nowrap border-2 ${filter === s ? 'bg-blue-600 border-blue-600 text-white shadow-lg shadow-blue-600/20' : 'bg-transparent border-slate-800 text-slate-500 hover:border-slate-700'}`}
           >
             {s === "ForwardedToPolice" ? "New Assignments" : s}
@@ -169,25 +179,23 @@ const Policereport = () => {
         ))}
       </div>
 
-      {/* Reports Grid */}
-      <div className="max-w-7xl mx-auto grid grid-cols-1 xl:grid-cols-2 gap-8">
+      <div className="max-w-7xl mx-auto grid grid-cols-1 xl:grid-cols-2 gap-8 mb-10">
         {error ? (
           <div className="col-span-full py-20 text-center bg-rose-500/5 border border-rose-500/10 rounded-[48px]">
             <AlertCircle size={48} className="text-rose-500 mx-auto mb-4" />
             <h3 className="text-white font-black uppercase tracking-widest mb-2">Access Denied</h3>
             <p className="text-slate-500 text-sm max-w-md mx-auto">{error}</p>
           </div>
-        ) : filteredCrimes.length === 0 ? (
+        ) : crimes.length === 0 ? (
           <div className="col-span-full py-20 text-center bg-slate-900/40 border border-slate-800/50 rounded-[48px]">
              <ClipboardList size={48} className="text-slate-700 mx-auto mb-4" />
              <h3 className="text-slate-500 font-black uppercase tracking-widest">No Intelligence Available</h3>
              <p className="text-slate-600 text-xs">Awaiting new case assignments for your district.</p>
           </div>
         ) : (
-          filteredCrimes.map((crime) => (
+          crimes.map((crime) => (
             <div key={crime._id} className="bg-slate-900/40 border border-slate-800/50 rounded-[48px] p-10 hover:border-blue-500/20 transition-all group relative overflow-hidden">
-              {/* Status Ribbon */}
-              <div className={`absolute top-0 right-0 px-6 py-2 rounded-bl-3xl border-l border-b ${statusConfig[crime.status]?.bg} ${statusConfig[crime.status]?.border} ${statusConfig[crime.status]?.color} text-[10px] font-black uppercase tracking-[2px] flex items-center gap-2`}>
+               <div className={`absolute top-0 right-0 px-6 py-2 rounded-bl-3xl border-l border-b ${statusConfig[crime.status]?.bg} ${statusConfig[crime.status]?.border} ${statusConfig[crime.status]?.color} text-[10px] font-black uppercase tracking-[2px] flex items-center gap-2`}>
                 {statusConfig[crime.status]?.icon}
                 {crime.status}
               </div>
@@ -223,9 +231,7 @@ const Policereport = () => {
                  </div>
               </div>
 
-              {/* Actions */}
               <div className="flex flex-wrap gap-3 pt-4 border-t border-slate-800/50">
-                {/* View Details — always visible */}
                 <button
                   onClick={() => toggleDetails(crime._id)}
                   className="bg-slate-800 hover:bg-slate-700 text-slate-200 px-6 py-4 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all border border-slate-700"
@@ -251,8 +257,7 @@ const Policereport = () => {
                       disabled={updatingId === crime._id}
                       className="flex-1 bg-emerald-600 hover:bg-emerald-500 text-white py-4 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all disabled:opacity-50 flex items-center justify-center gap-2"
                      >
-                        Confirm Resolution
-                        <CheckCircle2 size={14} />
+                        Confirm Resolution <CheckCircle2 size={14} />
                      </button>
                      <button 
                       onClick={() => updateStatus(crime._id, "Rejected")}
@@ -264,124 +269,45 @@ const Policereport = () => {
                    </>
                 )}
               </div>
-
-              {/* Expanded Details Panel — always available */}
+              
               {expandedCrimeIds.has(crime._id) && (
                 <div className="mt-6 p-6 rounded-3xl bg-slate-950/60 border border-slate-800/40 space-y-6">
-                  {/* Case Metadata */}
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
-                    <div>
-                      <p className="text-[9px] font-black text-slate-500 uppercase tracking-[2px] mb-1">Case ID</p>
-                      <p className="text-slate-200 font-semibold break-all">{crime._id}</p>
-                    </div>
-                    <div>
-                      <p className="text-[9px] font-black text-slate-500 uppercase tracking-[2px] mb-1">Reported By</p>
-                      <p className="text-slate-200 font-semibold">{crime.userId?.username || crime.userId?.email || "Anonymous"}</p>
-                    </div>
-                    <div>
-                      <p className="text-[9px] font-black text-slate-500 uppercase tracking-[2px] mb-1">Priority</p>
-                      <p className={`font-black uppercase tracking-widest ${
-                        crime.priority === "Critical" ? "text-rose-400" : 
-                        crime.priority === "High" ? "text-orange-400" : 
-                        crime.priority === "Medium" ? "text-amber-400" : "text-blue-400"
-                      }`}>{crime.priority || "Medium"}</p>
-                    </div>
-                    <div>
-                      <p className="text-[9px] font-black text-slate-500 uppercase tracking-[2px] mb-1">Filed On</p>
-                      <p className="text-slate-200 font-semibold">{new Date(crime.createdAt).toLocaleString()}</p>
-                    </div>
-                  </div>
-
-                  {/* Location Details */}
-                  <div>
-                    <p className="text-[9px] font-black text-blue-400 uppercase tracking-[2px] mb-2 flex items-center gap-2">
-                      <MapPin size={12} /> Incident Location
-                    </p>
-                    <div className="bg-slate-900/80 rounded-2xl border border-slate-800 p-4 mb-3">
-                      <p className="text-slate-200 text-sm font-bold mb-1">{crime.location?.address || "Address not provided"}</p>
-                      {(crime.location?.lat && crime.location?.lng) && (
-                        <p className="text-slate-500 text-[10px] font-bold uppercase tracking-wider">
-                          Coordinates: {Number(crime.location.lat).toFixed(6)}, {Number(crime.location.lng).toFixed(6)}
-                        </p>
-                      )}
-                    </div>
-                    {/* Embedded Map Visualization */}
-                    {(crime.location?.lat && crime.location?.lng) && (
-                      <div className="rounded-2xl overflow-hidden border border-slate-800 h-48 relative">
-                        <iframe
-                          title={`Location View - ${crime._id}`}
-                          width="100%"
-                          height="100%"
-                          style={{ border: 0, filter: 'invert(90%) hue-rotate(180deg)' }} // Pseudo dark mode for map
-                          loading="lazy"
-                          referrerPolicy="no-referrer-when-downgrade"
-                          src={`https://www.openstreetmap.org/export/embed.html?bbox=${Number(crime.location.lng) - 0.005}%2C${Number(crime.location.lat) - 0.005}%2C${Number(crime.location.lng) + 0.005}%2C${Number(crime.location.lat) + 0.005}&layer=mapnik&marker=${Number(crime.location.lat)}%2C${Number(crime.location.lng)}`}
-                        />
+                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs font-bold text-slate-400">
+                      <div>Case ID: <span className="text-white font-mono">{crime._id}</span></div>
+                      <div>Reported: <span className="text-white">{new Date(crime.createdAt).toLocaleString()}</span></div>
+                      <div>Priority: <span className={crime.priority === 'High' ? 'text-red-500' : 'text-blue-500'}>{crime.priority || 'Medium'}</span></div>
+                   </div>
+                   
+                   {crime.evidence && crime.evidence.length > 0 && (
+                      <div className="pt-4 border-t border-slate-800/20">
+                         <div className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-3">Evidence Artifacts</div>
+                         <div className="grid grid-cols-3 gap-2">
+                           {crime.evidence.map((file, idx) => (
+                             <a key={idx} href={file.url} target="_blank" rel="noreferrer" className="h-20 bg-slate-900 rounded-xl overflow-hidden border border-slate-800 block">
+                               <img src={file.url} className="w-full h-full object-cover opacity-50 hover:opacity-100 transition-opacity" alt="Evidence" />
+                             </a>
+                           ))}
+                         </div>
                       </div>
-                    )}
-                  </div>
-
-                  {/* Evidence / Media */}
-                  <div>
-                    <p className="text-[9px] font-black text-blue-400 uppercase tracking-[2px] mb-2">
-                      Evidence Files ({crime.evidence?.length || 0})
-                    </p>
-                    {crime.evidence && crime.evidence.length > 0 ? (
-                      <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
-                        {crime.evidence.map((file, idx) => (
-                          <a 
-                            key={idx} 
-                            href={file.url} 
-                            target="_blank" 
-                            rel="noopener noreferrer"
-                            className="block relative group/ev rounded-2xl overflow-hidden border border-slate-800 hover:border-blue-500/50 transition-all"
-                          >
-                            {file.resourceType === "video" ? (
-                              <video src={file.url} className="w-full h-32 object-cover" muted />
-                            ) : (
-                              <img src={file.url} alt={`Evidence ${idx + 1}`} className="w-full h-32 object-cover" />
-                            )}
-                            <div className="absolute inset-0 bg-black/40 opacity-0 group-hover/ev:opacity-100 transition-opacity flex items-center justify-center">
-                              <span className="text-white text-[10px] font-black uppercase tracking-widest bg-blue-600 px-3 py-1.5 rounded-full">
-                                Open Full
-                              </span>
-                            </div>
-                            <div className="absolute top-2 right-2 px-2 py-0.5 bg-slate-900/80 text-slate-300 text-[8px] font-black uppercase rounded-md border border-slate-700">
-                              {file.resourceType || "image"}
-                            </div>
-                          </a>
-                        ))}
-                      </div>
-                    ) : (
-                      <p className="text-slate-600 text-xs italic">No evidence files attached to this report.</p>
-                    )}
-                  </div>
-
-                  {/* Admin Notes */}
-                  {crime.adminNotes && (
-                    <div>
-                      <p className="text-[9px] font-black text-amber-400 uppercase tracking-[2px] mb-2">Admin Notes</p>
-                      <div className="bg-amber-500/5 border border-amber-500/20 rounded-2xl p-4">
-                        <p className="text-slate-300 text-sm leading-relaxed">{crime.adminNotes}</p>
-                      </div>
-                    </div>
-                  )}
-
-                  {/* Assigned Officer */}
-                  {crime.workflow?.assignedToOfficer && (
-                    <div>
-                      <p className="text-[9px] font-black text-slate-500 uppercase tracking-[2px] mb-2">Assigned Officer</p>
-                      <p className="text-slate-200 text-sm font-bold">
-                        {crime.workflow.assignedToOfficer.username || crime.workflow.assignedToOfficer.email || "Officer ID: " + crime.workflow.assignedToOfficer}
-                      </p>
-                    </div>
-                  )}
+                   )}
                 </div>
               )}
             </div>
           ))
         )}
       </div>
+
+      {totalPages > 1 && (
+        <div className="max-w-7xl mx-auto flex items-center justify-between p-6 bg-slate-900/40 border border-slate-800/50 rounded-3xl mt-6">
+          <span className="text-xs font-bold text-slate-500 uppercase tracking-widest">
+            Viewing Page {currentPage} of {totalPages} ({totalItems} Items)
+          </span>
+          <div className="flex items-center gap-3">
+            <button onClick={() => setCurrentPage(p => Math.max(1, p - 1))} disabled={currentPage === 1} className="px-5 py-2.5 text-[10px] font-black uppercase tracking-widest bg-slate-800 border border-slate-700 rounded-xl text-slate-300 hover:bg-slate-700 hover:border-slate-600 disabled:opacity-30 transition-colors">Prev</button>
+            <button onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))} disabled={currentPage === totalPages} className="px-5 py-2.5 text-[10px] font-black uppercase tracking-widest bg-slate-800 border border-slate-700 rounded-xl text-slate-300 hover:bg-slate-700 hover:border-slate-600 disabled:opacity-30 transition-colors">Next</button>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
