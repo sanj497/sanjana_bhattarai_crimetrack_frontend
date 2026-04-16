@@ -53,6 +53,13 @@ export default function AdminReport() {
           ...(token && { Authorization: `Bearer ${token}` }),
         },
       });
+
+      if (res.status === 401) {
+        localStorage.clear();
+        window.location.href = "/login";
+        return;
+      }
+
       if (!res.ok) throw new Error("Unauthorized or failed request");
       const data = await res.json();
       setCrimes(Array.isArray(data.crimes) ? data.crimes : []);

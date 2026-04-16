@@ -171,6 +171,13 @@ export default function CitizenDashboard() {
       const res = await fetch(`${import.meta.env.VITE_BACKEND_URL}/api/report/mine`, {
         headers: { Authorization: `Bearer ${token}` }
       });
+
+      if (res.status === 401) {
+        localStorage.clear();
+        window.location.href = "/login";
+        return;
+      }
+
       const data = await res.json();
       if (data.success) setMyCrimes(data.crimes);
     } catch (err) {
@@ -200,6 +207,13 @@ export default function CitizenDashboard() {
       const res = await fetch(`${import.meta.env.VITE_BACKEND_URL}/api/notifications`, {
         headers: { Authorization: `Bearer ${token}` }
       });
+
+      if (res.status === 401) {
+        localStorage.clear();
+        window.location.href = "/login";
+        return;
+      }
+
       const data = await res.json();
       if (data.success) {
         setUnreadCount(data.unreadCount || 0);
