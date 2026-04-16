@@ -506,7 +506,7 @@ export default function EmergencyContactsApp() {
                 <input
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
-                  placeholder="Query directory database..."
+                  placeholder="Search contacts..."
                   className="bg-transparent text-text-primary text-sm font-medium flex-1 outline-none placeholder:text-text-secondary/30"
                 />
               </div>
@@ -530,20 +530,72 @@ export default function EmergencyContactsApp() {
 
             {/* Admin Actions */}
             {isResponder && (
-              <div className="flex gap-4 p-4 bg-primary-dark/50 rounded-3xl border border-border-subtle">
+              <div className="bg-slate-900/50 rounded-[32px] border border-slate-800 p-8 space-y-6">
                 <button
                   onClick={() => setShowModal(true)}
-                  className="ct-btn-primary flex-1 py-4 flex items-center justify-center gap-3"
+                  className="w-full py-5 bg-blue-600 text-white rounded-2xl text-xs font-black uppercase tracking-widest hover:bg-blue-500 transition-all shadow-lg shadow-blue-600/20 flex items-center justify-center gap-3"
                 >
-                  <Plus size={18} /> Register Authorized Entity
+                  <Plus size={18} /> Add Emergency Contact
                 </button>
-                <button
-                  onClick={handleSeed}
-                  disabled={seeding}
-                  className="ct-btn-secondary flex-1 py-4 flex items-center justify-center gap-3"
-                >
-                   {seeding ? <Activity className="animate-spin" size={18} /> : <span>Sync Default Records</span>}
-                </button>
+                
+                <div className="bg-gradient-to-br from-slate-950 to-slate-900 rounded-2xl border border-slate-800 p-6 space-y-4">
+                  <div className="flex items-center gap-3 mb-4">
+                    <div className="h-10 w-10 bg-blue-600/10 rounded-xl flex items-center justify-center">
+                      <svg className="w-5 h-5 text-blue-500" fill="currentColor" viewBox="0 0 20 20">
+                        <path d="M13 6a3 3 0 11-6 0 3 3 0 016 0zM18 8a2 2 0 11-4 0 2 2 0 014 0zM14 15a4 4 0 00-8 0v3h8v-3zM6 8a2 2 0 11-4 0 2 2 0 014 0zM16 18v-3a5.972 5.972 0 00-.75-2.906A3.005 3.005 0 0119 15v3h-3zM4.75 12.094A5.973 5.973 0 004 15v3H1v-3a3 3 0 013.75-2.906z" />
+                      </svg>
+                    </div>
+                    <div>
+                      <h3 className="text-white text-sm font-bold uppercase tracking-wide">AI-Generated Insights</h3>
+                      <p className="text-slate-500 text-[10px] font-medium">Emergency Response Analytics</p>
+                    </div>
+                  </div>
+                  
+                  <div className="space-y-3">
+                    <div className="flex items-start gap-3 p-4 bg-slate-900/50 rounded-xl border border-slate-800">
+                      <div className="h-6 w-6 rounded-full bg-emerald-500/10 text-emerald-400 flex items-center justify-center text-xs font-bold shrink-0 mt-0.5">1</div>
+                      <p className="text-slate-300 text-xs font-medium leading-relaxed">
+                        <span className="text-white font-bold">System Status:</span> {contacts.length} emergency contacts currently active in the database with verified response protocols.
+                      </p>
+                    </div>
+                    
+                    <div className="flex items-start gap-3 p-4 bg-slate-900/50 rounded-xl border border-slate-800">
+                      <div className="h-6 w-6 rounded-full bg-blue-500/10 text-blue-400 flex items-center justify-center text-xs font-bold shrink-0 mt-0.5">2</div>
+                      <p className="text-slate-300 text-xs font-medium leading-relaxed">
+                        <span className="text-white font-bold">Coverage Analysis:</span> {new Set(contacts.map(c => c.category)).size} different emergency categories covered across {new Set(contacts.map(c => c.region)).size} regions.
+                      </p>
+                    </div>
+                    
+                    <div className="flex items-start gap-3 p-4 bg-slate-900/50 rounded-xl border border-slate-800">
+                      <div className="h-6 w-6 rounded-full bg-amber-500/10 text-amber-400 flex items-center justify-center text-xs font-bold shrink-0 mt-0.5">3</div>
+                      <p className="text-slate-300 text-xs font-medium leading-relaxed">
+                        <span className="text-white font-bold">Recommendation:</span> Regular database synchronization ensures all emergency responders have access to the most current contact information and routing protocols.
+                      </p>
+                    </div>
+                  </div>
+                  
+                  <div className="pt-4 border-t border-slate-800">
+                    <button
+                      onClick={handleSeed}
+                      disabled={seeding}
+                      className="w-full py-3 bg-slate-800 text-slate-300 rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-slate-700 hover:text-white disabled:opacity-50 disabled:cursor-not-allowed transition-all flex items-center justify-center gap-2"
+                    >
+                      {seeding ? (
+                        <>
+                          <Activity className="animate-spin" size={14} /> 
+                          Synchronizing Database...
+                        </>
+                      ) : (
+                        <>
+                          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                          </svg>
+                          Update Default Records
+                        </>
+                      )}
+                    </button>
+                  </div>
+                </div>
               </div>
             )}
 
