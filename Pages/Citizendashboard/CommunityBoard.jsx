@@ -1,5 +1,21 @@
 import React, { useState, useEffect } from 'react';
-import { MessageSquare, Users, Shield, MapPin, Clock, Search, Send, UserCircle2, AlertCircle, Share2, Info } from 'lucide-react';
+import { 
+  MessageSquare, 
+  Users, 
+  Shield, 
+  MapPin, 
+  Clock, 
+  Search, 
+  Send, 
+  UserCircle2, 
+  AlertCircle, 
+  Share2, 
+  Info,
+  ShieldCheck,
+  ChevronRight,
+  TrendingUp,
+  Activity
+} from 'lucide-react';
 
 const API_BASE = `${import.meta.env.VITE_BACKEND_URL}/api/report`;
 
@@ -81,95 +97,112 @@ export default function CommunityBoard() {
 
   const getSeverityStyles = (sev) => {
     switch(sev) {
-      case 'Critical': return 'bg-red-50 text-red-700 border-red-100';
-      case 'High': return 'bg-orange-50 text-orange-700 border-orange-100';
-      case 'Medium': return 'bg-yellow-50 text-yellow-700 border-yellow-100';
-      default: return 'bg-blue-50 text-blue-700 border-blue-100';
+      case 'Critical': return 'bg-rose-50 dark:bg-rose-500/10 text-rose-600 border-rose-100 dark:border-rose-500/20';
+      case 'High': return 'bg-amber-50 dark:bg-amber-500/10 text-amber-600 border-amber-100 dark:border-amber-500/20';
+      case 'Medium': return 'bg-blue-50 dark:bg-blue-500/10 text-blue-600 border-blue-100 dark:border-blue-500/20';
+      default: return 'bg-slate-50 dark:bg-slate-500/10 text-slate-600 border-slate-100 dark:border-slate-500/20';
     }
   };
 
   if (loading) return (
-    <div className="flex flex-col items-center justify-center min-h-[400px]">
-      <div className="w-10 h-10 border-4 border-blue-100 border-t-blue-600 rounded-full animate-spin mb-4"></div>
-      <p className="text-slate-400 font-black uppercase tracking-widest text-[10px]">Synchronizing Community Feed...</p>
+    <div className="flex flex-col items-center justify-center min-h-[600px] bg-white dark:bg-slate-950">
+      <div className="w-14 h-14 border-4 border-slate-100 dark:border-slate-800 border-t-blue-600 rounded-full animate-spin mb-6 shadow-sm"></div>
+      <p className="text-slate-400 dark:text-slate-500 font-black uppercase tracking-[4px] text-[10px] animate-pulse italic">Synchronizing Operational Awareness Registry</p>
     </div>
   );
 
   return (
-    <div className="p-8 max-w-7xl mx-auto font-sans text-slate-800">
+    <div className="p-8 lg:p-12 max-w-[1600px] mx-auto font-sans bg-white dark:bg-slate-950 text-slate-800 dark:text-slate-300 transition-colors duration-300">
       
       {/* Header Section */}
-      <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-8 mb-12">
+      <div className="flex flex-col xl:flex-row xl:items-center justify-between gap-8 mb-16 px-4">
         <div className="flex-1">
-          <div className="flex items-center gap-3 mb-4">
-            <span className="bg-blue-600 text-white px-3 py-1 rounded-lg text-[10px] font-black uppercase tracking-widest flex items-center gap-1.5 shadow-lg shadow-blue-500/20">
-              <Users size={12} />
-              Public Awareness
-            </span>
+          <div className="flex items-center gap-4 mb-6">
+            <div className="p-3 bg-blue-600 rounded-2xl shadow-xl shadow-blue-500/20 rotate-3">
+               <Users size={20} className="text-white" />
+            </div>
+            <span className="text-[10px] font-black uppercase tracking-[5px] text-blue-600 dark:text-blue-500 italic">Sector Awareness Matrix</span>
           </div>
-          <h1 className="text-4xl font-black text-slate-900 tracking-tighter leading-none mb-3">Community Watch Board</h1>
-          <p className="text-slate-500 font-medium max-w-2xl text-sm italic">
-            "Transparency fosters accountability." Explore verified incident reports and collaborate with your neighborhood.
+          <h1 className="text-5xl lg:text-7xl font-black text-slate-900 dark:text-white tracking-tighter leading-[0.85] mb-6 uppercase italic">Community Watch <span className="text-blue-600 underline decoration-blue-500/20 decoration-[12px] underline-offset-8">Datalink</span></h1>
+          <p className="text-slate-400 dark:text-slate-500 font-medium max-w-2xl text-lg italic leading-relaxed">
+            "Transparency fosters accountability." Explore verified incident reports and collaborate with your neighborhood safety units in real-time.
           </p>
         </div>
 
-        <div className="relative group">
-          <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-blue-500 transition-colors" size={20} />
+        <div className="relative group w-full xl:w-96">
+          <Search className="absolute left-6 top-1/2 -translate-y-1/2 text-slate-300 dark:text-slate-600 group-focus-within:text-blue-500 transition-all duration-300" size={24} />
           <input 
             type="text" 
-            placeholder="Search by area or type..." 
-            className="pl-12 pr-6 py-4 bg-white border border-slate-100 rounded-3xl w-full lg:w-96 shadow-xl shadow-slate-200/40 focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition-all outline-none text-sm font-semibold"
+            placeholder="Examine area or vector..." 
+            className="pl-16 pr-8 py-6 bg-slate-50 dark:bg-slate-900/50 border border-slate-100 dark:border-slate-800 rounded-[32px] w-full shadow-inner focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition-all outline-none text-sm font-black uppercase tracking-widest placeholder:text-slate-300 dark:placeholder:text-slate-700"
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
           />
         </div>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-10">
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-12">
         
       {/* Main Feed */}
-        <div className="lg:col-span-7 space-y-6">
+        <div className="lg:col-span-12 xl:col-span-7 space-y-8">
           {filtered.length === 0 ? (
-            <div className="p-20 text-center bg-white rounded-[40px] border border-dashed border-slate-200 shadow-inner">
-               <ShieldCheck className="mx-auto text-emerald-100 mb-6" size={80} />
-               <p className="text-slate-400 font-black uppercase tracking-widest text-sm decoration-emerald-100">Sector Status: Secure</p>
-               <p className="text-slate-300 text-xs mt-2 font-medium">No official safety broadcasts are currently archived for this community.</p>
+            <div className="p-24 text-center bg-white dark:bg-slate-900/40 rounded-[64px] border-2 border-dashed border-slate-100 dark:border-slate-800 shadow-inner group transition-all hover:border-blue-500/20">
+               <div className="h-32 w-32 bg-slate-50 dark:bg-slate-950 rounded-full flex items-center justify-center mx-auto mb-10 shadow-sm border border-slate-100 dark:border-slate-900 group-hover:scale-110 transition-transform">
+                 <ShieldCheck className="text-blue-200 dark:text-blue-900" size={64} />
+               </div>
+               <p className="text-slate-400 dark:text-slate-500 font-black uppercase tracking-[6px] text-lg italic mb-2">Vault Status: Secure</p>
+               <p className="text-slate-300 dark:text-slate-600 text-[10px] font-black uppercase tracking-widest">No active safety broadcasts archived for this sector.</p>
             </div>
           ) : (
             filtered.map((r) => (
               <div 
                 key={r._id} 
-                className={`p-8 bg-white rounded-[40px] border transition-all cursor-pointer group relative overflow-hidden ${selectedReport?._id === r._id ? 'border-indigo-500 ring-8 ring-indigo-500/5 shadow-2xl' : 'border-slate-50 hover:border-indigo-200 shadow-sm'}`}
+                className={`p-10 lg:p-12 rounded-[56px] border transition-all cursor-pointer group relative overflow-hidden bg-white dark:bg-slate-900/40 shadow-sm hover:shadow-2xl ${selectedReport?._id === r._id ? 'border-blue-500 ring-[12px] ring-blue-500/5 dark:ring-blue-500/10' : 'border-slate-100 dark:border-slate-800/50 hover:border-blue-300 dark:hover:border-blue-500/30'}`}
                 onClick={() => openReport(r)}
               >
-                {selectedReport?._id === r._id && <div className="absolute top-0 right-0 p-4"><Info size={20} className="text-indigo-500" /></div>}
-                <div className="absolute top-0 left-0 px-6 py-2 bg-indigo-600 text-white text-[9px] font-black uppercase tracking-[3px] rounded-br-[20px]">
-                   Official Alert
+                {selectedReport?._id === r._id && (
+                  <div className="absolute top-0 right-0 p-8">
+                    <div className="h-10 w-10 bg-blue-600 rounded-2xl flex items-center justify-center text-white shadow-xl shadow-blue-600/30 animate-[bounce_2s_infinite]">
+                       <ChevronRight size={24} />
+                    </div>
+                  </div>
+                )}
+                
+                <div className="absolute top-0 left-0 px-8 py-3 bg-slate-900 dark:bg-blue-600 text-white text-[10px] font-black uppercase tracking-[4px] rounded-br-[32px] italic shadow-lg">
+                   Security Protocol {r.severity}
                 </div>
                 
-                <div className="mt-6 flex items-center gap-2 mb-6">
-                  <span className={`px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest border ${getSeverityStyles(r.severity)}`}>
+                <div className="mt-10 flex flex-wrap items-center gap-4 mb-8">
+                  <span className={`px-6 py-2 rounded-2xl text-[10px] font-black uppercase tracking-[3px] border-2 shadow-sm ${getSeverityStyles(r.severity)}`}>
                     {r.severity} Priority
                   </span>
-                  <span className="text-slate-200 text-xs">•</span>
-                  <span className="text-slate-400 text-[10px] font-black uppercase tracking-widest flex items-center gap-1.5 underline decoration-slate-200 underline-offset-4">
-                    <Shield size={12} className="text-indigo-500" /> Admin Verified
+                  <div className="h-1 w-1 rounded-full bg-slate-200" />
+                  <span className="text-slate-400 dark:text-slate-500 text-[10px] font-black uppercase tracking-[3px] flex items-center gap-2 italic">
+                    <ShieldCheck size={16} className="text-blue-500" /> Administrative Validation: PASS
                   </span>
                 </div>
 
-                <h3 className="text-2xl font-black text-slate-900 mb-3 group-hover:text-indigo-600 transition-colors leading-tight tracking-tight uppercase italic underline decoration-indigo-200 decoration-2">
+                <h3 className="text-3xl lg:text-4xl font-black text-slate-900 dark:text-white mb-6 group-hover:text-blue-600 transition-colors leading-[0.95] tracking-tighter uppercase italic line-clamp-2">
                   {r.title}
                 </h3>
-                <p className="text-slate-500 text-sm line-clamp-2 mb-8 font-medium leading-relaxed italic border-l-2 border-indigo-100 pl-4">
-                   "SAFETY WARNING: {r.description}"
-                </p>
+                <div className="bg-slate-50 dark:bg-slate-950/50 p-8 rounded-[40px] border border-slate-100 dark:border-slate-800 shadow-inner group-hover:border-blue-200 transition-colors italic mb-10">
+                   <p className="text-slate-500 dark:text-slate-400 text-lg font-medium leading-relaxed italic border-l-4 border-blue-500 pl-8">
+                      "SECURITY ADVISORY: {r.description}"
+                   </p>
+                </div>
 
-                <div className="flex flex-wrap items-center gap-6 pt-6 border-t border-slate-50">
-                  <div className="flex items-center gap-2 text-slate-400 text-[11px] font-bold">
-                    <MapPin size={14} className="text-indigo-500" /> {r.location.address}
+                <div className="flex flex-wrap items-center gap-10 pt-8 border-t border-slate-100 dark:border-slate-800/50">
+                  <div className="flex items-center gap-4 text-slate-400 dark:text-slate-500 text-[11px] font-black uppercase tracking-widest italic group-hover:text-slate-800 dark:group-hover:text-slate-200 transition-colors">
+                    <div className="p-3 bg-slate-100 dark:bg-slate-800 rounded-2xl">
+                      <MapPin size={18} className="text-blue-600 dark:text-blue-500" />
+                    </div>
+                    {r.location.address}
                   </div>
-                  <div className="flex items-center gap-2 text-slate-400 text-[11px] font-bold">
-                    <Clock size={14} /> Issued: {new Date(r.createdAt).toLocaleDateString()}
+                  <div className="flex items-center gap-4 text-slate-400 dark:text-slate-500 text-[11px] font-black uppercase tracking-widest italic">
+                    <div className="p-3 bg-slate-100 dark:bg-slate-800 rounded-2xl">
+                      <Clock size={18} className="text-blue-500" />
+                    </div>
+                    Logged: {new Date(r.createdAt).toLocaleDateString()}
                   </div>
                 </div>
               </div>
@@ -178,103 +211,116 @@ export default function CommunityBoard() {
         </div>
 
         {/* Intelligence / Context Panel */}
-        <div className="lg:col-span-5 relative">
+        <div className="lg:col-span-12 xl:col-span-5 relative">
           {selectedReport ? (
-            <div className="sticky top-10 bg-white rounded-[48px] border border-slate-100 shadow-2xl overflow-hidden flex flex-col max-h-[calc(100vh-120px)]">
-              <div className="p-10 bg-[#0B1F3B] text-white relative">
-                 <div className="flex justify-between items-start mb-6">
-                    <div className="bg-blue-500 text-white h-12 w-12 rounded-2xl flex items-center justify-center font-black">
+            <div className="sticky top-10 bg-white dark:bg-slate-900/60 rounded-[64px] border border-slate-100 dark:border-slate-800/50 shadow-2xl overflow-hidden flex flex-col max-h-[calc(100vh-120px)] transition-all">
+              <div className="p-12 bg-slate-950 text-white relative group/header">
+                 <div className="absolute inset-0 bg-blue-600/10 opacity-0 group-hover/header:opacity-100 transition-opacity duration-1000" />
+                 <div className="flex justify-between items-start mb-10 relative z-10">
+                    <div className="bg-blue-600 text-white h-14 w-14 rounded-3xl flex items-center justify-center font-black text-xl shadow-2xl shadow-blue-600/30">
                        CT
                     </div>
-                    <button className="text-white/40 hover:text-white transition-colors">
-                       <Share2 size={20} />
+                    <button className="h-12 w-12 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center text-white/40 hover:text-white hover:bg-white/10 transition-all">
+                       <Share2 size={24} />
                     </button>
                  </div>
-                 <h2 className="text-2xl font-black mb-2 leading-none uppercase tracking-tighter">{selectedReport.title || "Subject Intelligence"}</h2>
-                 <p className="text-blue-400 text-[10px] font-black uppercase tracking-[4px]">Verification ID: {(selectedReport._id || "XXXXXXXX").slice(-8).toUpperCase()}</p>
+                 <h2 className="text-4xl font-black mb-4 leading-[0.9] uppercase tracking-tighter italic relative z-10">{selectedReport.title || "Subject Datalink"}</h2>
+                 <p className="text-blue-500 text-[10px] font-black uppercase tracking-[5px] relative z-10">REGISTRY ID: {(selectedReport._id || "XXXXXXXX").slice(-8).toUpperCase()}</p>
+                 
+                 <div className="mt-8 flex gap-3 relative z-10">
+                    <div className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse" />
+                    <span className="text-[10px] font-black uppercase tracking-[2px] text-slate-400 italic">Encrypted Secure Session Active</span>
+                 </div>
               </div>
               
-              <div className="p-10 overflow-y-auto flex-1 bg-gradient-to-b from-slate-50/50 to-white">
+              <div className="p-12 overflow-y-auto flex-1 bg-gradient-to-b from-white dark:from-slate-900 to-slate-50 dark:to-slate-950 no-scrollbar">
                  {/* Narrative Block */}
-                 <div className="mb-10">
-                    <div className="flex items-center gap-2 mb-4 text-slate-400 font-black uppercase tracking-widest text-[10px]">
-                       <Info size={14} /> Official Summary
+                 <div className="mb-12">
+                    <div className="flex items-center gap-3 mb-6 text-slate-400 dark:text-slate-500 font-black uppercase tracking-[4px] text-[10px] italic">
+                       <Info size={16} className="text-blue-500" /> Official Objective Summary
                     </div>
-                    <div className="bg-white p-6 rounded-3xl border border-slate-100 shadow-sm relative italic group font-medium text-slate-700 leading-relaxed text-sm">
-                       <div className="absolute top-4 left-4 text-blue-100">
-                          <AlertCircle size={40} />
+                    <div className="bg-white dark:bg-slate-950/80 p-8 rounded-[40px] border border-slate-100 dark:border-slate-800/50 shadow-sm relative italic group font-medium text-slate-700 dark:text-slate-300 leading-relaxed text-lg italic">
+                       <div className="absolute top-6 left-6 text-blue-500 opacity-5">
+                          <Activity size={80} />
                        </div>
-                       <p className="relative z-10">"{selectedReport.description}"</p>
+                       <p className="relative z-10 border-l-4 border-blue-500/20 pl-6 group-hover:border-blue-500 transition-colors duration-500 leading-loose">"{selectedReport.description}"</p>
                     </div>
                  </div>
 
                  {/* Responses Feed */}
-                 <div>
-                    <div className="flex items-center justify-between mb-6">
-                       <h4 className="text-xs font-black text-slate-900 uppercase tracking-widest flex items-center gap-2 italic underline decoration-blue-500">
-                         Collaboration Hub
+                 <div className="space-y-8">
+                    <div className="flex items-center justify-between mb-8">
+                       <h4 className="text-xs font-black text-slate-900 dark:text-white uppercase tracking-[4px] flex items-center gap-3 italic">
+                         <MessageSquare className="text-blue-600 h-5 w-5" />
+                         Awareness Hub
                        </h4>
-                       <span className="text-[10px] font-black bg-slate-900 text-white px-3 py-1 rounded-full">{responses.length} Active responses</span>
+                       <span className="text-[10px] font-black bg-slate-900 dark:bg-blue-600 text-white px-5 py-2.5 rounded-[12px] shadow-lg italic">{responses.length} Collaborative Inputs</span>
                     </div>
 
-                    <div className="space-y-4 mb-8">
+                    <div className="space-y-6 mb-12">
                       {responses.map((resp, i) => (
-                        <div key={i} className="flex gap-4 group">
-                          <div className="shrink-0 h-10 w-10 bg-slate-100 rounded-2xl flex items-center justify-center text-slate-400 font-bold group-hover:bg-blue-50 group-hover:text-blue-600 transition-all">
-                             <UserCircle2 size={20} />
+                        <div key={i} className="flex gap-6 group/resp">
+                          <div className="shrink-0 h-14 w-14 bg-slate-100 dark:bg-slate-800 rounded-[24px] flex items-center justify-center text-slate-400 dark:text-slate-600 font-bold group-hover/resp:scale-110 group-hover/resp:rotate-6 transition-all shadow-inner">
+                             <UserCircle2 size={32} />
                           </div>
-                          <div className="bg-white px-6 py-4 rounded-3xl border border-slate-100 shadow-sm flex-1">
-                             <div className="flex items-center justify-between mb-1">
-                                <span className="text-[11px] font-black text-slate-800">{resp.userId?.username || "Neighbor"}</span>
-                                <span className="text-[9px] text-slate-300 font-bold uppercase">{new Date(resp.createdAt).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</span>
+                          <div className="bg-white dark:bg-slate-950 px-8 py-6 rounded-[32px] border border-slate-100 dark:border-slate-800/50 shadow-sm flex-1 group-hover/resp:shadow-xl transition-all">
+                             <div className="flex items-center justify-between mb-2">
+                                <span className="text-[11px] font-black text-slate-900 dark:text-blue-400 uppercase tracking-widest">{resp.userId?.username || "Neighbor Registry"}</span>
+                                <span className="text-[9px] text-slate-300 dark:text-slate-600 font-black uppercase tracking-widest">{new Date(resp.createdAt).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</span>
                              </div>
-                             <p className="text-xs text-slate-500 font-medium leading-relaxed italic">"{resp.content}"</p>
+                             <p className="text-sm text-slate-500 dark:text-slate-400 font-medium leading-relaxed italic uppercase tracking-tight">"{resp.content}"</p>
                           </div>
                         </div>
                       ))}
                       {responses.length === 0 && (
-                        <div className="p-10 text-center border-2 border-dashed border-slate-50 rounded-[40px]">
-                           <MessageSquare className="mx-auto text-slate-100 mb-4" size={32} />
-                           <p className="text-[10px] text-slate-400 font-black uppercase tracking-widest">Awaiting Neighborhood Input</p>
+                        <div className="p-16 text-center bg-slate-50 dark:bg-slate-900 border-2 border-dashed border-slate-100 dark:border-slate-800 rounded-[48px] shadow-inner mt-4">
+                           <TrendingUp className="mx-auto text-slate-200 dark:text-slate-800 mb-6 animate-pulse" size={48} />
+                           <p className="text-[10px] text-slate-400 dark:text-slate-600 font-black uppercase tracking-[5px] italic">Awaiting Neighbor Registry Inputs</p>
                         </div>
                       )}
                     </div>
 
                     {/* Post Interface */}
-                    <form onSubmit={handlePostResponse} className="relative sticky bottom-0 mt-10">
-                      <div className="bg-white rounded-[32px] border-2 border-slate-100 shadow-2xl p-2 flex items-center gap-2 focus-within:border-blue-500 transition-all">
+                    <form onSubmit={handlePostResponse} className="relative sticky bottom-0 mt-12 group/form">
+                      <div className="absolute -inset-1 bg-gradient-to-r from-blue-600 to-indigo-600 rounded-[40px] blur opacity-20 group-focus-within/form:opacity-40 transition-opacity" />
+                      <div className="bg-white dark:bg-slate-900 rounded-[35px] border-2 border-slate-100 dark:border-slate-800 shadow-2xl p-4 flex items-center gap-4 focus-within:border-blue-500 transition-all relative z-10">
                         <input 
                           type="text" 
-                          className="flex-1 px-4 py-3 bg-transparent text-sm font-semibold outline-none text-slate-700"
-                          placeholder="Add perspective or update..."
+                          className="flex-1 px-4 py-4 bg-transparent text-sm font-black uppercase tracking-widest outline-none text-slate-800 dark:text-white placeholder:text-slate-300 dark:placeholder:text-slate-700"
+                          placeholder="Inject perspective or update..."
                           value={newResponse}
                           onChange={(e) => setNewResponse(e.target.value)}
                         />
                         <button 
                           disabled={submitting}
-                          className="h-10 w-10 bg-[#0B1F3B] text-white flex items-center justify-center rounded-2xl hover:bg-blue-600 transition-all disabled:opacity-30 shadow-xl active:scale-95"
+                          className="h-14 w-24 bg-slate-950 dark:bg-blue-600 text-white flex items-center justify-center rounded-[24px] hover:bg-blue-600 transition-all disabled:opacity-30 shadow-xl active:scale-95 group/send"
                         >
-                          <Send size={18} />
+                          {submitting ? <div className="h-6 w-6 border-2 border-white/20 border-t-white rounded-full animate-spin" /> : <Send size={24} className="group-hover/send:translate-x-1 group-hover/send:-translate-y-1 transition-transform" />}
                         </button>
                       </div>
-                      <p className="text-[9px] text-slate-300 font-bold text-center mt-3 uppercase tracking-widest">Public Contribution Policy Active</p>
+                      <p className="text-[9px] text-slate-300 dark:text-slate-600 font-black text-center mt-6 uppercase tracking-[5px] italic">Digital Integrity Policy: ACTIVE FORCE</p>
                     </form>
                  </div>
               </div>
             </div>
           ) : (
-            <div className="sticky top-10 h-[500px] flex flex-col items-center justify-center bg-white rounded-[48px] border border-slate-100 shadow-inner px-12 text-center">
-               <div className="h-20 w-20 bg-slate-50 rounded-full flex items-center justify-center mb-6 border border-slate-100">
-                  <MessageSquare className="text-slate-200" size={32} />
+            <div className="sticky top-10 h-[600px] flex flex-col items-center justify-center bg-white dark:bg-slate-900/40 rounded-[64px] border border-slate-100 dark:border-slate-800 shadow-inner px-16 text-center group">
+               <div className="h-28 w-28 bg-slate-50 dark:bg-slate-950 rounded-[40px] flex items-center justify-center mb-10 border border-slate-100 dark:border-slate-800/50 shadow-sm group-hover:scale-110 group-hover:rotate-12 transition-all duration-700">
+                  <Activity className="text-slate-200 dark:text-slate-800" size={48} />
                </div>
-               <h3 className="text-lg font-black text-slate-900 tracking-tight leading-tight mb-2 uppercase">Deep Intelligence Panel</h3>
-               <p className="text-slate-400 text-xs font-medium leading-relaxed">
-                 Select an incident report from the verified community feed to analyze the deep intelligence, view neighborhood perspectives, and contribute your observations.
+               <h3 className="text-2xl font-black text-slate-900 dark:text-white tracking-tighter leading-none mb-4 uppercase italic">Intelligence Selection Required</h3>
+               <p className="text-slate-400 dark:text-slate-500 text-sm font-medium leading-relaxed italic border-x-4 border-slate-100 dark:border-slate-800 px-6">
+                 Select an incident report from the verified community awareness datalink to analyze the deep intelligence, examine neighborhood perspectives, and inject your localized observations.
                </p>
             </div>
           )}
         </div>
       </div>
+      
+      <style>{`
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+      `}</style>
     </div>
   );
 }

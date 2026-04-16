@@ -6,6 +6,7 @@ import {
   MapPin, 
   Clock, 
   ChevronRight, 
+  ChevronLeft,
   CheckCircle2, 
   XCircle, 
   AlertCircle,
@@ -13,7 +14,11 @@ import {
   CheckSquare,
   ClipboardList,
   RefreshCw,
-  Eye
+  Eye,
+  ExternalLink,
+  Siren,
+  Filter,
+  Zap
 } from "lucide-react";
 
 const Policereport = () => {
@@ -121,257 +126,340 @@ const Policereport = () => {
   };
 
   if (loading && crimes.length === 0) return (
-    <div className="min-h-screen bg-[#020617] flex flex-col items-center justify-center gap-4">
-      <div className="h-10 w-10 border-4 border-slate-800 border-t-blue-500 rounded-full animate-spin" />
-      <span className="text-[10px] font-black text-slate-500 uppercase tracking-[4px]">Accessing Field Intelligence...</span>
+    <div className="min-h-screen bg-slate-950 flex flex-col items-center justify-center gap-8 overflow-hidden relative">
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-blue-600/10 via-transparent to-transparent opacity-50" />
+      <div className="relative">
+        <div className="h-24 w-24 border-[6px] border-blue-500/10 border-t-blue-500 rounded-full animate-spin shadow-[0_0_50px_rgba(59,130,246,0.2)]" />
+        <Siren size={32} className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-blue-500 animate-pulse" />
+      </div>
+      <div className="flex flex-col items-center gap-2">
+        <span className="ct-tactical-label text-blue-400">Police Intelligence Bureau</span>
+        <span className="text-white text-xs font-black uppercase tracking-[8px] animate-pulse">Syncing Operational Grid...</span>
+      </div>
     </div>
   );
 
   return (
-    <div className="min-h-screen bg-[#020617] p-8 lg:p-12 font-sans text-slate-300">
-      <div className="max-w-7xl mx-auto mb-12 flex flex-col md:flex-row justify-between items-start md:items-center gap-8">
-        <div>
-          <div className="flex items-center gap-2 text-blue-500 mb-2">
-            <Shield size={18} />
-            <span className="text-[10px] font-black uppercase tracking-[3px]">Police Intelligence Bureau</span>
-          </div>
-          <h1 className="text-4xl font-black text-white tracking-tighter uppercase leading-none">Command Center</h1>
-        </div>
-
-        <div className="flex items-center gap-4 bg-slate-900/50 p-2 rounded-2xl border border-slate-800/50 backdrop-blur-xl w-full md:w-auto">
-          <div className="relative flex-1 md:w-64">
-            <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500" size={16} />
-            <input 
-              type="text" 
-              placeholder="Search reports..." 
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full bg-transparent pl-12 pr-4 py-3 text-xs font-bold outline-none text-white placeholder:text-slate-600"
-            />
-          </div>
-        </div>
+    <div className="min-h-screen bg-[#020617] p-6 lg:p-12 font-sans selection:bg-blue-500/30 overflow-x-hidden">
+      {/* ── AMBIENT FX ── */}
+      <div className="fixed inset-0 pointer-events-none overflow-hidden">
+        <div className="absolute top-0 right-0 w-[800px] h-[800px] bg-blue-600/5 rounded-full blur-[200px] -mr-96 -mt-96" />
+        <div className="absolute bottom-0 left-0 w-[600px] h-[600px] bg-emerald-600/5 rounded-full blur-[150px] -ml-48 -mb-48" />
+        <div className="absolute inset-0 opacity-[0.02]" style={{ backgroundImage: \"radial-gradient(#fff 1px, transparent 1px)\", backgroundSize: \"40px 40px\" }} />
       </div>
 
-      <div className="max-w-7xl mx-auto grid grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
-        {[
-          { label: "Active Intelligence", value: totalItems, icon: <ClipboardList />, color: "blue" },
-          { label: "Pending Response", value: crimes.filter(c => c.status === "ForwardedToPolice").length, icon: <Shield />, color: "amber" },
-        ].slice(0, 4).map((stat, i) => (
-          <div key={i} className="bg-slate-900/40 border border-slate-800/50 p-6 rounded-[32px] group hover:border-blue-500/30 transition-all">
-            <div className={`p-3 rounded-2xl w-fit mb-4 bg-${stat.color}-500/10 text-${stat.color}-500`}>
-              {stat.icon}
+      <div className="max-w-[1600px] mx-auto relative z-10">
+        {/* ── HEADER ── */}
+        <div className="flex flex-col xl:flex-row xl:items-end justify-between gap-12 mb-20">
+          <div className="space-y-6">
+            <div className="flex items-center gap-4">
+              <div className="h-12 w-12 bg-blue-600 rounded-2xl flex items-center justify-center text-white shadow-[0_0_30px_rgba(59,130,246,0.4)] rotate-3">
+                <Shield size={24} />
+              </div>
+              <div>
+                <span className="ct-tactical-label text-blue-500 block mb-1">Command Control v4.0</span>
+                <span className="text-emerald-500 text-[10px] font-black uppercase tracking-[3px] flex items-center gap-2">
+                  <div className=\"h-1.5 w-1.5 bg-emerald-500 rounded-full animate-pulse\" /> System Link Restricted
+                </span>
+              </div>
             </div>
-            <div className="text-2xl font-black text-white">{stat.value}</div>
-            <div className="text-[10px] font-black text-slate-500 uppercase tracking-widest">{stat.label}</div>
+            <h1 className="ct-tactical-title text-7xl lg:text-9xl text-white">POLICE <br/> <span className=\"text-blue-600 underline decoration-blue-500/10 decoration-[12px] underline-offset-[-5px]\">INTERFACE</span></h1>
           </div>
-        ))}
-      </div>
 
-      <div className="max-w-7xl mx-auto flex gap-3 mb-8 overflow-x-auto pb-4 no-scrollbar">
-        {["All", "ForwardedToPolice", "UnderInvestigation", "Resolved", "Rejected"].map((s) => (
-          <button
-            key={s}
-            onClick={() => { setFilter(s); setCurrentPage(1); }}
-            className={`px-6 py-2.5 rounded-full text-[10px] font-black uppercase tracking-widest transition-all whitespace-nowrap border-2 ${filter === s ? 'bg-blue-600 border-blue-600 text-white shadow-lg shadow-blue-600/20' : 'bg-transparent border-slate-800 text-slate-500 hover:border-slate-700'}`}
-          >
-            {s === "ForwardedToPolice" ? "New Assignments" : s}
-          </button>
-        ))}
-      </div>
-
-      <div className="max-w-7xl mx-auto grid grid-cols-1 xl:grid-cols-2 gap-8 mb-10">
-        {error ? (
-          <div className="col-span-full py-20 text-center bg-rose-500/5 border border-rose-500/10 rounded-[48px]">
-            <AlertCircle size={48} className="text-rose-500 mx-auto mb-4" />
-            <h3 className="text-white font-black uppercase tracking-widest mb-2">Access Denied</h3>
-            <p className="text-slate-500 text-sm max-w-md mx-auto">{error}</p>
-          </div>
-        ) : crimes.length === 0 ? (
-          <div className="col-span-full py-20 text-center bg-slate-900/40 border border-slate-800/50 rounded-[48px]">
-             <ClipboardList size={48} className="text-slate-700 mx-auto mb-4" />
-             <h3 className="text-slate-500 font-black uppercase tracking-widest">No Intelligence Available</h3>
-             <p className="text-slate-600 text-xs">Awaiting new case assignments for your district.</p>
-          </div>
-        ) : (
-          crimes.map((crime) => (
-            <div key={crime._id} className="bg-slate-900/40 border border-slate-800/50 rounded-[48px] p-10 hover:border-blue-500/20 transition-all group relative overflow-hidden">
-               <div className={`absolute top-0 right-0 px-6 py-2 rounded-bl-3xl border-l border-b ${statusConfig[crime.status]?.bg} ${statusConfig[crime.status]?.border} ${statusConfig[crime.status]?.color} text-[10px] font-black uppercase tracking-[2px] flex items-center gap-2`}>
-                {statusConfig[crime.status]?.icon}
-                {crime.status}
-              </div>
-
-              <div className="flex items-start gap-6 mb-8">
-                <div className="h-14 w-14 bg-slate-950 rounded-2xl flex items-center justify-center text-blue-500 border border-slate-800 shadow-xl group-hover:scale-110 transition-transform">
-                  <Shield size={24} />
+          <div className=\"flex flex-col md:flex-row items-stretch gap-6 w-full xl:w-auto\">
+             <div className=\"ct-glass p-2 rounded-[32px] flex items-center gap-4 w-full md:w-[450px]\">
+                <div className=\"h-14 w-14 bg-slate-800 rounded-2xl flex items-center justify-center text-slate-500 shrink-0\">
+                   <Search size={24} />
                 </div>
-                <div className="flex-1 pr-24">
-                  <div className="text-[10px] font-black text-blue-500 uppercase tracking-[3px] mb-1">{crime.crimeType}</div>
-                  <h3 className="text-xl font-black text-white tracking-tight uppercase group-hover:text-blue-400 transition-colors line-clamp-1">{crime.title}</h3>
+                <input 
+                  type=\"text\" 
+                  placeholder=\"SEARCH INTEL BY TITLE OR ID...\" 
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className=\"bg-transparent w-full text-white font-black uppercase tracking-[3px] text-xs outline-none placeholder:text-slate-600 truncate\"
+                />
+             </div>
+             
+             <button onClick={fetchCrimes} className=\"ct-glass px-10 py-5 rounded-[32px] text-white ct-tactical-label flex items-center justify-center gap-4 hover:bg-white hover:text-slate-950 transition-all active:scale-95 group\">
+                <RefreshCw size={18} className=\"group-hover:rotate-180 transition-transform duration-700\" />
+                Force Sync
+             </button>
+          </div>
+        </div>
+
+        {/* ── KPI GRID ── */}
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-6 mb-20">
+          {[
+            { label: \"Total Intel Flow\", val: totalItems, icon: <ClipboardList />, color: \"blue\" },
+            { label: \"Pending Deployment\", val: crimes.filter(c => c.status === \"ForwardedToPolice\").length, icon: <Siren />, color: \"rose\" },
+            { label: \"In Investigation\", val: crimes.filter(c => c.status === \"UnderInvestigation\").length, icon: <Activity />, color: \"amber\" },
+            { label: \"Confirmed Closed\", val: crimes.filter(c => c.status === \"Resolved\").length, icon: <CheckCircle2 />, color: \"emerald\" },
+          ].map((stat, i) => (
+            <div key={i} className=\"ct-card p-10 group overflow-hidden\">
+               <div className={`absolute top-0 right-0 h-40 w-40 bg-${stat.color}-600/5 rounded-full -mr-20 -mt-20 group-hover:scale-150 transition-all duration-700`} />
+               <div className={`h-16 w-16 bg-${stat.color}-600/10 rounded-[24px] flex items-center justify-center text-${stat.color}-500 mb-10 group-hover:scale-110 transition-transform shadow-inner`}>
+                  {stat.icon}
+               </div>
+               <div className=\"ct-tactical-label text-slate-500 mb-3\">{stat.label}</div>
+               <div className=\"text-7xl font-black text-white tracking-tighter leading-none italic\">{stat.val}</div>
+            </div>
+          ))}
+        </div>
+
+        {/* ── FILTER PROTOCOLS ── */}
+        <div className=\"flex items-center gap-3 mb-12 overflow-x-auto pb-6 no-scrollbar\">
+          <div className=\"ct-glass p-2 rounded-[28px] flex items-center gap-2\">
+            {[\"All\", \"ForwardedToPolice\", \"UnderInvestigation\", \"Resolved\", \"Rejected\"].map((s) => (
+              <button
+                key={s}
+                onClick={() => { setFilter(s); setCurrentPage(1); }}
+                className={`px-10 py-4 rounded-[20px] transition-all whitespace-nowrap ct-tactical-label ${
+                  filter === s 
+                    ? 'bg-blue-600 text-white shadow-2xl scale-105 ct-glow-blue' 
+                    : 'text-slate-500 hover:text-white'
+                }`}
+              >
+                {s === \"ForwardedToPolice\" ? \"DEPLOYMENT REQ\" : s.replace(/([A-Z])/g, ' $1').trim()}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {/* ── MAIN CONTENT ── */}
+        <div className=\"grid grid-cols-1 xl:grid-cols-2 gap-10 mb-20\">
+          {error ? (
+            <div className=\"col-span-full ct-glass p-32 rounded-[64px] text-center\">
+               <AlertCircle size={80} className=\"text-rose-600 mx-auto mb-10 animate-bounce\" />
+               <h2 className=\"ct-tactical-title text-5xl text-white mb-6\">Protocol Breach</h2>
+               <p className=\"text-slate-400 ct-tactical-label\">{error}</p>
+            </div>
+          ) : crimes.length === 0 ? (
+            <div className=\"col-span-full ct-glass p-40 rounded-[80px] text-center\">
+               <Shield className=\"text-slate-800 mx-auto mb-10 h-32 w-32 opacity-20\" />
+               <h2 className=\"ct-tactical-title text-4xl text-slate-600 mb-4\">Vault Silent</h2>
+               <p className=\"text-slate-700 ct-tactical-label\">No matching intelligence vectors located in current sector.</p>
+            </div>
+          ) : (
+            crimes.map((crime) => (
+              <div key={crime._id} className=\"ct-card p-12 lg:p-14 group hover:scale-[1.01] duration-500\">
+                {/* Status Indicator */}
+                <div className={`absolute top-12 right-12 px-8 py-3 rounded-2xl ${statusConfig[crime.status]?.bg} ${statusConfig[crime.status]?.border} ${statusConfig[crime.status]?.color} ct-tactical-label flex items-center gap-3 shadow-lg backdrop-blur-md italic`}>
+                  <div className=\"relative flex h-2 w-2\">
+                    <div className=\"animate-ping absolute inline-flex h-full w-full rounded-full bg-current opacity-75\" />
+                    <div className=\"relative inline-flex rounded-full h-2 w-2 bg-current\" />
+                  </div>
+                  {crime.status === \"ForwardedToPolice\" ? \"NEW DEPLOYMENT\" : crime.status.replace(/([A-Z])/g, ' $1').trim()}
                 </div>
-              </div>
 
-              <div className="bg-slate-950/50 p-6 rounded-3xl border border-slate-800/30 mb-8">
-                <p className="text-slate-400 text-sm leading-relaxed line-clamp-3">"{crime.description}"</p>
-              </div>
+                <div className=\"flex items-start gap-10 mb-12\">
+                  <div className=\"h-24 w-24 bg-slate-950 rounded-[32px] flex items-center justify-center text-blue-600 shrink-0 border border-white/5 shadow-inner group-hover:scale-110 group-hover:rotate-6 transition-all duration-700\">
+                    <Shield size={40} />
+                  </div>
+                  <div className=\"flex-1 pr-24\">
+                    <div className=\"ct-tactical-label text-blue-500 mb-3\">CASE_{crime._id.slice(-8).toUpperCase()} // {crime.crimeType}</div>
+                    <h3 className=\"ct-tactical-title text-4xl lg:text-5xl text-white group-hover:text-blue-500 transition-colors line-clamp-2 leading-[0.9]\">
+                      {crime.title}
+                    </h3>
+                  </div>
+                </div>
 
-              <div className="grid grid-cols-2 gap-4 mb-8">
-                 <div className="flex items-center gap-3">
-                   <MapPin size={16} className="text-slate-600" />
-                   <div>
-                      <div className="text-[9px] font-black text-slate-500 uppercase">Incident Location</div>
-                      <div className="text-xs font-bold text-white line-clamp-1">{crime.location?.address}</div>
-                   </div>
-                 </div>
-                 <div className="flex items-center gap-3">
-                   <Clock size={16} className="text-slate-600" />
-                   <div>
-                      <div className="text-[9px] font-black text-slate-500 uppercase">Received At</div>
-                      <div className="text-xs font-bold text-white">{new Date(crime.createdAt).toLocaleDateString()}</div>
-                   </div>
-                 </div>
-              </div>
+                <div className=\"bg-slate-950/80 p-10 rounded-[48px] border border-white/5 mb-12 shadow-inner\">
+                  <p className=\"text-slate-400 text-xl font-bold italic leading-relaxed\">
+                    \"{crime.description}\"
+                  </p>
+                </div>
 
-              <div className="flex flex-wrap gap-3 pt-4 border-t border-slate-800/50">
-                <button
-                  onClick={() => toggleDetails(crime._id)}
-                  className="bg-slate-800 hover:bg-slate-700 text-slate-200 px-6 py-4 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all border border-slate-700"
-                >
-                  {expandedCrimeIds.has(crime._id) ? "Hide Details" : "View Details"}
-                </button>
+                <div className=\"grid grid-cols-2 gap-10 mb-12 border-b border-white/5 pb-12\">
+                  <div className=\"flex items-center gap-6\">
+                    <div className=\"h-14 w-14 rounded-2xl bg-white/5 flex items-center justify-center text-slate-500\">
+                      <MapPin size={24} />
+                    </div>
+                    <div>
+                      <div className=\"ct-tactical-label text-slate-500 mb-1\">Sector Grid</div>
+                      <div className=\"text-white font-black text-sm uppercase tracking-tight truncate max-w-[200px] italic\">{crime.location?.address}</div>
+                    </div>
+                  </div>
+                  <div className=\"flex items-center gap-6\">
+                    <div className=\"h-14 w-14 rounded-2xl bg-white/5 flex items-center justify-center text-slate-500\">
+                      <Clock size={24} />
+                    </div>
+                    <div>
+                      <div className=\"ct-tactical-label text-slate-500 mb-1\">Inbound Sync</div>
+                      <div className=\"text-white font-black text-sm uppercase tracking-tight italic\">{new Date(crime.createdAt).toLocaleDateString()} // {new Date(crime.createdAt).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</div>
+                    </div>
+                  </div>
+                </div>
 
-                {crime.status === "ForwardedToPolice" && (
-                  <button 
-                    onClick={() => updateStatus(crime._id, "UnderInvestigation")}
-                    disabled={updatingId === crime._id}
-                    className="flex-1 bg-blue-600 hover:bg-blue-500 text-white py-4 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all disabled:opacity-50 flex items-center justify-center gap-2 shadow-lg shadow-blue-600/10"
+                <div className=\"flex flex-wrap gap-5\">
+                  <button
+                    onClick={() => toggleDetails(crime._id)}
+                    className=\"flex-1 bg-white text-slate-950 px-10 py-6 rounded-[28px] ct-tactical-label hover:bg-blue-600 hover:text-white transition-all active:scale-95 flex items-center justify-center gap-4 group/exp shadow-2xl\"
                   >
-                    {updatingId === crime._id ? "Processing..." : "Accept & Investigate"}
-                    <ChevronRight size={14} />
+                    {expandedCrimeIds.has(crime._id) ? \"Close Dossier\" : \"Extract Artifacts\"}
+                    {expandedCrimeIds.has(crime._id) ? <XCircle size={18}/> : <Zap size={18} className=\"group-hover/exp:scale-125 transition-transform\"/>}
                   </button>
-                )}
 
-                {crime.status === "UnderInvestigation" && (
-                   <>
-                     <button 
-                      onClick={() => updateStatus(crime._id, "Resolved")}
+                  {crime.status === \"ForwardedToPolice\" && (
+                    <button 
+                      onClick={() => updateStatus(crime._id, \"UnderInvestigation\")}
                       disabled={updatingId === crime._id}
-                      className="flex-1 bg-emerald-600 hover:bg-emerald-500 text-white py-4 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all disabled:opacity-50 flex items-center justify-center gap-2"
-                     >
-                        Confirm Resolution <CheckCircle2 size={14} />
-                     </button>
-                     <button 
-                      onClick={() => updateStatus(crime._id, "Rejected")}
-                      disabled={updatingId === crime._id}
-                      className="bg-rose-950/50 hover:bg-rose-900 border border-rose-500/30 text-rose-500 px-6 py-4 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all disabled:opacity-50"
-                     >
-                        False Alarm
-                     </button>
-                   </>
-                )}
-              </div>
-              
-              {expandedCrimeIds.has(crime._id) && (
-                <div className="mt-6 p-6 rounded-3xl bg-slate-950/60 border border-slate-800/40 space-y-6">
-                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs font-bold text-slate-400">
-                      <div>Case ID: <span className="text-white font-mono">{crime._id}</span></div>
-                      <div>Reported: <span className="text-white">{new Date(crime.createdAt).toLocaleString()}</span></div>
-                      <div>Priority: <span className={crime.priority === 'High' ? 'text-red-500' : 'text-blue-500'}>{crime.priority || 'Medium'}</span></div>
-                   </div>
-                   
-                   {/* Tactical Map Location */}
+                      className=\"flex-1 bg-blue-600 text-white px-10 py-6 rounded-[28px] ct-tactical-label hover:bg-blue-500 transition-all shadow-xl shadow-blue-600/30 flex items-center justify-center gap-4 group/init\"
+                    >
+                      {updatingId === crime._id ? \"ENCRYPTING...\" : \"Initialize Op\" }
+                      <Activity size={20} className=\"animate-pulse\" />
+                    </button>
+                  )}
+
+                  {crime.status === \"UnderInvestigation\" && (
+                    <>
+                      <button 
+                        onClick={() => updateStatus(crime._id, \"Resolved\")}
+                        disabled={updatingId === crime._id}
+                        className=\"flex-[1.5] bg-emerald-600 text-white px-10 py-6 rounded-[28px] ct-tactical-label hover:bg-emerald-500 transition-all shadow-xl shadow-emerald-600/30 flex items-center justify-center gap-4\"
+                      >
+                        Finalize Resolution <CheckCircle2 size={20} />
+                      </button>
+                      <button 
+                        onClick={() => updateStatus(crime._id, \"Rejected\")}
+                        disabled={updatingId === crime._id}
+                        className=\"px-10 py-6 rounded-[28px] ct-tactical-label bg-rose-600/10 border-2 border-rose-600/20 text-rose-500 hover:bg-rose-600 hover:text-white transition-all\"
+                      >
+                        Nullify
+                      </button>
+                    </>
+                  )}
+                </div>
+                
+                {expandedCrimeIds.has(crime._id) && (
+                  <div className=\"mt-12 p-12 rounded-[56px] bg-slate-950 border border-white/5 space-y-12 shadow-inner animate-in slide-in-from-top-4 duration-700\">
+                    <div className=\"grid grid-cols-1 md:grid-cols-3 gap-10\">
+                      <div className=\"space-y-2\">
+                        <span className=\"ct-tactical-label text-slate-600\">Registry ID</span>
+                        <div className=\"text-blue-500 font-mono text-sm font-bold\">{crime._id}</div>
+                      </div>
+                      <div className=\"space-y-2\">
+                        <span className=\"ct-tactical-label text-slate-600\">Protocol Marker</span>
+                        <div className=\"text-white text-sm font-black italic\">UNIT_ALPHA_DISPATCH</div>
+                      </div>
+                      <div className=\"space-y-2\">
+                        <span className=\"ct-tactical-label text-slate-600\">Sector Priority</span>
+                        <div className={`text-sm font-black italic ${crime.priority === 'Critical' ? 'text-rose-600' : crime.priority === 'High' ? 'text-amber-600' : 'text-blue-600'}`}>
+                          {crime.priority || 'STANDARD'} PROTOCOL
+                        </div>
+                      </div>
+                    </div>
+                    
+                    {/* Tactical Map Location */}
                     {crime.location?.lat && crime.location?.lng && (
-                       <div className="pt-4 border-t border-slate-800/20">
-                          <div className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-3">Incident Ground Zero</div>
-                          <div className="rounded-2xl overflow-hidden border border-slate-800 h-48 relative group shadow-inner bg-slate-900">
-                             <iframe
-                                title="Incident Location"
-                                width="100%"
-                                height="100%"
-                                style={{ border: 0, filter: 'contrast(1.2) brightness(0.8) saturate(1.4)' }}
-                                loading="lazy"
-                                src={`https://www.openstreetmap.org/export/embed.html?bbox=${Number(crime.location.lng) - 0.005}%2C${Number(crime.location.lat) - 0.005}%2C${Number(crime.location.lng) + 0.005}%2C${Number(crime.location.lat) + 0.005}&layer=mapnik&marker=${Number(crime.location.lat)}%2C${Number(crime.location.lng)}`}
-                             />
-                             <div className="absolute bottom-3 right-3 bg-slate-950/80 backdrop-blur-md px-2 py-1 rounded text-[8px] font-bold text-slate-400 border border-slate-800">
-                                {Number(crime.location.lat).toFixed(6)}, {Number(crime.location.lng).toFixed(6)}
-                             </div>
+                      <div className=\"pt-12 border-t border-white/5\">
+                        <h4 className=\"ct-tactical-label text-slate-500 mb-8 flex items-center gap-4\">
+                          <div className=\"h-3 w-3 rounded-full bg-rose-600 animate-ping\" /> Target Ground Zero Access
+                        </h4>
+                        <div className=\"rounded-[48px] overflow-hidden border-4 border-slate-900 h-96 relative group shadow-2xl\">
+                          <iframe
+                            title=\"Tactical Location\"
+                            width=\"100%\"
+                            height=\"100%\"
+                            style={{ border: 0, filter: 'invert(90%) hue-rotate(180deg) brightness(95%) contrast(90%)' }}
+                            loading=\"lazy\"
+                            src={`https://www.openstreetmap.org/export/embed.html?bbox=${Number(crime.location.lng) - 0.005}%2C${Number(crime.location.lat) - 0.005}%2C${Number(crime.location.lng) + 0.005}%2C${Number(crime.location.lat) + 0.005}&layer=mapnik&marker=${Number(crime.location.lat)}%2C${Number(crime.location.lng)}`}
+                          />
+                          <div className=\"absolute bottom-8 right-8 ct-glass px-8 py-4 rounded-[24px] ct-tactical-label text-blue-400\">
+                            COORD: {Number(crime.location.lat).toFixed(6)} • {Number(crime.location.lng).toFixed(6)}
                           </div>
-                       </div>
+                        </div>
+                      </div>
                     )}
 
                     {crime.evidence && crime.evidence.length > 0 && (
-                       <div className="pt-4 border-t border-slate-800/20">
-                          <div className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-3">Audited Evidence Artifacts ({crime.evidence.length})</div>
-                          <div className="grid grid-cols-3 gap-3">
-                            {crime.evidence.map((file, idx) => (
-                              <a 
-                                key={idx} 
-                                href={file.url} 
-                                target="_blank" 
-                                rel="noreferrer" 
-                                className="h-24 bg-slate-900 rounded-2xl overflow-hidden border border-slate-800 block relative group/ev shadow-lg"
-                              >
-                                <img src={file.url} className="w-full h-full object-cover opacity-60 hover:opacity-100 transition-all group-hover/ev:scale-110" alt="Evidence" />
-                                <div className="absolute inset-0 bg-blue-500/10 opacity-0 group-hover/ev:opacity-100 pointer-events-none" />
-                              </a>
-                            ))}
-                          </div>
-                       </div>
-                   )}
-                </div>
-              )}
+                      <div className=\"pt-12 border-t border-white/5\">
+                        <h4 className=\"ct-tactical-label text-slate-500 mb-8 flex items-center gap-4\">
+                          <div className=\"h-3 w-3 rounded-full bg-blue-600\" /> Intelligence Artifact Repository ({crime.evidence.length})
+                        </h4>
+                        <div className=\"grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-6\">
+                          {crime.evidence.map((file, idx) => (
+                            <a 
+                              key={idx} 
+                              href={file.url} 
+                              target=\"_blank\" 
+                              rel=\"noreferrer\" 
+                              className=\"aspect-[4/3] bg-slate-900 rounded-[32px] overflow-hidden border-2 border-white/5 block relative group/ev shadow-xl hover:scale-105 transition-all\"
+                            >
+                              {file.resourceType === \"video\" ? (
+                                <video src={file.url} className=\"w-full h-full object-cover opacity-60 group-hover/ev:opacity-100 transition-all\" />
+                              ) : (
+                                <img src={file.url} className=\"w-full h-full object-cover opacity-60 group-hover/ev:opacity-100 transition-all group-hover/ev:scale-110\" alt=\"Evidence\" />
+                              )}
+                              <div className=\"absolute inset-0 bg-blue-600/20 opacity-0 group-hover/ev:opacity-100 flex items-center justify-center backdrop-blur-[2px] transition-all\">
+                                <ExternalLink size={24} className=\"text-white\" />
+                              </div>
+                            </a>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                )}
+              </div>
+            ))
+          )}
+        </div>
+
+        {/* ── PAGINATION ── */}
+        {totalPages > 1 && (
+          <div className=\"ct-glass p-12 rounded-[64px] flex flex-col md:flex-row items-center justify-between gap-12 mb-32\">
+            <div className=\"text-left\">
+              <div className=\"ct-tactical-label text-slate-500 mb-2\">Dossier Navigation</div>
+              <div className=\"text-2xl font-black text-white italic tracking-tighter\">
+                PAGE {currentPage} <span className=\"text-slate-700\">/</span> {totalPages} <span className=\"text-slate-800 mx-4\">|</span> {totalItems} TOTAL RECORDS
+              </div>
             </div>
-          ))
+
+            <div className=\"flex items-center gap-4\">
+              <button 
+                onClick={() => setCurrentPage(p => Math.max(1, p - 1))} 
+                disabled={currentPage === 1} 
+                className=\"h-20 w-20 flex items-center justify-center bg-slate-900 rounded-[28px] text-white hover:bg-blue-600 transition-all disabled:opacity-20 active:scale-90\"
+              >
+                <ChevronLeft size={32} />
+              </button>
+              
+              <div className=\"flex items-center gap-3\">
+                {Array.from({ length: totalPages }, (_, i) => i + 1)
+                  .filter(p => p === 1 || p === totalPages || Math.abs(p - currentPage) <= 1)
+                  .map((p, i, arr) => (
+                    <React.Fragment key={p}>
+                      {i > 0 && arr[i-1] !== p - 1 && <span className=\"text-slate-800 font-black\">•••</span>}
+                      <button
+                        onClick={() => setCurrentPage(p)}
+                        className={`h-20 w-20 rounded-[28px] ct-tactical-label transition-all flex items-center justify-center ${
+                          currentPage === p 
+                            ? 'bg-blue-600 text-white shadow-[0_0_40px_rgba(59,130,246,0.5)] scale-110 border-4 border-white/20' 
+                            : 'bg-white/5 text-slate-500 hover:text-white hover:bg-white/10'
+                        }`}
+                      >
+                        {p}
+                      </button>
+                    </React.Fragment>
+                  ))}
+              </div>
+
+              <button 
+                onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))} 
+                disabled={currentPage === totalPages} 
+                className=\"h-20 w-20 flex items-center justify-center bg-slate-900 rounded-[28px] text-white hover:bg-blue-600 transition-all disabled:opacity-20 active:scale-90\"
+              >
+                <ChevronRight size={32} />
+              </button>
+            </div>
+          </div>
         )}
       </div>
 
-      {totalPages > 1 && (
-        <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between p-8 bg-slate-900/40 border border-slate-800/50 rounded-[40px] mt-8 gap-6 shadow-2xl backdrop-blur-md">
-          <div className="flex flex-col">
-            <span className="text-[10px] font-black text-slate-500 uppercase tracking-[3px] mb-1">Pagination Control</span>
-            <span className="text-xs font-bold text-white uppercase tracking-widest leading-none">
-              Dossier {currentPage} <span className="text-slate-600 font-medium">of</span> {totalPages} <span className="text-slate-600 font-medium">—</span> {totalItems} Intelligence Files
-            </span>
-          </div>
-
-          <div className="flex items-center gap-2">
-            <button 
-              onClick={() => setCurrentPage(p => Math.max(1, p - 1))} 
-              disabled={currentPage === 1} 
-              className="w-12 h-12 flex items-center justify-center bg-slate-800 border border-slate-700 rounded-2xl text-slate-300 hover:bg-slate-700 hover:border-blue-500/50 hover:text-white disabled:opacity-20 disabled:cursor-not-allowed transition-all active:scale-95 shadow-lg"
-            >
-              <ChevronLeft size={20} />
-            </button>
-            
-            <div className="flex items-center gap-1 mx-2">
-              {Array.from({ length: totalPages }, (_, i) => i + 1)
-                .filter(p => p === 1 || p === totalPages || Math.abs(p - currentPage) <= 1)
-                .map((p, i, arr) => (
-                  <React.Fragment key={p}>
-                    {i > 0 && arr[i-1] !== p - 1 && <span className="px-2 text-slate-600">...</span>}
-                    <button
-                      onClick={() => setCurrentPage(p)}
-                      className={`h-12 w-12 rounded-2xl text-xs font-black transition-all flex items-center justify-center ${
-                        currentPage === p 
-                          ? 'bg-blue-600 text-white shadow-lg shadow-blue-600/30 scale-110' 
-                          : 'bg-slate-800/50 text-slate-500 hover:bg-slate-800 hover:text-slate-300'
-                      }`}
-                    >
-                      {p}
-                    </button>
-                  </React.Fragment>
-                ))}
-            </div>
-
-            <button 
-              onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))} 
-              disabled={currentPage === totalPages} 
-              className="w-12 h-12 flex items-center justify-center bg-slate-800 border border-slate-700 rounded-2xl text-slate-300 hover:bg-slate-700 hover:border-blue-500/50 hover:text-white disabled:opacity-20 disabled:cursor-not-allowed transition-all active:scale-95 shadow-lg"
-            >
-              <ChevronRight size={20} />
-            </button>
-          </div>
-        </div>
-      )}
+      <style>{`
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+      `}</style>
     </div>
   );
 };

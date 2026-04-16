@@ -21,7 +21,9 @@ import {
   RefreshCw,
   Eye,
   User,
-  ShieldAlert
+  ShieldAlert,
+  ChevronLeft,
+  ChevronRight
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
@@ -90,12 +92,12 @@ export default function AdminReport() {
   };
 
   const statusColor = (status) => {
-    if (status === "Pending") return "#ca8a04";
-    if (status === "Verified" || status === "Accepted") return "#059669";
-    if (status === "Rejected") return "#b91c1c";
-    if (status === "ForwardedToPolice") return "#2563eb";
-    if (status === "Resolved") return "#10b981";
-    return "#475569";
+    if (status === "Pending") return "bg-amber-600 shadow-amber-600/20";
+    if (status === "Verified" || status === "Accepted") return "bg-emerald-600 shadow-emerald-600/20";
+    if (status === "Rejected") return "bg-rose-600 shadow-rose-600/20";
+    if (status === "ForwardedToPolice") return "bg-blue-600 shadow-blue-600/20";
+    if (status === "Resolved") return "bg-cyan-600 shadow-cyan-600/20";
+    return "bg-slate-600 shadow-slate-600/20";
   };
 
   const getCrimeIcon = (type) => {
@@ -105,106 +107,131 @@ export default function AdminReport() {
 
   if (loading && crimes.length === 0)
     return (
-      <div className="flex flex-col items-center justify-center min-h-[600px] bg-slate-50">
-        <div className="h-12 w-12 border-4 border-slate-200 border-t-blue-600 rounded-full animate-spin mb-4" />
-        <p className="text-slate-500 font-bold uppercase tracking-widest text-[10px]">Synchronizing Case Files</p>
+      <div className="flex flex-col items-center justify-center min-h-[600px] bg-white dark:bg-slate-950">
+        <div className="h-14 w-14 border-4 border-slate-100 dark:border-slate-800 border-t-blue-600 rounded-full animate-spin mb-6" />
+        <p className="text-slate-400 dark:text-slate-500 font-black uppercase tracking-[4px] text-[10px] animate-pulse">Synchronizing Advanced Datalink</p>
       </div>
     );
 
   return (
-    <div className="p-8 bg-slate-950 min-h-screen font-sans text-slate-300">
-      <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6 mb-12">
+    <div className="p-8 lg:p-12 bg-white dark:bg-[#020617] min-h-screen font-sans text-slate-800 dark:text-slate-300 transition-colors duration-300">
+      <div className="max-w-7xl mx-auto flex flex-col xl:flex-row xl:items-center justify-between gap-8 mb-16">
         <div>
-           <h2 className="text-3xl font-black text-white tracking-tighter uppercase mb-1">Administrative Clearing House</h2>
-           <p className="text-[10px] font-black text-slate-500 uppercase tracking-[4px]">HQ Operations Center</p>
+           <div className="flex items-center gap-3 text-blue-600 dark:text-blue-500 mb-3">
+              <div className="p-2 bg-blue-500/10 rounded-xl">
+                 <ShieldAlert size={20} />
+              </div>
+              <span className="text-[10px] font-black uppercase tracking-[4px]">HQ Operations Center</span>
+           </div>
+           <h2 className="text-4xl lg:text-5xl font-black text-slate-900 dark:text-white tracking-tighter uppercase mb-1 italic leading-none">Command Clearing House</h2>
         </div>
-        <div className="flex flex-col lg:flex-row lg:items-center gap-4">
-          <div className="flex items-center gap-2 bg-slate-900 border border-slate-800 p-2 rounded-2xl">
+        
+        <div className="flex flex-col md:flex-row items-center gap-5">
+          <div className="flex items-center gap-2 bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-800/50 p-2 rounded-[24px] shadow-sm backdrop-blur-xl">
                {["All", "Pending", "Verified", "ForwardedToPolice", "Rejected"].map((f) => (
                   <button
                     key={f}
                     onClick={() => setFilter(f)}
-                    className={`px-5 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${filter === f ? "bg-blue-600 text-white shadow-xl shadow-blue-600/20" : "bg-transparent text-slate-500 hover:text-slate-300"}`}
+                    className={`px-6 py-3 rounded-[16px] text-[10px] font-black uppercase tracking-[2px] transition-all whitespace-nowrap ${
+                      filter === f 
+                        ? "bg-slate-900 dark:bg-blue-600 text-white shadow-xl scale-105" 
+                        : "bg-transparent text-slate-400 dark:text-slate-500 hover:text-slate-900 dark:hover:text-slate-300"
+                    }`}
                   >
-                    {f === "ForwardedToPolice" ? "Escalated" : f}
+                    {f === "ForwardedToPolice" ? "Deployed" : f}
                   </button>
                 ))}
           </div>
-          <button onClick={fetchReports} className="flex items-center gap-2 px-6 py-4 bg-slate-900 border border-slate-800 rounded-2xl text-[10px] font-black uppercase tracking-widest text-white hover:bg-slate-800 transition-all shadow-xl">
-            <RefreshCw size={14} className={loading ? "animate-spin" : ""} />
+          <button onClick={fetchReports} className="flex items-center gap-3 px-8 py-5 bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 rounded-[24px] text-[10px] font-black uppercase tracking-[3px] text-slate-500 dark:text-white hover:bg-slate-900 hover:text-white dark:hover:bg-slate-800 transition-all shadow-xl active:scale-95 group">
+            <RefreshCw size={16} className={`${loading ? "animate-spin" : "group-hover:rotate-180 transition-transform duration-500"}`} />
             Sync Ledger
           </button>
         </div>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-10">
+      <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10 mb-16">
         {crimes.map((crime, i) => {
           const CrimeIcon = getCrimeIcon(crime.crimeType);
           return (
-            <div key={i} className="bg-slate-900/40 border border-slate-800/50 rounded-[48px] overflow-hidden hover:border-blue-500/30 transition-all group flex flex-col shadow-2xl relative">
-              <div className="relative h-60 group">
-                <div className="absolute top-6 right-6 px-4 py-1.5 rounded-full text-[9px] font-black uppercase tracking-widest text-white shadow-2xl z-20 backdrop-blur-md bg-opacity-80" style={{ backgroundColor: statusColor(crime.status) }}>{crime.status}</div>
+            <div key={i} className="bg-white dark:bg-slate-900/60 border border-slate-200 dark:border-slate-800/50 rounded-[56px] overflow-hidden hover:border-blue-500/30 transition-all group flex flex-col shadow-sm hover:shadow-2xl relative">
+              <div className="relative h-72 overflow-hidden">
+                <div className={`absolute top-8 right-8 px-6 py-2.5 rounded-full text-[9px] font-black uppercase tracking-[3px] text-white shadow-2xl z-20 backdrop-blur-md ${statusColor(crime.status)}`}>
+                  <span className="relative flex h-2 w-2 mr-2 inline-block">
+                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-white opacity-75"></span>
+                    <span className="relative inline-flex rounded-full h-2 w-2 bg-white"></span>
+                  </span>
+                  {crime.status.replace(/([A-Z])/g, ' $1').trim()}
+                </div>
                 {crime.evidence?.[0]?.url ? (
-                   <img src={crime.evidence[0].url} alt="Evidence" className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-1000 opacity-60 group-hover:opacity-100" />
+                   <img src={crime.evidence[0].url} alt="Evidence" className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-1000 opacity-90 group-hover:opacity-100" />
                 ) : (
-                   <div className="w-full h-full bg-slate-950 flex flex-col items-center justify-center text-slate-700 gap-4 border-b border-slate-800">
-                     <Camera size={48} className="opacity-20 animate-pulse" />
-                     <span className="text-[9px] font-black uppercase tracking-[4px] opacity-40">Artifact Unvailable</span>
+                   <div className="w-full h-full bg-slate-50 dark:bg-slate-950 flex flex-col items-center justify-center text-slate-200 dark:text-slate-800 gap-6 border-b border-slate-100 dark:border-slate-800">
+                     <Camera size={64} className="opacity-20 stroke-[1.5]" />
+                     <span className="text-[10px] font-black uppercase tracking-[5px] opacity-40">Null Artifact</span>
                    </div>
                 )}
-                <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-transparent to-transparent opacity-60" />
+                <div className="absolute inset-0 bg-gradient-to-t from-white dark:from-[#020617] via-transparent to-transparent opacity-40" />
               </div>
               
-              <div className="p-10 flex-1 flex flex-col">
-                <div className="flex items-center gap-3 mb-6">
-                  <span className="bg-blue-600/10 text-blue-500 px-4 py-1.5 rounded-xl text-[10px] font-black uppercase tracking-widest border border-blue-500/10 flex items-center gap-2">
-                    <CrimeIcon size={12} /> {crime.crimeType}
+              <div className="p-10 lg:p-12 flex-1 flex flex-col">
+                <div className="flex items-center gap-3 mb-8">
+                  <span className="bg-blue-50 dark:bg-blue-500/10 text-blue-600 dark:text-blue-500 px-5 py-2 rounded-2xl text-[10px] font-black uppercase tracking-[3px] border border-blue-100 dark:border-blue-500/10 flex items-center gap-2 shadow-inner">
+                    <CrimeIcon size={14} /> {crime.crimeType}
                   </span>
                   {crime.priority === "High" && (
-                    <span className="bg-rose-500/10 text-rose-500 px-4 py-1.5 rounded-xl text-[10px] font-black uppercase tracking-widest border border-rose-500/10 flex items-center gap-2">
-                      <ShieldAlert size={12} /> Critical
+                    <span className="bg-rose-50 dark:bg-rose-500/10 text-rose-600 dark:text-rose-500 px-5 py-2 rounded-2xl text-[10px] font-black uppercase tracking-[3px] border border-rose-100 dark:border-rose-500/10 flex items-center gap-2">
+                      <ShieldAlert size={14} className="animate-pulse" /> Critical
                     </span>
                   )}
                 </div>
 
-                <h3 className="text-2xl font-black text-white leading-tight mb-4 tracking-tighter uppercase group-hover:text-blue-400 transition-colors">{crime.title || "Unclassified Incident"}</h3>
-                <p className="text-slate-500 text-sm leading-relaxed mb-8 font-medium line-clamp-2">"{crime.description || "Intelligence pending."}"</p>
+                <h3 className="text-3xl font-black text-slate-900 dark:text-white leading-[0.9] mb-6 tracking-tighter uppercase italic group-hover:text-blue-600 transition-colors line-clamp-2">{crime.title || "Unclassified Intelligence"}</h3>
+                <div className="bg-slate-50 dark:bg-slate-950/50 p-6 rounded-[32px] border border-slate-100 dark:border-slate-800/30 mb-8 shadow-inner">
+                  <p className="text-slate-500 dark:text-slate-400 text-sm leading-relaxed font-medium line-clamp-2 italic">"{crime.description || "Incomplete dossier. Intelligence flow pending."}"</p>
+                </div>
                 
-                <div className="mt-auto space-y-4">
-                    <div className="flex items-center gap-4 p-5 bg-slate-950/50 rounded-[24px] border border-slate-800/50 transition-colors group-hover:border-slate-700">
-                       <MapPin size={18} className="text-blue-600 shrink-0" />
-                       <span className="text-xs font-black text-slate-400 uppercase tracking-tight line-clamp-1">{crime.location?.address || "Grid Coordinates Only"}</span>
+                <div className="mt-auto space-y-6">
+                    <div className="flex items-center gap-5 p-6 bg-white dark:bg-slate-950/50 border border-slate-100 dark:border-slate-800/50 transition-all group-hover:border-blue-500/30 shadow-sm rounded-[32px]">
+                       <div className="p-3 bg-slate-50 dark:bg-slate-900 rounded-2xl text-slate-400 dark:text-slate-600">
+                         <MapPin size={20} />
+                       </div>
+                       <div className="flex flex-col overflow-hidden">
+                         <span className="text-[9px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-[3px] leading-none mb-1">Vector Field</span>
+                         <span className="text-xs font-black text-slate-800 dark:text-slate-200 uppercase tracking-tight line-clamp-1">{crime.location?.address || "Grid Coordinates Locked"}</span>
+                       </div>
                     </div>
 
                     {crime.status === "ForwardedToPolice" && crime.workflow?.assignedToOfficer && (
-                       <div className="flex items-center gap-4 p-5 bg-blue-500/5 rounded-[24px] border border-blue-500/10">
-                          <User size={18} className="text-blue-500 shrink-0" />
+                       <div className="flex items-center gap-5 p-6 bg-blue-50 dark:bg-blue-500/5 rounded-[32px] border border-blue-100 dark:border-blue-500/20 shadow-inner">
+                          <div className="p-3 bg-white dark:bg-slate-800 rounded-2xl text-blue-500 shadow-sm">
+                            <User size={20} />
+                          </div>
                           <div className="flex flex-col">
-                             <span className="text-[9px] font-black text-blue-500/50 uppercase tracking-widest leading-none mb-1">Assigned Agent</span>
-                             <span className="text-xs font-black text-white uppercase">{crime.workflow.assignedToOfficer.username}</span>
+                             <span className="text-[9px] font-black text-blue-600 dark:text-blue-500/50 uppercase tracking-[3px] leading-none mb-1">Deployed Agent</span>
+                             <span className="text-xs font-black text-slate-900 dark:text-white uppercase tracking-widest">{crime.workflow.assignedToOfficer.username}</span>
                           </div>
                        </div>
                     )}
 
-                    <div className="grid grid-cols-2 gap-4 pt-6">
+                    <div className="grid grid-cols-2 gap-4 pt-4">
                         {crime.status === "Pending" && (
                             <>
-                               <button onClick={() => navigate(`/admin/verify/${crime._id}`)} className="col-span-2 py-5 bg-emerald-600 text-white rounded-2xl text-[10px] font-black uppercase tracking-widest flex items-center justify-center gap-3 hover:bg-emerald-500 transition-all shadow-xl shadow-emerald-900/20 active:scale-95">
-                                  <CheckCircle size={16} /> Authorize Verification
+                               <button onClick={() => navigate(`/admin/verify/${crime._id}`)} className="col-span-2 py-5 bg-emerald-600 text-white rounded-[24px] text-[10px] font-black uppercase tracking-[3px] flex items-center justify-center gap-3 hover:bg-emerald-700 transition-all shadow-2xl shadow-emerald-600/20 active:scale-95">
+                                  <CheckCircle size={18} /> Authorize Dossier
                                </button>
-                               <button onClick={() => handleAction(crime._id, "Rejected")} className="py-4 border border-rose-500/20 text-rose-500 rounded-2xl text-[10px] font-black uppercase tracking-widest flex items-center justify-center gap-2 hover:bg-rose-500/10 transition-all">
-                                  <XCircle size={14} /> Nullify
+                               <button onClick={() => handleAction(crime._id, "Rejected")} className="py-5 border-2 border-slate-100 dark:border-rose-500/20 text-slate-400 dark:text-rose-500 rounded-[24px] text-[10px] font-black uppercase tracking-[3px] flex items-center justify-center gap-3 hover:bg-rose-600 hover:text-white transition-all active:scale-95">
+                                  <XCircle size={16} /> Purge
                                </button>
                             </>
                         )}
                         {crime.status === "Verified" && (
-                           <button onClick={() => navigate(`/admin/verify/${crime._id}`)} className="col-span-2 py-5 bg-blue-600 text-white rounded-2xl text-[10px] font-black uppercase tracking-widest flex items-center justify-center gap-3 hover:bg-blue-500 transition-all shadow-xl shadow-blue-900/20 active:scale-95">
-                              <Send size={16} /> Deploy Forces
+                           <button onClick={() => navigate(`/admin/verify/${crime._id}`)} className="col-span-2 py-6 bg-blue-600 text-white rounded-[24px] text-[10px] font-black uppercase tracking-[4px] flex items-center justify-center gap-4 hover:bg-blue-700 transition-all shadow-2xl shadow-blue-600/30 active:scale-95 scale-105">
+                              <Send size={20} /> Deploy Field Forces
                            </button>
                         )}
                         {crime.status !== "Pending" && crime.status !== "Verified" && (
-                           <button onClick={() => navigate(`/admin/verify/${crime._id}`)} className="col-span-2 py-5 bg-slate-800 text-white rounded-2xl text-[10px] font-black uppercase tracking-widest flex items-center justify-center gap-3 hover:bg-slate-700 transition-all border border-slate-700">
-                              <Eye size={16} /> Open Dossier
+                           <button onClick={() => navigate(`/admin/verify/${crime._id}`)} className="col-span-2 py-5 bg-slate-900 text-white dark:bg-slate-800 dark:hover:bg-slate-700 text-[10px] font-black uppercase tracking-[4px] rounded-[24px] flex items-center justify-center gap-3 transition-all shadow-xl active:scale-95">
+                              <Eye size={18} /> Deep Examine
                            </button>
                         )}
                     </div>
@@ -216,33 +243,35 @@ export default function AdminReport() {
       </div>
 
       {totalPages > 1 && (
-        <div className="flex flex-col md:flex-row items-center justify-between px-8 py-6 bg-slate-900/40 border border-slate-800/50 rounded-[40px] shadow-2xl backdrop-blur-md mb-10 gap-6">
+        <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between p-10 bg-white dark:bg-slate-900/40 border border-slate-100 dark:border-slate-800/50 rounded-[64px] shadow-2xl backdrop-blur-md mb-20 gap-8">
           <div className="flex flex-col">
-             <span className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-1">Administrative Index</span>
-             <span className="text-xs font-bold text-white uppercase">Archive {currentPage} <span className="text-slate-600">/</span> {totalPages} <span className="text-slate-600">—</span> {totalItems} Total Records</span>
+             <span className="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-[4px] mb-2">Clearing House Directory</span>
+             <span className="text-xs font-black text-slate-800 dark:text-white uppercase tracking-[2px]">
+               Archive {currentPage} <span className="text-slate-200 dark:text-slate-700 mx-2">/</span> {totalPages} <span className="text-slate-200 dark:text-slate-700 mx-4">|</span> {totalItems} Intelligent Nodes
+             </span>
           </div>
           
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-4">
             <button 
               onClick={() => setCurrentPage(p => Math.max(1, p - 1))} 
               disabled={currentPage === 1} 
-              className="w-12 h-12 flex items-center justify-center bg-slate-800 border border-slate-700 rounded-2xl text-slate-300 hover:bg-slate-700 hover:border-blue-500 hover:text-white disabled:opacity-20 transition-all shadow-lg"
+              className="w-16 h-16 flex items-center justify-center bg-white dark:bg-slate-800 border-2 border-slate-50 dark:border-slate-700 rounded-3xl text-slate-400 dark:text-slate-300 hover:bg-slate-900 hover:text-white dark:hover:bg-slate-700 hover:border-slate-900 disabled:opacity-20 transition-all active:scale-90 shadow-xl"
             >
-              <ChevronLeft size={20} />
+              <ChevronLeft size={28} />
             </button>
             
-            <div className="flex items-center gap-2 mx-4">
+            <div className="flex items-center gap-3 mx-2">
               {Array.from({ length: totalPages }, (_, i) => i + 1)
                 .filter(p => p === 1 || p === totalPages || Math.abs(p - currentPage) <= 1)
                 .map((p, i, arr) => (
                   <React.Fragment key={p}>
-                    {i > 0 && arr[i-1] !== p - 1 && <span className="text-slate-700 font-bold">...</span>}
+                    {i > 0 && arr[i-1] !== p - 1 && <span className="text-slate-200 dark:text-slate-700 font-black">···</span>}
                     <button
                       onClick={() => setCurrentPage(p)}
-                      className={`h-10 w-10 rounded-xl text-[10px] font-black transition-all ${
+                      className={`h-16 w-16 rounded-3xl text-[10px] font-black uppercase transition-all flex items-center justify-center ${
                         currentPage === p 
-                          ? 'bg-blue-600 text-white shadow-lg shadow-blue-600/30 ring-2 ring-blue-500/20' 
-                          : 'bg-slate-800/50 text-slate-500 hover:bg-slate-800 hover:text-slate-300'
+                          ? 'bg-slate-900 dark:bg-blue-600 text-white shadow-2xl scale-110 rotate-3' 
+                          : 'bg-white dark:bg-slate-800/50 text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 border-2 border-slate-50 dark:border-transparent'
                       }`}
                     >
                       {p}
@@ -254,18 +283,26 @@ export default function AdminReport() {
             <button 
               onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))} 
               disabled={currentPage === totalPages} 
-              className="w-12 h-12 flex items-center justify-center bg-slate-800 border border-slate-700 rounded-2xl text-slate-300 hover:bg-slate-700 hover:border-blue-500 hover:text-white disabled:opacity-20 transition-all shadow-lg"
+              className="w-16 h-16 flex items-center justify-center bg-white dark:bg-slate-800 border-2 border-slate-50 dark:border-slate-700 rounded-3xl text-slate-400 dark:text-slate-300 hover:bg-slate-900 hover:text-white dark:hover:bg-slate-700 hover:border-slate-900 disabled:opacity-20 transition-all active:scale-90 shadow-xl"
             >
-              <ChevronRight size={20} />
+              <ChevronRight size={28} />
             </button>
           </div>
         </div>
       )}
 
       {crimes.length === 0 && (
-        <div className="flex flex-col items-center justify-center py-40 text-slate-400 gap-6">
-          <Inbox size={80} className="opacity-20" />
-          <div className="text-center"><h4 className="text-xl font-black text-slate-900 mb-1">Archive Entry Empty</h4><p className="text-sm font-medium">No case files match the current parameters.</p></div>
+        <div className="flex flex-col items-center justify-center py-64 text-slate-200 dark:text-slate-800 gap-10">
+          <div className="relative">
+            <Inbox size={120} className="opacity-10 stroke-[1]" />
+            <div className="absolute inset-0 flex items-center justify-center">
+               <div className="h-2 w-2 bg-blue-600 rounded-full animate-ping" />
+            </div>
+          </div>
+          <div className="text-center group">
+            <h4 className="text-2xl font-black text-slate-300 dark:text-slate-700 mb-2 uppercase tracking-[5px] italic group-hover:tracking-[8px] transition-all duration-700">Vault Entry Empty</h4>
+            <p className="text-[10px] font-black uppercase tracking-[3px] opacity-40">Zero Case Files Match Operational Parameters</p>
+          </div>
         </div>
       )}
     </div>

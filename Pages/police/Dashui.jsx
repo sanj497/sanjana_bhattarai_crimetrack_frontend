@@ -2,7 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { 
   Shield, Users, AlertTriangle, FileText, MapPin, Clock, 
   Siren, ChevronRight, CheckCircle2, Activity, Image, 
-  ExternalLink, CheckSquare, ClipboardList, BarChart3
+  ExternalLink, CheckSquare, ClipboardList, BarChart3,
+  Zap, Radio, Send, ShieldAlert, Navigation2
 } from 'lucide-react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell } from 'recharts';
 import { Link } from 'react-router-dom';
@@ -12,6 +13,21 @@ const API_BASE = `${import.meta.env.VITE_BACKEND_URL}/api/report`;
 export default function NewBoard() {
   const [crimes, setCrimes] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [isDark, setIsDark] = useState(document.documentElement.classList.contains('dark'));
+
+  // Theme Detection
+  useEffect(() => {
+    const observer = new MutationObserver((mutations) => {
+      mutations.forEach((mutation) => {
+        if (mutation.attributeName === 'class') {
+          setIsDark(document.documentElement.classList.contains('dark'));
+        }
+      });
+    });
+
+    observer.observe(document.documentElement, { attributes: true });
+    return () => observer.disconnect();
+  }, []);
 
   useEffect(() => {
     fetchCrimes();
@@ -40,34 +56,36 @@ export default function NewBoard() {
   const resolved = crimes.filter(c => c.status === "Resolved");
 
   const stats = [
-    { label: 'Total Assigned', value: crimes.length, icon: ClipboardList, color: 'bg-blue-500' },
-    { label: 'New Cases', value: forwarded.length, icon: FileText, color: 'bg-amber-500' },
-    { label: 'Investigating', value: investigating.length, icon: Activity, color: 'bg-indigo-500' },
-    { label: 'Resolved', value: resolved.length, icon: CheckSquare, color: 'bg-emerald-500' },
+    { label: 'Tactical Load', value: crimes.length, icon: ClipboardList, color: 'bg-blue-600', textColor: 'text-blue-600' },
+    { label: 'New Nodes', value: forwarded.length, icon: Zap, color: 'bg-amber-500', textColor: 'text-amber-500' },
+    { label: 'Active Ops', value: investigating.length, icon: Activity, color: 'bg-indigo-600', textColor: 'text-indigo-600' },
+    { label: 'Completed', value: resolved.length, icon: ShieldCheck, color: 'bg-emerald-600', textColor: 'text-emerald-600' },
   ];
 
-  // Cases to show on dashboard — new assignments first, then investigating
   const dashboardCases = [...forwarded, ...investigating].slice(0, 6);
 
   const statusConfig = {
-    ForwardedToPolice: { label: "New Assignment", color: "amber", icon: <FileText size={12} /> },
-    UnderInvestigation: { label: "Investigating", color: "indigo", icon: <Activity size={12} /> },
-    Resolved: { label: "Resolved", color: "emerald", icon: <CheckCircle2 size={12} /> },
+    ForwardedToPolice: { label: "NEW DEPLOYMENT", color: "amber", icon: <Send size={12} /> },
+    UnderInvestigation: { label: "IN PROGRESS", color: "indigo", icon: <Activity size={12} /> },
+    Resolved: { label: "RESOLVED", color: "emerald", icon: <CheckCircle2 size={12} /> },
   };
 
   const chartData = [
-    { name: 'New Cases', value: forwarded.length, color: '#f59e0b' },
-    { name: 'Investigating', value: investigating.length, color: '#6366f1' },
-    { name: 'Resolved', value: resolved.length, color: '#10b981' },
-    { name: 'Total Assigned', value: crimes.length, color: '#3b82f6' },
+    { name: 'NEW', value: forwarded.length, color: '#f59e0b' },
+    { name: 'ACTIVE', value: investigating.length, color: '#6366f1' },
+    { name: 'RESOLVED', value: resolved.length, color: '#10b981' },
+    { name: 'TOTAL', value: crimes.length, color: '#3b82f6' },
   ];
 
   const CustomTooltip = ({ active, payload, label }) => {
       if (active && payload && payload.length) {
           return (
-              <div className="bg-slate-800 border border-slate-700 p-3 rounded-xl shadow-xl">
-                  <p className="text-slate-400 text-xs font-bold uppercase tracking-widest mb-1">{label}</p>
-                  <p className="text-white text-lg font-black">{payload[0].value} Cases</p>
+              <div className="bg-slate-950/90 backdrop-blur-md border border-slate-800 p-5 rounded-2xl shadow-2xl">
+                  <p className="text-slate-400 text-[10px] font-black uppercase tracking-[3px] mb-2 italic">Sector Intelligence</p>
+                  <div className="flex items-center gap-3">
+                     <p className="text-white text-3xl font-black italic">{payload[0].value}</p>
+                     <p className="text-slate-500 text-[11px] font-bold uppercase tracking-widest pt-2">Units / {label}</p>
+                  </div>
               </div>
           );
       }
@@ -75,256 +93,309 @@ export default function NewBoard() {
   };
 
   return (
-    <div className="p-8 font-sans bg-slate-950 min-h-full">
-      <div className="flex justify-between items-center mb-10">
-        <div>
-          <h2 className="text-3xl font-black text-white tracking-tight">OPERATIONAL COMMAND</h2>
-          <p className="text-slate-500 text-sm font-medium mt-1 uppercase tracking-widest">Real-time Precinct Oversight</p>
+    <div className="p-8 lg:p-14 bg-white dark:bg-[#020617] min-h-screen font-sans text-slate-800 dark:text-slate-300 transition-colors duration-300 pb-32">
+      
+      {/* Dynamic Header */}
+      <div className="flex flex-col xl:flex-row xl:items-end justify-between gap-12 mb-16 relative">
+        <div className="absolute -top-10 -left-10 h-64 w-64 bg-blue-600/5 rounded-full blur-3xl pointer-events-none opacity-50" />
+        
+        <div className="relative z-10">
+          <div className="flex items-center gap-3 text-blue-600 dark:text-blue-500 mb-6">
+             <Radio size={20} className="animate-pulse" />
+             <span className="text-[10px] font-black uppercase tracking-[5px] italic">Operational Tactical Network [ON]</span>
+          </div>
+          <h1 className="text-5xl lg:text-7xl font-black text-slate-900 dark:text-white tracking-tighter italic uppercase leading-[0.8] mb-6">
+            Command <span className="text-blue-600 dark:text-blue-500 underline decoration-blue-500/10 decoration-8 underline-offset-8">Central</span>
+          </h1>
+          <p className="text-slate-500 dark:text-slate-400 text-xs font-black uppercase tracking-[4px] indent-1 italic opacity-70">Sector Management & Response Dispatch</p>
         </div>
-        <div className="flex gap-4">
-           <div className="bg-slate-900 border border-slate-800 p-4 rounded-3xl flex items-center gap-4 shadow-xl">
-              <div className="h-10 w-10 bg-emerald-500/10 text-emerald-500 rounded-2xl flex items-center justify-center">
-                 <Shield size={20} className="animate-pulse" />
+
+        <div className="flex flex-wrap items-center gap-6 relative z-10">
+           <div className="bg-slate-50 dark:bg-slate-900/60 border border-slate-100 dark:border-slate-800/50 p-6 rounded-[32px] flex items-center gap-6 shadow-sm hover:shadow-xl transition-all group overflow-hidden">
+              <div className="absolute inset-0 bg-emerald-500/5 translate-y-20 group-hover:translate-y-0 transition-transform duration-700" />
+              <div className="h-20 w-16 bg-emerald-500/10 text-emerald-500 rounded-[24px] flex items-center justify-center relative z-10">
+                 <ShieldAlert size={28} className="animate-bounce" />
               </div>
-              <div>
-                 <div className="text-[10px] font-black text-slate-500 uppercase tracking-widest leading-none mb-1">Precinct Status</div>
-                 <div className="text-sm font-black text-white uppercase tracking-tight">Active Duty</div>
+              <div className="relative z-10 pr-6">
+                 <div className="text-[10px] font-black text-slate-400 dark:text-slate-600 uppercase tracking-widest mb-1 italic">Precinct 01</div>
+                 <div className="text-xl font-black text-slate-900 dark:text-white uppercase tracking-tight italic">Status: <span className="text-emerald-500">Green</span></div>
               </div>
            </div>
-           <div className="hidden lg:flex bg-slate-900 border border-slate-800 p-4 rounded-3xl items-center gap-4 shadow-xl">
-              <div className="h-10 w-10 bg-blue-500/10 text-blue-500 rounded-2xl flex items-center justify-center">
-                 <Activity size={20} />
+           
+           <div className="bg-slate-50 dark:bg-slate-900/60 border border-slate-100 dark:border-slate-800/50 p-6 rounded-[32px] flex items-center gap-6 shadow-sm hover:shadow-xl transition-all group overflow-hidden">
+              <div className="absolute inset-0 bg-blue-600/5 translate-y-20 group-hover:translate-y-0 transition-transform duration-700" />
+              <div className="h-20 w-16 bg-blue-600/10 text-blue-600 rounded-[24px] flex items-center justify-center relative z-10">
+                 <Navigation2 size={28} />
               </div>
-              <div>
-                 <div className="text-[10px] font-black text-slate-500 uppercase tracking-widest leading-none mb-1">Network Intel</div>
-                 <div className="text-sm font-black text-white uppercase tracking-tight">Synchronized</div>
+              <div className="relative z-10 pr-6">
+                 <div className="text-[10px] font-black text-slate-400 dark:text-slate-600 uppercase tracking-widest mb-1 italic">Sat-Intel</div>
+                 <div className="text-xl font-black text-slate-900 dark:text-white uppercase tracking-tight italic">GRID: <span className="text-blue-600">SYNC</span></div>
               </div>
            </div>
         </div>
       </div>
 
-      {/* Stats Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-10">
+      {/* Stats Cluster */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 mb-16">
         {stats.map((stat, i) => (
-          <div key={i} className="bg-slate-900 border border-slate-800 rounded-[32px] p-8 hover:border-blue-500/30 transition-all group overflow-hidden relative shadow-lg">
-            <div className={`absolute top-0 right-0 h-24 w-24 ${stat.color} opacity-[0.03] rounded-full translate-x-8 -translate-y-8 group-hover:scale-125 transition-transform duration-500`} />
+          <div key={i} className="bg-white dark:bg-slate-900/40 border border-slate-100 dark:border-slate-800/50 rounded-[48px] p-10 hover:border-blue-500/40 transition-all group overflow-hidden relative shadow-sm hover:shadow-2xl duration-700">
+            <div className={`absolute -top-12 -right-12 h-40 w-40 ${stat.color} opacity-5 rounded-full group-hover:scale-150 transition-transform duration-700`} />
             <div className="flex items-center justify-between relative z-10">
               <div>
-                <p className="text-slate-500 text-[10px] font-black uppercase tracking-widest mb-2">{stat.label}</p>
-                <p className="text-4xl font-black text-white leading-none">{stat.value}</p>
+                <p className="text-slate-400 dark:text-slate-600 text-[10px] font-black uppercase tracking-[4px] mb-4 italic flex items-center gap-2">
+                   <div className="w-1 h-3 bg-blue-500 rounded-full" />
+                   {stat.label}
+                </p>
+                <p className="text-6xl font-black text-slate-900 dark:text-white leading-none tracking-tighter italic">{stat.value}</p>
               </div>
-              <div className={`${stat.color} h-12 w-12 rounded-2xl flex items-center justify-center shadow-lg group-hover:rotate-6 transition-transform`}>
-                <stat.icon className="text-white" size={24} />
+              <div className={`${stat.color} h-16 w-16 rounded-[24px] flex items-center justify-center shadow-2xl group-hover:rotate-12 transition-all duration-500`}>
+                <stat.icon className="text-white" size={32} />
               </div>
+            </div>
+            <div className="mt-8 flex items-center gap-2 text-[10px] font-black text-slate-300 dark:text-slate-700 uppercase tracking-widest italic group-hover:text-blue-500 transition-colors">
+               Real-time Telemetry <ChevronRight size={12} />
             </div>
           </div>
         ))}
       </div>
 
-      {/* SOS Banner */}
-      <div className="bg-gradient-to-r from-red-600/20 to-transparent rounded-[32px] border border-red-500/20 p-8 mb-10 flex flex-col md:flex-row items-center justify-between gap-6 backdrop-blur-sm shadow-2xl">
-        <div className="flex items-center gap-6">
-          <div className="h-16 w-16 bg-red-600 rounded-[24px] flex items-center justify-center shadow-lg shadow-red-600/20">
-             <AlertTriangle className="text-white animate-pulse" size={32} />
+      {/* High-Alert Emergency Banner */}
+      <div className="bg-rose-600 rounded-[48px] p-10 lg:p-14 mb-16 flex flex-col xl:flex-row items-center justify-between gap-12 shadow-[0_40px_100px_-20px_rgba(225,29,72,0.4)] dark:shadow-[0_40px_100px_-20px_rgba(225,29,72,0.2)] relative overflow-hidden group">
+        <div className="absolute top-0 right-0 h-64 w-64 bg-white/10 rounded-full blur-[100px] -mr-32 -mt-32 group-hover:scale-150 transition-transform duration-1000"/>
+        <div className="absolute bottom-0 left-0 h-48 w-48 bg-black/10 rounded-full blur-[80px] -ml-24 -mb-24"/>
+        
+        <div className="flex flex-col md:flex-row items-center gap-10 relative z-10 text-center md:text-left">
+          <div className="h-24 w-24 bg-white rounded-[32px] flex items-center justify-center shadow-2xl text-rose-600 rotate-12 group-hover:rotate-0 transition-transform duration-500">
+             <Siren className="animate-pulse" size={48} />
           </div>
           <div>
-            <h3 className="text-2xl font-black text-white uppercase tracking-tighter">Emergency SOS Broadcast</h3>
-            <p className="text-red-200/60 text-sm font-medium">Coordinate immediately with all available active patrol units.</p>
+            <h3 className="text-4xl lg:text-5xl font-black text-white uppercase tracking-tighter italic leading-none mb-3">Emergency Signal Override</h3>
+            <p className="text-rose-100 text-[10px] font-black uppercase tracking-[5px] flex items-center gap-3 justify-center md:justify-start">
+               <div className="h-2 w-2 bg-white rounded-full animate-ping" />
+               Critical Priority SOS Deployment Active
+            </p>
           </div>
         </div>
         
         <Link
           to="/police/sos"
-          className="flex items-center gap-3 bg-red-600 hover:bg-red-700 text-white font-black uppercase text-xs tracking-widest px-10 py-5 rounded-2xl transition-all shadow-xl shadow-red-600/20 active:scale-95"
+          className="bg-white text-rose-600 font-black uppercase text-xs tracking-[5px] px-16 py-7 rounded-[28px] transition-all shadow-2xl hover:bg-slate-950 hover:text-white active:scale-95 relative z-10 flex items-center gap-4 group/sos"
         >
-          <span className="relative flex h-2.5 w-2.5">
-            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-white opacity-75"></span>
-            <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-white"></span>
-          </span>
-          Trigger Dispatch
+          Initialize Dispatch <Send size={20} className="group-hover/sos:translate-x-3 group-hover/sos:-translate-y-3 transition-transform" />
         </Link>
       </div>
 
-      {/* Chart Analytics Section */}
-      <div className="bg-slate-900 border border-slate-800 rounded-[32px] p-8 shadow-xl mb-10 w-full hover:border-blue-500/20 transition-all group">
-          <div className="flex justify-between items-center mb-8">
-              <div className="flex items-center gap-3">
-                  <div className="p-2 bg-blue-500/10 rounded-xl text-blue-500 group-hover:scale-110 transition-transform">
-                      <BarChart3 size={18}/>
+      {/* Analytics & Priority Queue Wrap */}
+      <div className="grid grid-cols-1 2xl:grid-cols-12 gap-16">
+         
+         {/* CHART PANEL */}
+         <div className="2xl:col-span-12">
+            <div className="bg-white dark:bg-slate-900/40 border border-slate-100 dark:border-slate-800/50 rounded-[64px] p-12 lg:p-16 shadow-sm hover:shadow-2xl transition-all duration-700 w-full group">
+               <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-16 gap-8">
+                  <div>
+                    <div className="flex items-center gap-4 mb-4">
+                        <div className="p-4 bg-blue-600 text-white rounded-[20px] shadow-xl shadow-blue-500/20">
+                            <BarChart3 size={24}/>
+                        </div>
+                        <h3 className="text-3xl font-black text-slate-900 dark:text-white uppercase tracking-tighter italic">Sector Workload Visualizer</h3>
+                    </div>
+                    <p className="text-slate-400 dark:text-slate-600 text-[10px] font-black uppercase tracking-[4px] ml-16 italic">Distribution of force by node state</p>
                   </div>
-                  <h3 className="text-lg font-black text-white uppercase tracking-tight">Operational Workload Distribution</h3>
+                  <div className="flex gap-4">
+                     {chartData.map((d, i) => (
+                        <div key={i} className="flex items-center gap-2 px-6 py-3 bg-slate-50 dark:bg-slate-950 rounded-full border border-slate-100 dark:border-slate-800 shadow-inner">
+                           <div className="w-3 h-3 rounded-full" style={{ backgroundColor: d.color }} />
+                           <span className="text-[10px] font-black uppercase tracking-widest text-slate-500 dark:text-slate-500 italic">{d.name}</span>
+                        </div>
+                     ))}
+                  </div>
+               </div>
+               
+               <div className="h-[450px] w-full mt-10">
+                  <ResponsiveContainer width="100%" height="100%">
+                      <BarChart data={chartData} margin={{ top: 20, right: 30, left: 0, bottom: 20 }}>
+                          <defs>
+                             {chartData.map((d, i) => (
+                                <linearGradient key={i} id={`grad-${i}`} x1="0" y1="0" x2="0" y2="1">
+                                   <stop offset="0%" stopColor={d.color} stopOpacity={1} />
+                                   <stop offset="100%" stopColor={d.color} stopOpacity={0.6} />
+                                </linearGradient>
+                             ))}
+                          </defs>
+                          <CartesianGrid strokeDasharray="3 3" vertical={false} stroke={isDark ? "rgba(30, 41, 59, 0.4)" : "rgba(226, 232, 240, 0.5)"} />
+                          <XAxis 
+                            dataKey="name" 
+                            axisLine={false} 
+                            tickLine={false} 
+                            tick={{ fontSize: 10, fontWeight: '900', fill: isDark ? '#475569' : '#94a3b8', letterSpacing: '4px' }} 
+                            dy={20} 
+                          />
+                          <YAxis 
+                            axisLine={false} 
+                            tickLine={false} 
+                            tick={{ fontSize: 10, fontWeight: '900', fill: isDark ? '#475569' : '#94a3b8' }} 
+                          />
+                          <Tooltip 
+                            content={<CustomTooltip />} 
+                            cursor={{ fill: isDark ? 'rgba(30, 41, 59, 0.3)' : 'rgba(241, 245, 249, 0.5)', radius: [24, 24, 0, 0] }} 
+                          />
+                          <Bar dataKey="value" radius={[24, 24, 0, 0]} maxBarSize={120}>
+                              {chartData.map((entry, index) => (
+                                  <Cell key={`cell-${index}`} fill={`url(#grad-${index})`} />
+                              ))}
+                          </Bar>
+                      </BarChart>
+                  </ResponsiveContainer>
+               </div>
+            </div>
+         </div>
+
+         {/* QUEUE WRAPPER */}
+         <div className="2xl:col-span-12 space-y-12">
+            <div className="flex flex-col md:flex-row items-center justify-between gap-10 px-8">
+              <div>
+                <h3 className="text-4xl font-black text-slate-900 dark:text-white tracking-tighter flex items-center gap-6 uppercase italic leading-none">
+                  <div className="h-16 w-16 bg-blue-600 rounded-[28px] flex items-center justify-center text-white shadow-2xl rotate-6 group-hover:rotate-0 transition-all">
+                     <Siren size={32} />
+                  </div>
+                  Priority Response Queue
+                </h3>
+                <p className="text-slate-400 dark:text-slate-600 text-[10px] font-black uppercase tracking-[5px] mt-6 italic ml-24">Tactical Assignments from Headquarters Central</p>
               </div>
-          </div>
-          <div className="h-[300px] w-full">
-              <ResponsiveContainer width="100%" height="100%">
-                  <BarChart data={chartData} margin={{ top: 20, right: 30, left: 0, bottom: 5 }}>
-                      <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#1e293b" />
-                      <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fontSize: 12, fontWeight: 'bold', fill: '#64748b' }} dy={10} />
-                      <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 12, fontWeight: 'bold', fill: '#64748b' }} />
-                      <Tooltip content={<CustomTooltip />} cursor={{ fill: '#0f172a' }} />
-                      <Bar dataKey="value" radius={[6, 6, 0, 0]} maxBarSize={60}>
-                          {chartData.map((entry, index) => (
-                              <Cell key={`cell-${index}`} fill={entry.color} />
-                          ))}
-                      </Bar>
-                  </BarChart>
-              </ResponsiveContainer>
-          </div>
-      </div>
+              <Link to="/police/reports" className="px-12 py-5 bg-slate-950 dark:bg-white text-white dark:text-slate-950 text-[10px] font-black uppercase tracking-[4px] rounded-[24px] transition-all shadow-xl hover:scale-105 active:scale-95 italic">
+                 Full Sector Registry
+              </Link>
+            </div>
 
-      {/* Forwarded Cases — Card Grid */}
-      <div className="mb-6 flex items-center justify-between">
-        <h3 className="text-xl font-black text-white tracking-tight flex items-center gap-3">
-          <Siren className="text-blue-500" size={24} />
-          Priority Response Queue
-        </h3>
-        <Link to="/police/reports" className="text-xs font-bold text-blue-500 hover:text-blue-400 uppercase tracking-widest">Full Case Log</Link>
-      </div>
-
-      {loading ? (
-        <div className="flex flex-col items-center justify-center py-20 gap-4">
-          <div className="h-10 w-10 border-4 border-slate-800 border-t-blue-500 rounded-full animate-spin" />
-          <span className="text-[10px] font-black text-slate-500 uppercase tracking-[4px]">Loading Intelligence...</span>
-        </div>
-      ) : dashboardCases.length === 0 ? (
-        <div className="bg-slate-900 border border-slate-800 rounded-[40px] p-16 text-center">
-          <div className="h-20 w-20 bg-slate-800 rounded-full flex items-center justify-center mx-auto mb-6">
-            <CheckCircle2 size={40} className="text-slate-600" />
-          </div>
-          <h4 className="text-lg font-black text-slate-400 uppercase tracking-widest mb-2">All Clear</h4>
-          <p className="text-slate-600 text-sm">No active case assignments. Awaiting new dispatches.</p>
-        </div>
-      ) : (
-        <div className="grid grid-cols-1 xl:grid-cols-2 gap-8">
-          {dashboardCases.map((crime) => {
-            const cfg = statusConfig[crime.status] || statusConfig.ForwardedToPolice;
-            return (
-              <div key={crime._id} className="bg-slate-900 border border-slate-800 rounded-[40px] overflow-hidden hover:border-blue-500/20 transition-all group shadow-xl">
-                
-                {/* Card Header */}
-                <div className="p-8 pb-0">
-                  <div className="flex items-start justify-between mb-4">
-                    <div className="flex items-center gap-4">
-                      <div className="h-12 w-12 bg-slate-800 rounded-2xl flex items-center justify-center text-blue-500 border border-slate-700 group-hover:scale-110 transition-transform">
-                        <Shield size={22} />
-                      </div>
-                      <div>
-                        <div className="text-[9px] font-black text-blue-500 uppercase tracking-[3px] mb-0.5">{crime.crimeType}</div>
-                        <h4 className="text-lg font-black text-white tracking-tight uppercase leading-tight group-hover:text-blue-400 transition-colors line-clamp-1">{crime.title}</h4>
-                      </div>
-                    </div>
-                    <span className={`px-4 py-1.5 rounded-full bg-${cfg.color}-500/10 text-${cfg.color}-400 border border-${cfg.color}-500/20 text-[9px] font-black uppercase tracking-widest flex items-center gap-1.5 shrink-0 shadow-[0_0_15px_rgba(0,0,0,0.2)]`}>
-                      <span className="w-1.5 h-1.5 rounded-full bg-current animate-pulse" /> {cfg.label}
-                    </span>
-                  </div>
-
-                  {/* Description */}
-                  <p className="text-slate-400 text-sm leading-relaxed line-clamp-2 mb-4">{crime.description}</p>
-
-                  {/* Meta Row */}
-                  <div className="flex flex-wrap items-center gap-4 text-slate-500 mb-6">
-                    <div className="flex items-center gap-1.5 text-xs font-bold">
-                      <MapPin size={13} className="text-blue-500" /> {crime.location?.address || "Unknown"}
-                    </div>
-                    <div className="h-1 w-1 rounded-full bg-slate-700" />
-                    <div className="flex items-center gap-1.5 text-xs font-bold">
-                      <Clock size={13} /> {new Date(crime.createdAt).toLocaleDateString()}
-                    </div>
-                    {crime.priority && (
-                      <>
-                        <div className="h-1 w-1 rounded-full bg-slate-700" />
-                        <span className={`text-[9px] font-black uppercase tracking-widest ${
-                          crime.priority === "Critical" ? "text-rose-400" :
-                          crime.priority === "High" ? "text-orange-400" :
-                          crime.priority === "Medium" ? "text-amber-400" : "text-blue-400"
-                        }`}>{crime.priority} Priority</span>
-                      </>
-                    )}
-                  </div>
+            {loading ? (
+              <div className="bg-white dark:bg-slate-900/40 rounded-[56px] border border-slate-100 dark:border-slate-800 p-32 text-center">
+                <div className="flex flex-col items-center justify-center gap-8">
+                  <div className="h-16 w-16 border-4 border-slate-100 dark:border-slate-800 border-t-blue-500 rounded-full animate-spin shadow-2xl" />
+                  <span className="text-[10px] font-black text-slate-400 dark:text-slate-700 uppercase tracking-[6px] italic animate-pulse">Synchronizing Grid Records...</span>
                 </div>
+              </div>
+            ) : dashboardCases.length === 0 ? (
+              <div className="bg-slate-50 dark:bg-slate-900/40 border-2 border-dashed border-slate-200 dark:border-slate-800/50 rounded-[64px] p-24 text-center shadow-inner group">
+                <div className="h-24 w-24 bg-white dark:bg-slate-800 rounded-[32px] flex items-center justify-center mx-auto mb-8 shadow-sm group-hover:scale-110 transition-transform duration-700">
+                  <ShieldCheck size={48} className="text-slate-200 dark:text-slate-700" />
+                </div>
+                <h4 className="text-2xl font-black text-slate-400 dark:text-slate-800 uppercase tracking-[4px] mb-2 italic">Sector Normalized</h4>
+                <p className="text-slate-500 dark:text-slate-500 text-[10px] font-black uppercase tracking-[6px] opacity-40">Awaiting Signal Inflow</p>
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 xl:grid-cols-2 gap-10">
+                {dashboardCases.map((crime) => {
+                  const cfg = statusConfig[crime.status] || statusConfig.ForwardedToPolice;
+                  const themeColors = {
+                    amber: "border-amber-500/20 text-amber-500 bg-amber-500/5",
+                    indigo: "border-indigo-500/20 text-indigo-500 bg-indigo-500/5",
+                    emerald: "border-emerald-500/20 text-emerald-500 bg-emerald-500/5",
+                  };
 
-                {/* Evidence Section - Tactical View */}
-                {crime.evidence && crime.evidence.length > 0 && (
-                  <div className="px-8 pb-6">
-                    <p className="text-[9px] font-black text-slate-500 uppercase tracking-[2px] mb-4 flex items-center gap-2">
-                       <div className="w-1 h-3 bg-blue-500 rounded-full" /> TACTICAL EVIDENCE ARTIFACTS ({crime.evidence.length})
-                    </p>
-                    <div className="flex gap-4 overflow-x-auto pb-2 no-scrollbar">
-                      {crime.evidence.map((file, idx) => (
-                        <a
-                          key={idx}
-                          href={file.url}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="relative shrink-0 w-32 h-24 rounded-2xl overflow-hidden border border-slate-800 hover:border-blue-500 transition-all group/ev shadow-lg"
+                  return (
+                    <div key={crime._id} className="bg-white dark:bg-slate-900/50 border border-slate-100 dark:border-slate-800/80 rounded-[64px] overflow-hidden hover:border-blue-500/40 transition-all group shadow-sm hover:shadow-2xl duration-700 relative">
+                      
+                      <div className="absolute top-0 right-0 h-48 w-48 bg-blue-600/5 rounded-full blur-3xl -mr-24 -mt-24 pointer-events-none" />
+
+                      {/* Card Content */}
+                      <div className="p-12 pb-6 relative z-10">
+                        <div className="flex flex-col sm:flex-row items-start justify-between mb-10 gap-6">
+                          <div className="flex items-center gap-6">
+                            <div className="h-16 w-16 bg-slate-50 dark:bg-slate-950 rounded-[28px] flex items-center justify-center text-blue-600 border border-slate-100 dark:border-slate-800 group-hover:scale-110 transition-transform shadow-inner duration-500">
+                              <Shield size={32} />
+                            </div>
+                            <div>
+                              <div className="text-[10px] font-black text-blue-500 uppercase tracking-[4px] mb-2 italic flex items-center gap-2">
+                                 <Zap size={12} /> {crime.crimeType}
+                              </div>
+                              <h4 className="text-3xl font-black text-slate-900 dark:text-white tracking-tighter uppercase leading-none italic group-hover:text-blue-600 transition-colors line-clamp-1 duration-500">{crime.title}</h4>
+                            </div>
+                          </div>
+                          <span className={`px-6 py-2 rounded-2xl border text-[9px] font-black uppercase tracking-[3px] flex items-center gap-3 shrink-0 shadow-sm italic ${themeColors[cfg.color]}`}>
+                            <div className="w-2 h-2 rounded-full bg-current animate-pulse" /> {cfg.label}
+                          </span>
+                        </div>
+
+                        <div className="bg-slate-50/50 dark:bg-slate-950/40 p-10 rounded-[40px] border border-slate-50 dark:border-slate-800/40 mb-10 shadow-inner">
+                           <p className="text-slate-600 dark:text-slate-400 text-base leading-relaxed line-clamp-2 font-bold italic">
+                              "{crime.description}"
+                           </p>
+                        </div>
+
+                        <div className="flex flex-wrap items-center gap-8 text-slate-400 dark:text-slate-600 mb-10 border-t border-slate-50 dark:border-slate-800/50 pt-10">
+                          <div className="flex items-center gap-3 text-[10px] font-black uppercase tracking-[3px] italic">
+                            <MapPin size={16} className="text-blue-500" /> {crime.location?.address || "Grid Coordinate Node"}
+                          </div>
+                          <div className="flex items-center gap-3 text-[10px] font-black uppercase tracking-[3px] italic">
+                            <Clock size={16} /> {new Date(crime.createdAt).toLocaleDateString()} node_{crime._id.slice(-6).toUpperCase()}
+                          </div>
+                        </div>
+
+                        {/* Visual Assets Preview */}
+                        {crime.evidence && crime.evidence.length > 0 && (
+                          <div className="mb-10">
+                            <div className="flex items-center justify-between mb-6">
+                               <p className="text-[9px] font-black text-slate-400 dark:text-slate-700 uppercase tracking-[4px] flex items-center gap-2 italic">
+                                  <div className="w-1.5 h-3 bg-blue-500 rounded-full" /> Evidence Repository
+                               </p>
+                               <span className="text-[9px] font-black bg-slate-100 dark:bg-slate-800 px-3 py-1 rounded-lg text-slate-500">{crime.evidence.length} ARTIFACTS</span>
+                            </div>
+                            <div className="flex gap-4 overflow-x-auto pb-6 no-scrollbar custom-scrollbar">
+                              {crime.evidence.map((file, idx) => (
+                                <a
+                                  key={idx}
+                                  href={file.url}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  className="relative shrink-0 w-44 h-32 rounded-[32px] overflow-hidden border-2 border-slate-50 dark:border-slate-950 hover:border-blue-500 transition-all group/ev shadow-lg"
+                                >
+                                  {file.resourceType === "video" ? (
+                                    <video src={file.url} className="w-full h-full object-cover" />
+                                  ) : (
+                                    <img src={file.url} alt={`Artifact ${idx + 1}`} className="w-full h-full object-cover grayscale group-hover/ev:grayscale-0 transition-all duration-700" />
+                                  )}
+                                  <div className="absolute inset-0 bg-blue-600/20 opacity-0 group-hover/ev:opacity-100 transition-all flex items-center justify-center backdrop-blur-sm">
+                                    <ExternalLink size={24} className="text-white scale-50 group-hover/ev:scale-100 transition-transform" />
+                                  </div>
+                                </a>
+                              ))}
+                            </div>
+                          </div>
+                        )}
+                      </div>
+
+                      {/* Tactical Execution Bar */}
+                      <div className="px-12 py-10 border-t border-slate-50 dark:border-slate-800 flex flex-col sm:flex-row items-center justify-between bg-slate-50/30 dark:bg-slate-950/40 gap-8">
+                        <div className="flex items-center gap-6">
+                          <div className="h-14 w-14 rounded-[20px] bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 flex items-center justify-center text-blue-600 shadow-xl group-hover:scale-110 transition-transform duration-500">
+                            <Users size={28} />
+                          </div>
+                          <div className="text-left">
+                            <div className="text-[10px] font-black text-slate-400 dark:text-slate-600 uppercase tracking-widest mb-1 italic">Reporting Node</div>
+                            <div className="text-lg font-black text-slate-900 dark:text-white uppercase tracking-tight italic">{crime.userId?.username || "Verified Citizen"}</div>
+                          </div>
+                        </div>
+                        <Link
+                          to="/police/reports"
+                          className="w-full sm:w-auto flex items-center justify-center gap-4 bg-slate-950 dark:bg-blue-600 text-white px-10 py-5 rounded-[24px] text-[10px] font-black uppercase tracking-[3px] transition-all shadow-2xl hover:bg-blue-600 active:scale-95 italic group/btn"
                         >
-                          {file.resourceType === "video" ? (
-                            <video src={file.url} className="w-full h-full object-cover" muted />
-                          ) : (
-                            <img src={file.url} alt={`Evidence ${idx + 1}`} className="w-full h-full object-cover" />
-                          )}
-                          <div className="absolute inset-0 bg-slate-900/60 opacity-0 group-hover/ev:opacity-100 transition-all flex items-center justify-center backdrop-blur-[2px]">
-                            <ExternalLink size={20} className="text-white transform scale-90 group-hover/ev:scale-100 transition-transform" />
-                          </div>
-                          <div className="absolute bottom-2 left-2 px-2 py-0.5 bg-blue-600 text-white text-[7px] font-black uppercase rounded shadow-lg">
-                            {file.resourceType || "IMG"}
-                          </div>
-                        </a>
-                      ))}
-                    </div>
-                  </div>
-                )}
-
-                {/* Map Location - Tactical Grid */}
-                {crime.location?.lat && crime.location?.lng && (
-                  <div className="px-8 pb-6">
-                    <p className="text-[9px] font-black text-slate-500 uppercase tracking-[2px] mb-4 flex items-center gap-2">
-                       <div className="w-1 h-3 bg-rose-500 rounded-full" /> INCIDENT GROUND ZERO
-                    </p>
-                    <div className="rounded-[28px] overflow-hidden border border-slate-800 h-48 relative group/map shadow-inner">
-                      <div className="absolute inset-0 bg-blue-500/5 pointer-events-none z-10" />
-                      <iframe
-                        title={`Location - ${crime._id}`}
-                        width="100%"
-                        height="100%"
-                        style={{ border: 0, filter: 'contrast(1.1) brightness(0.9) saturate(1.2)' }}
-                        loading="lazy"
-                        src={`https://www.openstreetmap.org/export/embed.html?bbox=${Number(crime.location.lng) - 0.005}%2C${Number(crime.location.lat) - 0.005}%2C${Number(crime.location.lng) + 0.005}%2C${Number(crime.location.lat) + 0.005}&layer=mapnik&marker=${Number(crime.location.lat)}%2C${Number(crime.location.lng)}`}
-                      />
-                      <div className="absolute bottom-4 right-4 z-20 bg-slate-900/80 backdrop-blur-md px-3 py-1.5 rounded-lg border border-slate-700 text-[8px] font-bold text-slate-300">
-                        GPS: {Number(crime.location.lat).toFixed(6)} N, {Number(crime.location.lng).toFixed(6)} E
+                          Access Case Log <ChevronRight size={18} className="group-hover/btn:translate-x-2 transition-transform" />
+                        </Link>
                       </div>
                     </div>
-                  </div>
-                )}
-
-                {/* Card Footer - Intelligence Metadata */}
-                <div className="px-8 py-6 border-t border-slate-800/50 flex flex-col sm:flex-row items-center justify-between bg-slate-900/30 gap-4">
-                  <div className="flex items-center gap-4">
-                    <div className="h-10 w-10 rounded-full bg-slate-800 border border-slate-700 flex items-center justify-center text-slate-400">
-                      <Users size={18} />
-                    </div>
-                    <div>
-                      <div className="text-[9px] font-black text-slate-500 uppercase tracking-widest">Reporter Intel</div>
-                      <div className="text-xs font-bold text-white uppercase">{crime.userId?.username || "Anonymous Source"}</div>
-                    </div>
-                  </div>
-                  <Link
-                    to="/police/reports"
-                    className="w-full sm:w-auto flex items-center justify-center gap-3 bg-blue-600/10 hover:bg-blue-600 text-blue-500 hover:text-white px-6 py-3 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all border border-blue-500/20 shadow-lg"
-                  >
-                    Open Full Dossier <ChevronRight size={14} />
-                  </Link>
-                </div>
+                  );
+                })}
               </div>
-            );
-          })}
-        </div>
-      )}
+            )}
+         </div>
+      </div>
 
       <style>{`
         .no-scrollbar::-webkit-scrollbar { display: none; }
         .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+        .custom-scrollbar::-webkit-scrollbar { width: 4px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: rgba(59, 130, 246, 0.2); border-radius: 10px; }
       `}</style>
     </div>
   );

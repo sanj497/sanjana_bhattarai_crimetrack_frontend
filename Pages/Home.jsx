@@ -2,7 +2,8 @@ import React, { useState, useEffect, useRef } from "react";
 import { Link } from "react-router-dom";
 import { 
   AlertCircle, Shield, Phone, MapPin, FileText, Siren,
-  Users, ChevronRight, Menu, X, LogOut, Lock, Clock, Bell, Activity, LayoutDashboard, Radio
+  Users, ChevronRight, Menu, X, LogOut, Lock, Clock, Bell, Activity, LayoutDashboard, Radio,
+  ArrowRight, ShieldCheck, Globe, Zap, MousePointer2
 } from "lucide-react";
 
 export default function CrimeReportingHome() {
@@ -10,6 +11,7 @@ export default function CrimeReportingHome() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [user, setUser] = useState(null);
   const [liveAlerts, setLiveAlerts] = useState([]);
+  const [scrolled, setScrolled] = useState(false);
   const tickerRef = useRef(null);
 
   const checkAuth = () => {
@@ -33,15 +35,17 @@ export default function CrimeReportingHome() {
 
   useEffect(() => {
     checkAuth();
+    const handleScroll = () => setScrolled(window.scrollY > 50);
+    window.addEventListener("scroll", handleScroll);
     window.addEventListener("authChange", checkAuth);
     window.addEventListener("storage", checkAuth);
     return () => {
+      window.removeEventListener("scroll", handleScroll);
       window.removeEventListener("authChange", checkAuth);
       window.removeEventListener("storage", checkAuth);
     };
   }, []);
 
-  // Fetch live public crime alerts (no auth required)
   useEffect(() => {
     const fetchAlerts = async () => {
       try {
@@ -51,404 +55,276 @@ export default function CrimeReportingHome() {
         if (data.success && data.reports?.length > 0) {
           setLiveAlerts(data.reports.slice(0, 8));
         }
-      } catch (e) {
-        // Silently fail - ticker just won't show
-      }
+      } catch (e) {}
     };
     fetchAlerts();
-    const interval = setInterval(fetchAlerts, 60000); // Refresh every minute
+    const interval = setInterval(fetchAlerts, 60000);
     return () => clearInterval(interval);
   }, []);
 
   return (
-    <div className="min-h-screen bg-[#F7F9FC] font-sans text-[#111827]">
-      {/* Navigation */}
-      <nav className="bg-white shadow-sm border-b border-gray-100 sticky top-0 z-50">
-        {/* Live Crime Alert Ticker */}
-        {liveAlerts.length > 0 && (
-          <div className="bg-[#0B1F3B] border-b border-[#1E5EFF]/20 overflow-hidden">
-            <div className="flex items-center">
-              {/* Label */}
-              <div className="flex-shrink-0 flex items-center gap-2 bg-[#E63946] px-4 py-2 text-white font-bold text-xs uppercase tracking-widest">
-                <div className="w-2 h-2 rounded-full bg-white animate-pulse" />
-                <Siren className="h-3.5 w-3.5" />
-                <span>LIVE ALERTS</span>
-              </div>
-              {/* Scrolling Ticker */}
-              <div className="flex-1 overflow-hidden relative">
-                <div
-                  ref={tickerRef}
-                  className="flex gap-16 animate-marquee whitespace-nowrap py-2 px-4"
-                  style={{
-                    animation: "marquee 35s linear infinite",
-                  }}
-                >
-                  {[...liveAlerts, ...liveAlerts].map((alert, i) => (
-                    <span key={i} className="inline-flex items-center gap-2 text-xs text-gray-300">
-                      <span className={`inline-block w-2 h-2 rounded-full flex-shrink-0 ${
-                        alert.priority === 'Critical' ? 'bg-red-500' :
-                        alert.priority === 'High' ? 'bg-orange-400' :
-                        'bg-yellow-400'
-                      }`} />
-                      <span className="text-[#E63946] font-bold">[{alert.crimeType}]</span>
-                      <span className="font-medium text-white">{alert.title}</span>
-                      <span className="text-gray-500">—</span>
-                      <MapPin className="h-3 w-3 text-gray-500 flex-shrink-0" />
-                      <span className="text-gray-400">{alert.location?.address || 'Unknown Location'}</span>
-                      <span className="text-gray-600 mx-2">•••</span>
-                    </span>
-                  ))}
-                </div>
-              </div>
-              {/* Time */}
-              <div className="flex-shrink-0 flex items-center gap-1.5 px-4 text-gray-500 text-[10px] font-bold uppercase tracking-wider border-l border-white/10">
-                <Clock className="h-3 w-3" />
-                <span>LIVE</span>
-              </div>
-            </div>
+    <div className="min-h-screen bg-white dark:bg-[#020617] font-['Inter',sans-serif] text-slate-900 dark:text-white transition-colors duration-500 overflow-x-hidden">
+      
+      {/* ── NAVIGATION ── */}
+      <nav className={`fixed top-0 left-0 right-0 z-[100] transition-all duration-500 ${
+        scrolled ? "py-4 bg-white/80 dark:bg-[#020617]/80 backdrop-blur-2xl border-b border-slate-200 dark:border-slate-800 shadow-2xl" : "py-8 bg-transparent"
+      }`}>
+        <div className="max-w-7xl mx-auto px-6 lg:px-12 flex justify-between items-center">
+          <Link to="/" className="flex items-center gap-4 group">
+             <div className="h-12 w-12 bg-blue-600 rounded-[16px] flex items-center justify-center text-white shadow-xl shadow-blue-500/20 group-hover:rotate-12 transition-transform duration-500">
+                <ShieldCheck size={28} />
+             </div>
+             <div>
+                <span className="text-2xl font-black tracking-tighter uppercase italic leading-none block">CrimeTrack</span>
+                <span className="text-[10px] font-black text-blue-600 uppercase tracking-[4px] leading-none block mt-1">Operational</span>
+             </div>
+          </Link>
+
+          <div className="hidden lg:flex items-center gap-12">
+             {["Features", "Tactical Map", "Emergency"].map((item) => (
+                <a key={item} href={`#${item.toLowerCase().replace(' ', '-')}`} className="text-[11px] font-black uppercase tracking-[3px] text-slate-500 hover:text-blue-600 transition-colors">
+                   {item}
+                </a>
+             ))}
           </div>
-        )}
-        <style>{`
-          @keyframes marquee {
-            0% { transform: translateX(0); }
-            100% { transform: translateX(-50%); }
-          }
-          .animate-marquee { display: flex; }
-        `}</style>
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center h-20">
-            <div className="flex items-center space-x-3">
-              <img src="https://res.cloudinary.com/dvziqqu1j/image/upload/v1776324979/crimetrack_logo.jpg" alt="CrimeTrack Logo" className="h-10 w-10 object-cover rounded-xl" />
-              <span className="text-2xl font-black text-[#0B1F3B] tracking-tight uppercase italic" style={{ fontFamily: "Poppins, sans-serif" }}>CrimeTrack</span>
-            </div>
 
-            {/* Desktop Menu */}
-            <div className="hidden md:flex items-center space-x-8">
-              <a href="#home" className="text-[#6B7280] hover:text-[#1E5EFF] font-medium transition">Home</a>
-              <a href="#features" className="text-[#6B7280] hover:text-[#1E5EFF] font-medium transition">Features</a>
-              <a href="#how-it-works" className="text-[#6B7280] hover:text-[#1E5EFF] font-medium transition">How It Works</a>
-
-              {isLoggedIn ? (
-                <div className="flex items-center space-x-4 pl-4 border-l border-gray-200">
-                  {user?.name && (
-                    <span className="text-[#111827] text-sm font-medium mr-2">
-                      {user.name}
-                    </span>
-                  )}
-                  <Link
-                    to={getDashboardLink()}
-                    className="flex items-center gap-2 bg-[#1E5EFF] text-white px-5 py-2.5 rounded-[12px] font-semibold hover:bg-blue-600 transition shadow-[0_4px_14px_0_rgba(30,94,255,0.39)]"
-                  >
-                    <LayoutDashboard className="h-4 w-4" />
-                    Dashboard
+          <div className="flex items-center gap-6">
+             {isLoggedIn ? (
+               <div className="hidden md:flex items-center gap-4">
+                  <Link to={getDashboardLink()} className="px-8 py-3.5 bg-slate-950 dark:bg-white text-white dark:text-slate-950 rounded-2xl text-[11px] font-black uppercase tracking-[3px] hover:scale-105 active:scale-95 transition-all shadow-xl">
+                     Terminal
                   </Link>
-                  <Link
-                    to="/logout"
-                    className="flex items-center gap-2 bg-[#F7F9FC] text-[#6B7280] hover:text-[#E63946] hover:bg-red-50 px-4 py-2.5 rounded-[12px] font-medium transition"
-                  >
-                    <LogOut className="h-4 w-4" />
-                    Logout
+                  <Link to="/logout" className="h-12 w-12 flex items-center justify-center rounded-2xl bg-rose-500/10 text-rose-500 hover:bg-rose-500 hover:text-white transition-all">
+                     <LogOut size={20} />
                   </Link>
-                </div>
-              ) : (
-                <div className="flex items-center space-x-4 pl-4 border-l border-gray-200">
-                  <Link
-                    to="/login"
-                    className="text-[#0B1F3B] font-semibold hover:text-[#1E5EFF] transition px-2"
-                  >
-                    Sign In
+               </div>
+             ) : (
+               <div className="flex items-center gap-4">
+                  <Link to="/login" className="hidden md:block text-[11px] font-black uppercase tracking-[3px] text-slate-400 hover:text-slate-900 dark:hover:text-white transition-colors mr-4">
+                     Sign In
                   </Link>
-                  <Link
-                    to="/register"
-                    className="bg-[#1E5EFF] text-white px-6 py-2.5 rounded-[12px] font-semibold hover:bg-blue-600 transition shadow-[0_4px_14px_0_rgba(30,94,255,0.39)]"
-                  >
-                    Get Started
+                  <Link to="/register" className="px-8 py-3.5 bg-blue-600 text-white rounded-2xl text-[11px] font-black uppercase tracking-[3px] hover:bg-blue-700 shadow-xl shadow-blue-600/20 active:scale-95 transition-all">
+                     Join Force
                   </Link>
-                </div>
-              )}
-            </div>
-
-            {/* Mobile Menu Button */}
-            <button
-              className="md:hidden text-[#0B1F3B]"
-              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-            >
-              {mobileMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
-            </button>
+               </div>
+             )}
+             <button onClick={() => setMobileMenuOpen(!mobileMenuOpen)} className="lg:hidden h-12 w-12 flex items-center justify-center rounded-2xl bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300">
+                {mobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
+             </button>
           </div>
         </div>
-
-        {/* Mobile Menu */}
-        {mobileMenuOpen && (
-          <div className="md:hidden bg-white border-t border-gray-100 p-4 absolute w-full shadow-lg">
-            <div className="flex flex-col space-y-4">
-              <a href="#home" className="text-[#111827] font-medium">Home</a>
-              <a href="#features" className="text-[#111827] font-medium">Features</a>
-              <a href="#how-it-works" className="text-[#111827] font-medium">How It Works</a>
-              <hr className="border-gray-100" />
-              {isLoggedIn ? (
-                <div className="flex flex-col space-y-3">
-                  {user?.name && (
-                    <span className="text-sm font-semibold text-[#6B7280]">Logged in as {user.name}</span>
-                  )}
-                  <Link to={getDashboardLink()} className="bg-[#1E5EFF] text-white flex items-center justify-center p-3 rounded-[12px] font-semibold transition">
-                    <LayoutDashboard className="h-5 w-5 mr-2" /> Go to Dashboard
-                  </Link>
-                  <Link to="/logout" className="bg-[#F7F9FC] text-[#E63946] flex items-center justify-center p-3 rounded-[12px] font-semibold transition hover:bg-red-50">
-                    <LogOut className="h-5 w-5 mr-2" /> Logout
-                  </Link>
-                </div>
-              ) : (
-                <>
-                  <Link to="/login" className="text-[#0B1F3B] font-medium">Sign In</Link>
-                  <Link to="/register" className="bg-[#1E5EFF] text-white text-center py-3 rounded-[12px] font-semibold">Get Started</Link>
-                </>
-              )}
-            </div>
-          </div>
-        )}
       </nav>
 
-      {/* 1. Hero Section */}
-      <section id="home" className="relative bg-[#0B1F3B] overflow-hidden">
-        {/* Background Overlay */}
-        <div className="absolute inset-0 z-0 opacity-30">
-          <div className="absolute inset-0 bg-gradient-to-br from-[#0B1F3B] via-[#0B1F3B]/90 to-transparent z-10" />
-          <div className="w-full h-full bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-[#1E5EFF]/50 via-[#0B1F3B] to-[#0B1F3B]" />
+      {/* ── MOBILE MENU ── */}
+      {mobileMenuOpen && (
+        <div className="fixed inset-0 z-[90] bg-white dark:bg-[#020617] pt-32 p-8 animate-in fade-in slide-in-from-top-10 duration-500">
+           <div className="flex flex-col gap-8 text-center">
+              {["Features", "Tactical Map", "Emergency"].map((item) => (
+                <a key={item} href="#" className="text-3xl font-black uppercase italic tracking-tighter">{item}</a>
+              ))}
+              <hr className="border-slate-100 dark:border-slate-800" />
+              {isLoggedIn ? (
+                <Link to={getDashboardLink()} className="py-6 bg-blue-600 text-white rounded-3xl font-black uppercase tracking-[4px]">Open Terminal</Link>
+              ) : (
+                <Link to="/register" className="py-6 bg-blue-600 text-white rounded-3xl font-black uppercase tracking-[4px]">Get Started</Link>
+              )}
+           </div>
         </div>
-        
-        <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-32 pb-48 md:pt-40 md:pb-64 text-center md:text-left flex flex-col items-center md:items-start">
-          <div className="max-w-3xl">
-            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-[#1E5EFF]/10 text-[#00B8D9] font-semibold text-sm mb-8 border border-[#1E5EFF]/30 shadow-sm backdrop-blur-sm">
-              <Activity className="h-4 w-4" /> Real-time tracking system
-            </div>
-            <h1 className="text-6xl md:text-7xl font-extrabold text-white mb-8 leading-[1.1]" style={{ fontFamily: "Poppins, sans-serif", letterSpacing: "-0.02em" }}>
-              Secure. Report. <br/> <span className="text-[#00B8D9]">Stay Safe.</span>
-            </h1>
-            <p className="text-xl md:text-2xl text-gray-300 mb-12 max-w-2xl leading-relaxed mx-auto md:mx-0">
-              Our high-end security and emergency response platform connects you directly with local law enforcement. Quick, anonymous, and encrypted.
-            </p>
-            <div className="flex flex-col sm:flex-row gap-5 justify-center md:justify-start">
-              <Link to="/report" className="flex items-center justify-center gap-3 bg-[#E63946] hover:bg-red-700 text-white px-8 py-4 rounded-[12px] font-bold transition-all hover:shadow-[0_8px_25px_0_rgba(230,57,70,0.5)] text-lg hover:-translate-y-1">
-                <AlertCircle className="h-6 w-6" /> Report Crime
-              </Link>
-              <Link to="/register" className="flex items-center justify-center gap-3 bg-white hover:bg-gray-50 text-[#0B1F3B] px-8 py-4 rounded-[12px] font-bold transition-all shadow-md text-lg hover:-translate-y-1">
-                Get Started <ChevronRight className="h-6 w-6" />
-              </Link>
-            </div>
+      )}
+
+      {/* ── HERO SECTION ── */}
+      <section className="relative pt-48 pb-64 lg:pt-64 lg:pb-80 overflow-hidden bg-slate-50 dark:bg-slate-950 transition-colors duration-500">
+        <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none">
+          <div className="absolute top-0 right-0 w-[1000px] h-[1000px] bg-blue-600/10 dark:bg-blue-600/5 rounded-full blur-[200px] -mr-96 -mt-96" />
+          <div className="absolute bottom-0 left-0 w-[800px] h-[800px] bg-rose-600/10 dark:bg-rose-600/5 rounded-full blur-[200px] -ml-96 -mb-96" />
+          <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')] opacity-[0.03] dark:opacity-[0.1]" />
+        </div>
+
+        <div className="max-w-7xl mx-auto px-6 lg:px-12 relative z-10">
+          <div className="max-w-4xl">
+             <div className="flex items-center gap-3 text-blue-600 dark:text-blue-400 mb-8 animate-in fade-in slide-in-from-left-4 duration-700">
+                <div className="h-2 w-12 bg-blue-600 rounded-full" />
+                <span className="text-[12px] font-black uppercase tracking-[6px] italic">Global Security Grid 2.0</span>
+             </div>
+             
+             <h1 className="text-7xl md:text-8xl lg:text-9xl font-black text-slate-900 dark:text-white leading-[0.85] tracking-tighter uppercase italic mb-12 animate-in fade-in slide-in-from-left-6 duration-1000">
+                Neutralizing <br/> <span className="text-blue-600 underline decoration-blue-500/10 decoration-[20px] underline-offset-[20px]">Threats</span> <br/> In Realtime
+             </h1>
+
+             <p className="text-xl md:text-2xl text-slate-500 dark:text-slate-400 font-medium max-w-2xl leading-relaxed italic mb-16 animate-in fade-in slide-in-from-left-8 duration-1000">
+                Advanced encrypted infrastructure connecting citizens with elite tactical units. Deploy intelligence, track incidents, and secure your perimeter.
+             </p>
+
+             <div className="flex flex-col sm:flex-row items-center gap-8 animate-in fade-in slide-in-from-bottom-10 duration-1000">
+                <Link to="/report" className="w-full sm:w-auto px-12 py-6 bg-rose-600 text-white rounded-[32px] text-lg font-black uppercase tracking-[4px] italic hover:bg-rose-700 hover:scale-105 active:scale-95 transition-all shadow-2xl shadow-rose-600/30 flex items-center justify-center gap-4">
+                   <AlertCircle size={24} className="animate-pulse" /> Dispatch Intel
+                </Link>
+                <Link to="/register" className="w-full sm:w-auto px-12 py-6 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-slate-900 dark:text-white rounded-[32px] text-lg font-black uppercase tracking-[4px] italic hover:border-blue-500 transition-all flex items-center justify-center gap-4 shadow-xl">
+                   Join Infrastructure <ChevronRight size={24} />
+                </Link>
+             </div>
           </div>
+        </div>
+
+        {/* Live Ticker Floating */}
+        <div className="absolute bottom-0 left-0 right-0 z-20">
+           <div className="bg-slate-950 border-t border-slate-800/50 py-6 overflow-hidden backdrop-blur-3xl">
+              <div className="flex items-center">
+                 <div className="shrink-0 flex items-center gap-3 px-10 border-r border-slate-800">
+                    <div className="h-3 w-3 bg-rose-600 rounded-full animate-ping" />
+                    <span className="text-[11px] font-black text-white uppercase tracking-[5px] italic">Live Feed</span>
+                 </div>
+                 <div className="overflow-hidden relative flex-1">
+                    <div 
+                      className="flex gap-20 animate-marquee whitespace-nowrap px-10"
+                      style={{ animation: "marquee 60s linear infinite" }}
+                    >
+                       {[...liveAlerts, ...liveAlerts].map((alert, i) => (
+                         <div key={i} className="flex items-center gap-5">
+                            <span className="text-rose-500 font-black text-[10px] uppercase tracking-widest bg-rose-500/10 px-3 py-1 rounded-lg">[{alert.crimeType}]</span>
+                            <span className="text-white text-xs font-black uppercase tracking-tight italic opacity-80">{alert.title}</span>
+                            <span className="text-slate-600">•</span>
+                            <span className="text-slate-400 text-[10px] font-black uppercase tracking-wider flex items-center gap-2">
+                               <MapPin size={12} className="text-blue-500" /> {alert.location?.address?.split(',')[0]}
+                            </span>
+                         </div>
+                       ))}
+                       {liveAlerts.length === 0 && (
+                         <span className="text-slate-600 text-[10px] font-black uppercase tracking-[10px] italic">Scanning Operational Grid... Datalink Secure... Standing By...</span>
+                       )}
+                    </div>
+                 </div>
+              </div>
+           </div>
         </div>
       </section>
 
-      {/* 2. Features Section */}
-      <section id="features" className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative -mt-16 md:-mt-24 z-20 mb-24">
-        <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
-          <div className="bg-white p-8 rounded-[16px] shadow-[0_12px_40px_rgb(0,0,0,0.06)] border border-gray-100 hover:-translate-y-2 transition-transform duration-300">
-            <div className="h-14 w-14 bg-[#1E5EFF]/10 rounded-[12px] flex items-center justify-center mb-8">
-              <FileText className="h-7 w-7 text-[#1E5EFF]" />
-            </div>
-            <h3 className="text-xl font-bold text-[#0B1F3B] mb-4" style={{ fontFamily: "Poppins, sans-serif" }}>Report Crime</h3>
-            <p className="text-[#6B7280] leading-relaxed">
-              Submit digital evidence and descriptions anonymously, directly to the central dashboard.
-            </p>
-          </div>
-          <div className="bg-white p-8 rounded-[16px] shadow-[0_12px_40px_rgb(0,0,0,0.06)] border border-gray-100 hover:-translate-y-2 transition-transform duration-300">
-            <div className="h-14 w-14 bg-[#E63946]/10 rounded-[12px] flex items-center justify-center mb-8">
-              <Bell className="h-7 w-7 text-[#E63946]" />
-            </div>
-            <h3 className="text-xl font-bold text-[#0B1F3B] mb-4" style={{ fontFamily: "Poppins, sans-serif" }}>SOS Alert</h3>
-            <p className="text-[#6B7280] leading-relaxed">
-              Trigger a one-tap emergency signal alerting nearby police stations instantly.
-            </p>
-          </div>
-          <div className="bg-white p-8 rounded-[16px] shadow-[0_12px_40px_rgb(0,0,0,0.06)] border border-gray-100 hover:-translate-y-2 transition-transform duration-300">
-            <div className="h-14 w-14 bg-[#00B8D9]/10 rounded-[12px] flex items-center justify-center mb-8">
-              <MapPin className="h-7 w-7 text-[#00B8D9]" />
-            </div>
-            <h3 className="text-xl font-bold text-[#0B1F3B] mb-4" style={{ fontFamily: "Poppins, sans-serif" }}>Interactive Map</h3>
-            <p className="text-[#6B7280] leading-relaxed">
-              View real-time hotspots and verified incident reports in your immediate vicinity.
-            </p>
-          </div>
-          <div className="bg-white p-8 rounded-[16px] shadow-[0_12px_40px_rgb(0,0,0,0.06)] border border-gray-100 hover:-translate-y-2 transition-transform duration-300">
-            <div className="h-14 w-14 bg-[#0B1F3B]/10 rounded-[12px] flex items-center justify-center mb-8">
-              <Users className="h-7 w-7 text-[#0B1F3B]" />
-            </div>
-            <h3 className="text-xl font-bold text-[#0B1F3B] mb-4" style={{ fontFamily: "Poppins, sans-serif" }}>Feedback System</h3>
-            <p className="text-[#6B7280] leading-relaxed">
-              Help authorities improve safety procedures by rating responses and submitting feedback.
-            </p>
-          </div>
+      {/* ── METRICS SECTION ── */}
+      <section className="py-24 bg-white dark:bg-[#020617] transition-colors duration-500">
+         <div className="max-w-7xl mx-auto px-6 lg:px-12 grid grid-cols-1 md:grid-cols-4 gap-12">
+            {[
+              { label: "Alerts Dispatched", val: "12,482+", icon: <Zap /> },
+              { label: "Verified Stations", val: "1,200+", icon: <Globe /> },
+              { label: "Active Field Units", val: "84,000+", icon: <Shield /> },
+              { label: "Avg Response Time", val: "1.4 Min", icon: <Clock /> },
+            ].map((stat, i) => (
+              <div key={i} className="p-10 bg-slate-50 dark:bg-slate-950 border border-slate-100 dark:border-slate-800/50 rounded-[48px] text-center group hover:border-blue-500/30 transition-all shadow-sm">
+                 <div className="h-20 w-20 bg-blue-600/10 dark:bg-blue-600/5 text-blue-600 rounded-[28px] flex items-center justify-center mx-auto mb-8 group-hover:scale-110 transition-transform">
+                    {React.cloneElement(stat.icon, { size: 36 })}
+                 </div>
+                 <p className="text-4xl font-black tracking-tighter italic uppercase mb-2 group-hover:text-blue-600 transition-colors">{stat.val}</p>
+                 <p className="text-[10px] font-black text-slate-400 dark:text-slate-600 uppercase tracking-[4px] italic">{stat.label}</p>
+              </div>
+            ))}
+         </div>
+      </section>
+
+      {/* ── FEATURES SECTION ── */}
+      <section id="features" className="py-32 lg:py-48 bg-slate-50 dark:bg-slate-900/20 transition-colors duration-500 relative">
+        <div className="max-w-7xl mx-auto px-6 lg:px-12">
+           <div className="text-center mb-32">
+              <h2 className="text-[12px] font-black text-blue-600 dark:text-blue-400 uppercase tracking-[10px] mb-8 italic">Grid Capabilities</h2>
+              <h3 className="text-6xl md:text-8xl font-black tracking-tighter italic uppercase leading-none">High-Octane <br/> <span className="text-blue-600">Surveillance</span></h3>
+           </div>
+
+           <div className="grid grid-cols-1 lg:grid-cols-3 gap-10">
+              {[
+                { title: "Ghost Reporting", desc: "Military-grade encryption ensures absolute anonymity while reporting critical incidents.", icon: <Lock />, color: "rose" },
+                { title: "SOS Vectoring", desc: "One-tap emergency broadcast with real-time GPS telemetry for immediate dispatch.", icon: <Radio />, color: "blue" },
+                { title: "Visual Intel", desc: "Deep-dive into verified incident hotspots with interactive tactical map overlays.", icon: <MapPin />, color: "emerald" },
+              ].map((feature, i) => (
+                <div key={i} className="bg-white dark:bg-slate-950 p-12 lg:p-16 rounded-[64px] border border-slate-100 dark:border-slate-800 shadow-2xl relative group overflow-hidden">
+                   <div className={`absolute top-0 right-0 h-48 w-48 bg-${feature.color}-500/5 rounded-full -mr-24 -mt-24 group-hover:scale-150 transition-transform duration-1000`} />
+                   
+                   <div className={`h-24 w-24 bg-${feature.color}-500/10 dark:bg-${feature.color}-500/5 text-${feature.color}-600 rounded-[32px] flex items-center justify-center mb-10 group-hover:rotate-12 transition-transform shadow-inner`}>
+                      {React.cloneElement(feature.icon, { size: 48 })}
+                   </div>
+                   
+                   <h4 className="text-3xl font-black tracking-tighter uppercase italic mb-8 group-hover:text-blue-600 transition-colors">{feature.title}</h4>
+                   <p className="text-lg text-slate-500 dark:text-slate-400 font-medium leading-relaxed italic mb-10">"{feature.desc}"</p>
+                   
+                   <button className="flex items-center gap-4 text-[11px] font-black uppercase tracking-[4px] text-blue-600 group-hover:gap-6 transition-all italic">
+                      Analyze Module <ArrowRight size={18} />
+                   </button>
+                </div>
+              ))}
+           </div>
         </div>
       </section>
 
-      {/* 3. How It Works Section */}
-      <section id="how-it-works" className="py-24 bg-white border-y border-gray-100">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-16">
-            <h2 className="text-3xl md:text-4xl font-bold text-[#0B1F3B] mb-4" style={{ fontFamily: "Poppins, sans-serif" }}>
-              How It Works
-            </h2>
-            <p className="text-[#6B7280] max-w-2xl mx-auto text-lg">
-              A streamlined, 3-step timeline built for rapid response and citizen protection.
-            </p>
-          </div>
-
-          <div className="grid md:grid-cols-3 gap-12 relative">
-            {/* Connection Line */}
-            <div className="hidden md:block absolute top-[48px] left-[15%] right-[15%] h-0.5 bg-[#F7F9FC] border-t-2 border-dashed border-gray-200 z-0" />
+      {/* ── CTA SECTION ── */}
+      <section className="py-48 px-6 lg:px-12">
+         <div className="max-w-7xl mx-auto rounded-[80px] bg-slate-950 relative overflow-hidden p-20 lg:p-40 group">
+            <div className="absolute inset-0 bg-gradient-to-br from-blue-600/30 via-transparent to-rose-600/30 opacity-50" />
+            <div className="absolute top-0 right-0 w-[800px] h-[800px] bg-blue-600/20 rounded-full blur-[200px] -mr-96 -mt-96 animate-pulse" />
             
-            <div className="relative z-10 text-center">
-              <div className="w-24 h-24 mx-auto rounded-full bg-[#1E5EFF] text-white flex items-center justify-center shadow-[0_8px_20px_rgb(30,94,255,0.3)] mb-6">
-                <FileText className="h-8 w-8" />
-              </div>
-              <div className="bg-[#F7F9FC] rounded-full inline-block px-4 py-1 text-sm font-bold text-[#1E5EFF] mb-4">Step 1</div>
-              <h3 className="text-xl font-bold text-[#0B1F3B] mb-2" style={{ fontFamily: "Poppins, sans-serif" }}>Report Crime</h3>
-              <p className="text-[#6B7280]">Provide details, media, and location easily through our platform.</p>
+            <div className="relative z-10 text-center max-w-4xl mx-auto">
+               <h2 className="text-7xl md:text-9xl font-black text-white italic tracking-tighter uppercase leading-[0.8] mb-12 group-hover:scale-110 transition-transform duration-1000">
+                  Ready to <br/> <span className="text-blue-500">Secure</span> <br/> Your Sector?
+               </h2>
+               <p className="text-xl md:text-2xl text-slate-400 font-medium italic mb-20 leading-relaxed">
+                  Join the most advanced community safety network in existence. Encrypted communication. Realtime response. Zero compromise.
+               </p>
+               <div className="flex flex-col sm:flex-row items-center justify-center gap-10">
+                  <Link to="/register" className="w-full sm:w-auto px-16 py-8 bg-white text-slate-950 rounded-[40px] text-xl font-black uppercase tracking-[6px] italic hover:bg-blue-500 hover:text-white transition-all shadow-2xl active:scale-95">
+                     Initiate Protocol
+                  </Link>
+                  <Link to="/emergency" className="w-full sm:w-auto flex items-center gap-4 text-white text-[12px] font-black uppercase tracking-[6px] italic hover:text-rose-500 transition-colors">
+                     <Phone size={24} /> Emergency Deck
+                  </Link>
+               </div>
             </div>
-
-            <div className="relative z-10 text-center">
-              <div className="w-24 h-24 mx-auto rounded-full bg-[#0B1F3B] text-white flex items-center justify-center shadow-[0_8px_20px_rgb(11,31,59,0.3)] mb-6">
-                <Shield className="h-8 w-8" />
-              </div>
-              <div className="bg-[#F7F9FC] rounded-full inline-block px-4 py-1 text-sm font-bold text-[#0B1F3B] mb-4">Step 2</div>
-              <h3 className="text-xl font-bold text-[#0B1F3B] mb-2" style={{ fontFamily: "Poppins, sans-serif" }}>Police Receive Alert</h3>
-              <p className="text-[#6B7280]">Our admin dashboard rapidly verifies and dispatches units.</p>
-            </div>
-
-            <div className="relative z-10 text-center">
-              <div className="w-24 h-24 mx-auto rounded-full bg-[#00B8D9] text-white flex items-center justify-center shadow-[0_8px_20px_rgb(0,184,217,0.3)] mb-6">
-                <Clock className="h-8 w-8" />
-              </div>
-              <div className="bg-[#F7F9FC] rounded-full inline-block px-4 py-1 text-sm font-bold text-[#00B8D9] mb-4">Step 3</div>
-              <h3 className="text-xl font-bold text-[#0B1F3B] mb-2" style={{ fontFamily: "Poppins, sans-serif" }}>Track Status</h3>
-              <p className="text-[#6B7280]">Get live notifications as the situation is reviewed and resolved.</p>
-            </div>
-          </div>
-        </div>
+         </div>
       </section>
 
-      {/* 4. Trust Section */}
-      <section className="py-24 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="bg-[#0B1F3B] rounded-[24px] overflow-hidden shadow-2xl">
-          <div className="grid md:grid-cols-2">
-            <div className="p-12 md:p-16 flex flex-col justify-center">
-              <h2 className="text-3xl md:text-4xl font-bold text-white mb-6" style={{ fontFamily: "Poppins, sans-serif" }}>
-                Built for <span className="text-[#00B8D9]">Trust</span> and <span className="text-[#1E5EFF]">Transparency</span>
-              </h2>
-              <p className="text-gray-300 mb-8 leading-relaxed">
-                We believe security starts with the individual. The Crime Track infrastructure is built on military-grade encryption to ensure your data stays confidential.
-              </p>
-              <div className="space-y-6">
-                <div className="flex items-start gap-4">
-                  <div className="bg-white/10 p-2 rounded-lg"><Lock className="h-6 w-6 text-[#00B8D9]" /></div>
-                  <div>
-                    <h4 className="text-lg font-bold text-white">End-to-End Encrypted</h4>
-                    <p className="text-sm text-gray-400">All submissions are tokenized.</p>
-                  </div>
-                </div>
-                <div className="flex items-start gap-4">
-                  <div className="bg-white/10 p-2 rounded-lg"><Activity className="h-6 w-6 text-[#1E5EFF]" /></div>
-                  <div>
-                    <h4 className="text-lg font-bold text-white">24/7 Availability</h4>
-                    <p className="text-sm text-gray-400">System redundancy guarantees 99.9% uptime.</p>
-                  </div>
-                </div>
-              </div>
-            </div>
-            
-            <div className="bg-[#112445] p-12 md:p-16 flex items-center justify-center relative">
-              <div className="w-full max-w-sm rounded-[16px] bg-[#0B1F3B] border border-white/10 p-6 shadow-2xl relative z-10">
-                <div className="text-center pb-6 border-b border-white/10">
-                  <p className="text-5xl font-bold text-[#00B8D9] mb-2">10k+</p>
-                  <p className="text-sm font-semibold tracking-wider text-gray-400 uppercase">Reports Handled</p>
-                </div>
-                <div className="text-center pt-6">
-                  <p className="text-5xl font-bold text-[#1E5EFF] mb-2">2 min</p>
-                  <p className="text-sm font-semibold tracking-wider text-gray-400 uppercase">Avg Response Time</p>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* 5. Call-To-Action Section */}
-      <section className="py-32 bg-[#F7F9FC]">
-        <div className="max-w-4xl mx-auto text-center px-4">
-          <h2 className="text-4xl md:text-5xl font-bold text-[#0B1F3B] mb-8 leading-tight" style={{ fontFamily: "Poppins, sans-serif" }}>
-            Join and help make your community safer
-          </h2>
-          <p className="text-xl text-[#6B7280] mb-12 max-w-2xl mx-auto leading-relaxed">
-            It takes all of us to maintain peace. Register today to access maps, resources, and live updates directly from local authorities. 
-          </p>
-          <div className="flex flex-col sm:flex-row justify-center gap-6">
-            <Link to="/register" className="bg-[#1E5EFF] text-white px-10 py-4 rounded-[12px] font-bold hover:bg-blue-600 transition-all shadow-[0_8px_20px_0_rgba(30,94,255,0.3)] text-lg hover:-translate-y-1">
-              Get Started Now
-            </Link>
-            <Link to="/contact" className="bg-white border-2 border-gray-200 text-[#0B1F3B] px-10 py-4 rounded-[12px] font-bold hover:border-[#1E5EFF] hover:text-[#1E5EFF] transition-all shadow-sm text-lg hover:-translate-y-1">
-              Contact Us
-            </Link>
-          </div>
-        </div>
-      </section>
-
-      {/* 6. Footer */}
-      <footer className="bg-[#0B1F3B] pt-16 pb-8 border-t border-[#112445]">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-12 mb-12">
-            <div className="col-span-1 md:col-span-1">
-              <div className="flex items-center space-x-2 mb-6">
-                <img src="https://res.cloudinary.com/dvziqqu1j/image/upload/v1776324979/crimetrack_logo.jpg" alt="CrimeTrack Logo" className="h-10 w-10 object-cover rounded-xl" />
-                <span className="font-bold text-2xl text-white tracking-tight uppercase italic" style={{ fontFamily: "Poppins, sans-serif" }}>CrimeTrack</span>
-              </div>
-              <p className="text-gray-400 text-sm leading-relaxed">
-                Bridging the gap between citizens and authorities through real-time communication.
-              </p>
-            </div>
-            
-            <div>
-              <h4 className="font-bold text-white mb-6" style={{ fontFamily: "Poppins, sans-serif" }}>Platform</h4>
-              <ul className="space-y-3">
-                <li><a href="#" className="text-gray-400 hover:text-[#00B8D9] transition text-sm">About Us</a></li>
-                <li><a href="#" className="text-gray-400 hover:text-[#00B8D9] transition text-sm">How It Works</a></li>
-                <li><a href="#" className="text-gray-400 hover:text-[#00B8D9] transition text-sm">Contact Support</a></li>
-              </ul>
-            </div>
-            
-            <div>
-              <h4 className="font-bold text-white mb-6" style={{ fontFamily: "Poppins, sans-serif" }}>Legal</h4>
-              <ul className="space-y-3">
-                <li><a href="#" className="text-gray-400 hover:text-[#00B8D9] transition text-sm">Privacy Policy</a></li>
-                <li><a href="#" className="text-gray-400 hover:text-[#00B8D9] transition text-sm">Terms of Service</a></li>
-                <li><a href="#" className="text-gray-400 hover:text-[#00B8D9] transition text-sm">Security Standards</a></li>
-              </ul>
+      {/* ── FOOTER ── */}
+      <footer className="py-24 border-t border-slate-100 dark:border-slate-800 bg-white dark:bg-[#020617] transition-colors duration-500">
+         <div className="max-w-7xl mx-auto px-6 lg:px-12 grid grid-cols-1 md:grid-cols-4 gap-16 lg:gap-24">
+            <div className="md:col-span-1">
+               <div className="flex items-center gap-4 mb-10">
+                  <div className="h-10 w-10 bg-blue-600 rounded-xl flex items-center justify-center text-white font-black italic shadow-lg">CT</div>
+                  <span className="text-xl font-black tracking-tighter uppercase italic">CrimeTrack</span>
+               </div>
+               <p className="text-xs text-slate-400 dark:text-slate-600 font-bold uppercase tracking-widest leading-loose italic">
+                  Advanced operational infrastructure dedicated to civilian protection and rapid multi-agency dispatch.
+               </p>
             </div>
 
-            <div>
-              <h4 className="font-bold text-[#E63946] mb-6" style={{ fontFamily: "Poppins, sans-serif" }}>Emergency Numbers</h4>
-              <div className="bg-[#112445] rounded-xl p-4 border border-white/5">
-                <div className="flex items-center gap-3 mb-2">
-                  <Phone className="h-5 w-5 text-[#E63946]" />
-                  <span className="text-white font-bold text-lg">911</span>
-                </div>
-                <p className="text-xs text-gray-400">For immediate life-threatening emergencies only.</p>
+            {[
+              { title: "Platform", links: ["Features", "Tactical Map", "Awareness Hub", "Verified Units"] },
+              { title: "Compliance", links: ["Privacy Shield", "Intel Ethics", "Protocol V2", "Security Status"] },
+              { title: "Emergency", links: ["SOS Alpha", "Police Radio", "Medical Link", "Fire Dispatch"] },
+            ].map((col, i) => (
+              <div key={i}>
+                 <h5 className="text-[12px] font-black uppercase tracking-[5px] mb-10 italic">{col.title}</h5>
+                 <ul className="space-y-6">
+                    {col.links.map(link => (
+                      <li key={link}>
+                         <a href="#" className="text-[10px] font-black text-slate-400 hover:text-blue-500 dark:text-slate-600 dark:hover:text-blue-500 transition-colors uppercase tracking-[4px] italic">{link}</a>
+                      </li>
+                    ))}
+                 </ul>
               </div>
+            ))}
+         </div>
+         <div className="max-w-7xl mx-auto px-6 lg:px-12 mt-32 flex flex-col md:flex-row justify-between items-center gap-8 border-t border-slate-50 dark:border-slate-900 pt-16">
+            <p className="text-[9px] font-black text-slate-300 dark:text-slate-800 uppercase tracking-[8px] italic">© {new Date().getFullYear()} CRIMETRACK INFRASTRUCTURE • ALL RIGHTS RESERVED • ENCRYPTED SESSION ACTIVE</p>
+            <div className="flex items-center gap-8">
+               <ShieldCheck className="text-slate-200 dark:text-slate-800" size={32} />
+               <Radio className="text-slate-200 dark:text-slate-800" size={32} />
+               <MousePointer2 className="text-slate-200 dark:text-slate-800" size={32} />
             </div>
-          </div>
-          
-          <div className="border-t border-[#112445] pt-8 flex flex-col md:flex-row justify-between items-center">
-            <p className="text-sm text-gray-500 mb-4 md:mb-0">
-              © {new Date().getFullYear()} Crime Track System. All rights reserved.
-            </p>
-            <div className="flex space-x-6">
-              <a href="#" className="text-gray-500 hover:text-white transition">Twitter</a>
-              <a href="#" className="text-gray-500 hover:text-white transition">Facebook</a>
-              <a href="#" className="text-gray-500 hover:text-white transition">LinkedIn</a>
-            </div>
-          </div>
-        </div>
+         </div>
       </footer>
+
+      <style>{`
+        @keyframes marquee {
+          0% { transform: translateX(0); }
+          100% { transform: translateX(-50%); }
+        }
+        .animate-marquee { display: flex; animation: marquee 120s linear infinite; }
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+      `}</style>
     </div>
   );
-}
+}
