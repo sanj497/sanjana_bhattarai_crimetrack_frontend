@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
+import { Shield, ShieldAlert, User as UserIcon, CheckCircle2, XCircle, Search, MoreVertical, ShieldCheck } from "lucide-react";
 
 const Users = () => {
   const [users, setUsers] = useState([]);
@@ -92,128 +93,134 @@ const Users = () => {
   };
 
   return (
-    <div style={{ padding: "40px", background: "#0b0f1a", minHeight: "calc(100vh - 80px)", color: "#e5e7eb", fontFamily: "Inter, system-ui, sans-serif" }}>
-      <div style={{ maxWidth: "1000px", margin: "0 auto" }}>
-        {/* Header */}
-        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "32px" }}>
+    <div className="p-6 md:p-10 min-h-screen bg-[#f8fafc] font-sans">
+      <div className="max-w-7xl mx-auto">
+        {/* Header Section */}
+        <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
           <div>
-            <h1 style={{ fontSize: "28px", fontWeight: 900, color: "#fff", margin: 0 }}>User Management</h1>
-            <p style={{ fontSize: "14px", color: "#94a3b8", marginTop: "8px" }}>Configure security roles and permissions for system users.</p>
+            <h1 className="text-3xl font-black text-slate-900 uppercase tracking-tighter">User Directory</h1>
+            <p className="text-sm font-medium text-slate-500 mt-1">Manage system access, security roles, and verify officer credentials.</p>
           </div>
-          <div style={{ background: "rgba(59, 130, 246, 0.1)", color: "#3b82f6", padding: "10px 20px", borderRadius: "12px", border: "1px solid rgba(59, 130, 246, 0.2)", fontSize: "13px", fontWeight: 700 }}>
-            {users.length} Active Accounts
+          <div className="flex items-center gap-3 bg-white border border-slate-200 px-4 py-2.5 rounded-2xl shadow-sm">
+            <ShieldCheck className="text-blue-500 h-5 w-5" />
+            <span className="text-sm font-bold text-slate-700">{users.length} Active Accounts</span>
           </div>
         </div>
 
         {loading ? (
-          <div style={{ display: "flex", justifyContent: "center", padding: "60px", color: "#4b5563" }}>
-            <span style={{ fontWeight: 600 }}>Syncing user database...</span>
+          <div className="flex justify-center items-center py-20">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
           </div>
         ) : (
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(300px, 1fr))", gap: "24px" }}>
-            {users.map((user) => (
-              <div
-                key={user._id}
-                style={{
-                  background: "rgba(17, 24, 39, 0.7)", backdropFilter: "blur(12px)",
-                  borderRadius: "20px", padding: "28px", border: "1px solid #1f2937",
-                  boxShadow: "0 10px 30px rgba(0,0,0,0.15)", transition: "all 0.3s ease"
-                }}
-              >
-                <div style={{ display: "flex", alignItems: "center", gap: "16px", marginBottom: "20px" }}>
-                  <div style={{
-                    width: "48px", height: "48px", borderRadius: "14px",
-                    display: "grid", placeItems: "center",
-                    background: user.role === "police" ? "rgba(34, 197, 94, 0.1)" : "rgba(59, 130, 246, 0.1)",
-                    border: "1px solid " + (user.role === "police" ? "rgba(34, 197, 94, 0.2)" : "rgba(59, 130, 246, 0.2)"),
-                    fontSize: "20px"
-                  }}>
-                    {user.role === "police" ? "👮" : "👤"}
-                  </div>
-                  <div>
-                    <div style={{ fontWeight: 800, color: "#fff", fontSize: "16px", marginBottom: "2px", wordBreak: "break-all" }}>{user.email.split("@")[0]}</div>
-                    <div style={{ fontSize: "12px", color: "#4b5563" }}>{user.email}</div>
-                  </div>
-                </div>
+          <div className="bg-white rounded-[24px] border border-slate-200 shadow-sm overflow-hidden">
+            <div className="overflow-x-auto">
+              <table className="w-full text-left border-collapse">
+                <thead>
+                  <tr className="bg-slate-50 border-b border-slate-200">
+                    <th className="px-6 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest bg-slate-50/50">User Profile</th>
+                    <th className="px-6 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest bg-slate-50/50 hidden md:table-cell">Account ID</th>
+                    <th className="px-6 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest bg-slate-50/50">Security Role</th>
+                    <th className="px-6 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest bg-slate-50/50 hidden lg:table-cell">Verification Status</th>
+                    <th className="px-6 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest bg-slate-50/50 text-right">Actions</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-slate-100">
+                  {users.map((user) => (
+                    <tr key={user._id} className="hover:bg-slate-50 transition-colors group">
+                      {/* User Profile Column */}
+                      <td className="px-6 py-5 whitespace-nowrap">
+                        <div className="flex items-center gap-4">
+                          {/* Professional Avatar Image Placeholder */}
+                          <div className={`h-12 w-12 rounded-full flex items-center justify-center shrink-0 border-2 ${user.role === 'police' ? 'bg-emerald-50 border-emerald-100 text-emerald-600' : 'bg-blue-50 border-blue-100 text-blue-600'}`}>
+                            {user.role === 'police' ? <Shield className="h-5 w-5" /> : <UserIcon className="h-5 w-5" />}
+                          </div>
+                          <div>
+                            <div className="text-sm font-bold text-slate-900 group-hover:text-blue-600 transition-colors">
+                              {user.username || user.email.split("@")[0]}
+                            </div>
+                            <div className="text-xs font-medium text-slate-500">
+                              {user.email}
+                            </div>
+                          </div>
+                        </div>
+                      </td>
 
-                <div style={{ 
-                  padding: "12px 16px", borderRadius: "12px", background: "rgba(0,0,0,0.2)", 
-                  border: "1px solid #1f2937", marginBottom: "24px" 
-                }}>
-                  <div style={{ fontSize: "11px", fontWeight: 800, color: "#4b5563", textTransform: "uppercase", letterSpacing: "1px", marginBottom: "4px" }}>Security Role</div>
-                  <div style={{ 
-                    fontSize: "14px", fontWeight: 700, 
-                    color: user.role === "police" ? "#4ade80" : "#60a5fa"
-                  }}>
-                    {user.role.toUpperCase()}
-                  </div>
-                </div>
+                      {/* Account ID Column */}
+                      <td className="px-6 py-5 hidden md:table-cell whitespace-nowrap">
+                        <span className="text-xs font-medium text-slate-400 font-mono bg-slate-100 px-2 py-1 rounded-md">
+                          {user._id.substring(user._id.length - 8)}
+                        </span>
+                      </td>
 
-                {user.policeVerification?.status === "pending" && (
-                  <div style={{ marginBottom: "14px", padding: "12px", background: "rgba(245, 158, 11, 0.1)", border: "1px solid rgba(245, 158, 11, 0.2)", borderRadius: "10px" }}>
-                    <div style={{ fontSize: "11px", color: "#fbbf24", fontWeight: 700, marginBottom: "6px" }}>
-                      Pending Police Verification
-                    </div>
-                    <div style={{ fontSize: "12px", color: "#cbd5e1", lineHeight: "1.6" }}>
-                      Station: {user.policeVerification?.stationDistrict || "N/A"}<br />
-                      Badge: {user.policeVerification?.badgeNumber || "N/A"}<br />
-                      Department: {user.policeVerification?.department || "N/A"}
-                    </div>
-                  </div>
-                )}
+                      {/* Role Column */}
+                      <td className="px-6 py-5 whitespace-nowrap">
+                        <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest border ${
+                          user.role === 'police' ? 'bg-emerald-50 text-emerald-600 border-emerald-100' :
+                          user.role === 'admin' ? 'bg-indigo-50 text-indigo-600 border-indigo-100' :
+                          'bg-slate-50 text-slate-600 border-slate-200'
+                        }`}>
+                          {user.role === 'police' && <ShieldCheck size={12} />}
+                          {user.role}
+                        </span>
+                      </td>
 
-                {user.policeVerification?.status === "pending" ? (
-                  <div style={{ display: "flex", gap: "10px" }}>
-                    <button
-                      onClick={() => verifyPoliceApplication(user._id, "approve")}
-                      style={{
-                        width: "100%", padding: "12px", borderRadius: "12px",
-                        background: "rgba(34, 197, 94, 0.1)", color: "#4ade80", border: "1px solid rgba(34, 197, 94, 0.2)",
-                        fontSize: "12px", fontWeight: 800, cursor: "pointer", transition: "all 0.2s"
-                      }}
-                    >
-                      APPROVE POLICE
-                    </button>
-                    <button
-                      onClick={() => verifyPoliceApplication(user._id, "reject")}
-                      style={{
-                        width: "100%", padding: "12px", borderRadius: "12px",
-                        background: "rgba(239, 68, 68, 0.1)", color: "#f87171", border: "1px solid rgba(239, 68, 68, 0.2)",
-                        fontSize: "12px", fontWeight: 800, cursor: "pointer", transition: "all 0.2s"
-                      }}
-                    >
-                      REJECT
-                    </button>
-                  </div>
-                ) : user.role === "police" ? (
-                  <button
-                    onClick={() => removePolice(user._id)}
-                    style={{
-                      width: "100%", padding: "12px", borderRadius: "12px",
-                      background: "rgba(239, 68, 68, 0.1)", color: "#f87171", border: "1px solid rgba(239, 68, 68, 0.2)",
-                      fontSize: "13px", fontWeight: 800, cursor: "pointer", transition: "all 0.2s"
-                    }}
-                    onMouseEnter={e => { e.currentTarget.style.background = "#ef4444"; e.currentTarget.style.color = "#fff"; }}
-                    onMouseLeave={e => { e.currentTarget.style.background = "rgba(239, 68, 68, 0.1)"; e.currentTarget.style.color = "#f87171"; }}
-                  >
-                    REVOKE POLICE STATUS
-                  </button>
-                ) : (
-                  <button
-                    onClick={() => makePolice(user._id)}
-                    style={{
-                      width: "100%", padding: "12px", borderRadius: "12px",
-                      background: "rgba(34, 197, 94, 0.1)", color: "#4ade80", border: "1px solid rgba(34, 197, 94, 0.2)",
-                      fontSize: "13px", fontWeight: 800, cursor: "pointer", transition: "all 0.2s"
-                    }}
-                    onMouseEnter={e => { e.currentTarget.style.background = "#22c55e"; e.currentTarget.style.color = "#fff"; }}
-                    onMouseLeave={e => { e.currentTarget.style.background = "rgba(34, 197, 94, 0.1)"; e.currentTarget.style.color = "#4ade80"; }}
-                  >
-                    PROMOTE TO POLICE
-                  </button>
-                )}
-              </div>
-            ))}
+                      {/* Verification Context */}
+                      <td className="px-6 py-5 hidden lg:table-cell">
+                        {user.policeVerification?.status === "pending" ? (
+                           <div className="flex flex-col gap-1">
+                             <span className="inline-flex items-center gap-1 text-[10px] font-black text-amber-500 uppercase tracking-widest">
+                               <ShieldAlert size={12} className="animate-pulse" /> Pending Review
+                             </span>
+                             <span className="text-[10px] font-bold text-slate-400">Badge: {user.policeVerification?.badgeNumber || "NA"}</span>
+                           </div>
+                        ) : user.role === "police" ? (
+                           <span className="inline-flex items-center gap-1 text-[10px] font-black text-emerald-500 uppercase tracking-widest">
+                               <CheckCircle2 size={12} /> Verified Officer
+                           </span>
+                        ) : (
+                           <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">-</span>
+                        )}
+                      </td>
+
+                      {/* Actions Column */}
+                      <td className="px-6 py-5 whitespace-nowrap text-right">
+                        {user.policeVerification?.status === "pending" ? (
+                          <div className="flex items-center justify-end gap-2">
+                            <button
+                              onClick={() => verifyPoliceApplication(user._id, "approve")}
+                              className="px-3 py-1.5 bg-emerald-50 text-emerald-600 hover:bg-emerald-500 hover:text-white rounded-lg text-[10px] font-black uppercase tracking-widest transition-all border border-emerald-100 hover:border-emerald-500"
+                            >
+                              Approve
+                            </button>
+                            <button
+                              onClick={() => verifyPoliceApplication(user._id, "reject")}
+                              className="px-3 py-1.5 bg-rose-50 text-rose-600 hover:bg-rose-500 hover:text-white rounded-lg text-[10px] font-black uppercase tracking-widest transition-all border border-rose-100 hover:border-rose-500"
+                            >
+                              Reject
+                            </button>
+                          </div>
+                        ) : user.role === "police" ? (
+                          <button
+                            onClick={() => removePolice(user._id)}
+                            className="px-4 py-2 bg-slate-50 text-slate-500 hover:bg-rose-50 hover:text-rose-600 rounded-lg text-[10px] font-black uppercase tracking-widest transition-all border border-slate-200 hover:border-rose-200 inline-flex items-center gap-1.5"
+                          >
+                            <XCircle size={14} /> Revoke Status
+                          </button>
+                        ) : (
+                          <span className="text-[10px] font-bold text-slate-300 uppercase tracking-widest">
+                            {/* Manual Promote button removed completely as requested */}
+                            Standard
+                          </span>
+                        )}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+              {users.length === 0 && (
+                 <div className="p-12 text-center text-slate-500 font-bold text-sm">No accounts found in the system.</div>
+              )}
+            </div>
           </div>
         )}
       </div>
