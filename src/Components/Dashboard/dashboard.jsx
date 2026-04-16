@@ -282,55 +282,6 @@ export default function Dashboard() {
                             </ResponsiveContainer>
                         </div>
                     </div>
-
-                    {/* Activity Feed */}
-                    <div className="ct-card">
-                        <div className="flex justify-between items-center mb-section">
-                            <div className="flex items-center gap-2">
-                                <div className="p-2 bg-success/10 rounded-lg text-success">
-                                    <Activity size={20}/>
-                                </div>
-                                <h3 className="text-lg font-semibold text-text-primary">Active Intelligence Stream</h3>
-                            </div>
-                            <button 
-                                onClick={fetchDashboardData}
-                                className="text-xs font-medium text-accent-gold flex items-center gap-1 hover:text-soft-gold transition-colors"
-                            >
-                                <RefreshCw size={14}/> Refresh
-                            </button>
-                        </div>
-
-                        <div className="flex flex-col gap-default">
-                            {loading ? (
-                                [1,2,3,4].map(i => <div key={i} className="h-20 bg-primary-dark rounded-card animate-pulse"/>)
-                            ) : activities.length > 0 ? (
-                                activities.map((a, i) => (
-                                    <div key={i} className="flex justify-between items-center p-default bg-primary-dark/50 border border-border-subtle rounded-card hover:border-text-secondary transition-all group">
-                                        <div className="flex gap-default items-center">
-                                            <div className="w-10 h-10 rounded-lg bg-secondary-dark border border-border-subtle flex items-center justify-center text-text-secondary group-hover:text-accent-gold transition-colors">
-                                                <FileText size={18}/>
-                                            </div>
-                                            <div>
-                                                <div className="font-semibold text-sm text-text-primary group-hover:text-accent-gold transition-colors">{a.title}</div>
-                                                <div className="text-xs text-text-secondary mt-0.5">{a.meta}</div>
-                                            </div>
-                                        </div>
-                                        <span className={`px-3 py-1.5 rounded-lg text-xs font-semibold border ${
-                                          a.badge === "Resolved" || a.badge === "Verified" ? "bg-success/10 text-success border-success/20" : 
-                                          a.badge === "Pending" ? "bg-warning/10 text-warning border-warning/20" : 
-                                          "bg-accent-gold/10 text-accent-gold border-accent-gold/20"
-                                        }`}>
-                                          {a.badge === "ForwardedToPolice" ? "Escalated" : a.badge}
-                                        </span>
-                                    </div>
-                                ))
-                            ) : (
-                                <div className="text-center py-16 text-text-secondary font-medium text-sm">
-                                    No Active Logs
-                                </div>
-                            )}
-                        </div>
-                    </div>
                 </div>
 
                 {/* Right Side: Emergency Hub & Actions */}

@@ -124,15 +124,15 @@ export default function AdminLayout() {
 
     const menu = useMemo(
         () => [
-            { name: "Command Dashboard", icon: <LayoutDashboard size={20} />, path: "/dashboard" },
-            { name: "Live Map Grid",     icon: <MapIcon size={20} />,         path: "/admin/map"       },
-            { name: "Intelligence Desk", icon: <FileText size={20} />,        path: "/adReport"  },
-            { name: "Citizen Registry",  icon: <Users size={20} />,           path: "/user"      },
-            {name: "Safety Dispatch",   icon: <ShieldAlert size={20} />,     path: "/forward-admin" },
-            { name: "Public Grievances", icon: <Settings size={20} />,        path: "/admin/complaints"      },
-            { name: "Emergency Feed",    icon: <Bell size={20} />,            path: "/notifications" },
-            { name: "Community Talk",    icon: <MessageSquare size={20} />,   path: "/admin/feedback" },
-            { name: "Force Insights",    icon: <BarChart3 size={20} />,       path: "/admin/performance" },
+            { name: "Dashboard", icon: <LayoutDashboard size={20} />, path: "/dashboard" },
+            { name: "Map",     icon: <MapIcon size={20} />,         path: "/admin/map"       },
+            { name: "Reports", icon: <FileText size={20} />,        path: "/adReport"  },
+            { name: "Users",  icon: <Users size={20} />,           path: "/user"      },
+            {name: "Verify",   icon: <ShieldAlert size={20} />,     path: "/forward-admin" },
+            { name: "Complaints", icon: <Settings size={20} />,        path: "/admin/complaints"      },
+            { name: "Notifications",    icon: <Bell size={20} />,            path: "/notifications" },
+            { name: "Feedback",    icon: <MessageSquare size={20} />,   path: "/admin/feedback" },
+            { name: "Performance",    icon: <BarChart3 size={20} />,       path: "/admin/performance" },
             { name: "Settings",          icon: <Settings size={20} />,        path: "/admin/settings" },
         ],
         []
