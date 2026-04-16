@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
 import { Link, useLocation, Outlet } from "react-router-dom";
-import { LayoutDashboard, FileText, Bell, MessageSquare, Settings, AlertTriangle, ShieldAlert, LogOut, ChevronLeft, ChevronRight, Shield, Users, BarChart3, MapPin, Activity } from "lucide-react";
+import { LayoutDashboard, FileText, Bell, MessageSquare, Settings, AlertTriangle, ShieldAlert, LogOut, ChevronLeft, ChevronRight, Shield, Activity } from "lucide-react";
 import NotificationDropdown from "../Dashboard/NotificationDropdown";
 import ThemeToggle from "../Dashboard/ThemeToggle";
 import { toast } from "react-toastify";
@@ -12,9 +12,6 @@ const getUser = () => {
 const navItems = [
   { icon: <LayoutDashboard size={20} />, label: "Overview", path: "/citizen" },
   { icon: <Activity size={20} />, label: "Incident Tracker", path: "/citizen/tracking" },
-  { icon: <Users size={20} />, label: "Community", path: "/community" },
-  { icon: <MapPin size={20} />, label: "Safety Map", path: "/map-citizen" },
-  { icon: <BarChart3 size={20} />, label: "Transparency", path: "/transparency" },
   { icon: <ShieldAlert size={20} />, label: "Admin Alerts", path: "/citizen/alerts" },
   { icon: <MessageSquare size={20} />, label: "Feedback", path: "/feedback" },
   { icon: <AlertTriangle size={20} />, label: "Emergency", path: "/emergency", badge: "SOS" },
@@ -233,8 +230,8 @@ export default function CitizenLayout() {
                return (
                  <div className="flex items-center gap-4">
                    <div className="hidden sm:block text-right">
-                     <div className="text-xs font-black text-white uppercase tracking-tighter">{u.username || "Authorized Citizen"}</div>
-                     <div className="text-[9px] font-black text-slate-500 uppercase tracking-widest mt-0.5">{u.role || "Level 1 Access"}</div>
+                     <div className="text-xs font-black text-white uppercase tracking-tighter">{u.username || u.name || "Citizen"}</div>
+                     <div className="text-[9px] font-black text-slate-500 uppercase tracking-widest mt-0.5">{u.role || "Citizen"}</div>
                    </div>
                    <div 
                      className="h-12 w-12 bg-blue-600 text-white flex items-center justify-center rounded-2xl font-black text-lg shadow-xl shadow-blue-900/40 relative group cursor-pointer border border-blue-500/50 overflow-hidden"

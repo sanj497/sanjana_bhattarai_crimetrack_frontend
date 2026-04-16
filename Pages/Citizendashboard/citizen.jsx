@@ -277,7 +277,7 @@ export default function CitizenDashboard() {
                Welcome back, {"\n"}<span className="text-accent-gold">{user.username || 'Citizen'}</span>
             </h1>
             <p className="text-text-secondary max-w-lg leading-relaxed text-sm mb-section">
-               Your gateway to community safety. Monitor your reported incidents, receive real-time updates from dispatch, and access critical transparency metrics.
+               Your gateway to safety. Monitor your reported incidents and receive real-time updates from dispatch.
             </p>
             <div>
                 <Link to="/report" className="ct-btn-primary inline-flex items-center justify-center gap-2">
@@ -476,7 +476,7 @@ export default function CitizenDashboard() {
             </div>
             <div>
               <h2 className="text-2xl font-bold text-text-primary">Submit Your Feedback</h2>
-              <p className="text-text-secondary text-sm">Help us improve community safety services</p>
+              <p className="text-text-secondary text-sm">Help us improve safety services</p>
             </div>
           </div>
 
