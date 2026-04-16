@@ -63,7 +63,6 @@ export default function AdminLayout() {
             { name: "Intelligence Desk", icon: <FileText size={20} />,        path: "/adReport"  },
             { name: "Citizen Registry",  icon: <Users size={20} />,           path: "/user"      },
             {name: "Safety Dispatch",   icon: <ShieldAlert size={20} />,     path: "/forward-admin" },
-            { name: "Emergency Center", icon: <Bell size={20} className="text-rose-500" />, path: "/admin/emergency" },
             { name: "Public Grievances", icon: <Settings size={20} />,        path: "/admin/complaints"      },
             { name: "Emergency Feed",    icon: <Bell size={20} />,            path: "/notifications" },
             { name: "Community Talk",    icon: <MessageSquare size={20} />,   path: "/admin/feedback" },
