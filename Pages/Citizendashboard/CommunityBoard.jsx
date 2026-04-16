@@ -127,54 +127,53 @@ export default function CommunityBoard() {
 
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-10">
         
-        {/* Main Feed */}
+      {/* Main Feed */}
         <div className="lg:col-span-7 space-y-6">
           {filtered.length === 0 ? (
-            <div className="p-20 text-center bg-white rounded-[40px] border border-dashed border-slate-200">
-               <Shield className="mx-auto text-slate-100 mb-6" size={80} />
-               <p className="text-slate-400 font-black uppercase tracking-widest text-sm underline decoration-slate-100">No Incidents Reported</p>
-               <p className="text-slate-300 text-xs mt-2">Your community dashboard is currently clear.</p>
+            <div className="p-20 text-center bg-white rounded-[40px] border border-dashed border-slate-200 shadow-inner">
+               <ShieldCheck className="mx-auto text-emerald-100 mb-6" size={80} />
+               <p className="text-slate-400 font-black uppercase tracking-widest text-sm decoration-emerald-100">Sector Status: Secure</p>
+               <p className="text-slate-300 text-xs mt-2 font-medium">No official safety broadcasts are currently archived for this community.</p>
             </div>
           ) : (
             filtered.map((r) => (
               <div 
                 key={r._id} 
-                className={`p-8 bg-white rounded-[40px] border transition-all cursor-pointer group relative overflow-hidden ${selectedReport?._id === r._id ? 'border-blue-500 ring-8 ring-blue-500/5 shadow-2xl' : 'border-slate-50 hover:border-blue-200 shadow-sm'}`}
+                className={`p-8 bg-white rounded-[40px] border transition-all cursor-pointer group relative overflow-hidden ${selectedReport?._id === r._id ? 'border-indigo-500 ring-8 ring-indigo-500/5 shadow-2xl' : 'border-slate-50 hover:border-indigo-200 shadow-sm'}`}
                 onClick={() => openReport(r)}
               >
-                {selectedReport?._id === r._id && <div className="absolute top-0 right-0 p-4"><Info size={20} className="text-blue-500" /></div>}
+                {selectedReport?._id === r._id && <div className="absolute top-0 right-0 p-4"><Info size={20} className="text-indigo-500" /></div>}
+                <div className="absolute top-0 left-0 px-6 py-2 bg-indigo-600 text-white text-[9px] font-black uppercase tracking-[3px] rounded-br-[20px]">
+                   Official Alert
+                </div>
                 
-                <div className="flex items-center gap-2 mb-6">
+                <div className="mt-6 flex items-center gap-2 mb-6">
                   <span className={`px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest border ${getSeverityStyles(r.severity)}`}>
                     {r.severity} Priority
                   </span>
                   <span className="text-slate-200 text-xs">•</span>
-                  <span className="text-slate-400 text-[10px] font-black uppercase tracking-widest">{r.crimeType}</span>
+                  <span className="text-slate-400 text-[10px] font-black uppercase tracking-widest flex items-center gap-1.5 underline decoration-slate-200 underline-offset-4">
+                    <Shield size={12} className="text-indigo-500" /> Admin Verified
+                  </span>
                 </div>
 
-                <h3 className="text-2xl font-black text-slate-900 mb-3 group-hover:text-blue-600 transition-colors leading-tight tracking-tight uppercase">
+                <h3 className="text-2xl font-black text-slate-900 mb-3 group-hover:text-indigo-600 transition-colors leading-tight tracking-tight uppercase italic underline decoration-indigo-200 decoration-2">
                   {r.title}
                 </h3>
-                <p className="text-slate-500 text-sm line-clamp-2 mb-8 font-medium leading-relaxed italic border-l-2 border-slate-100 pl-4">
-                  {r.description}
+                <p className="text-slate-500 text-sm line-clamp-2 mb-8 font-medium leading-relaxed italic border-l-2 border-indigo-100 pl-4">
+                   "SAFETY WARNING: {r.description}"
                 </p>
 
                 <div className="flex flex-wrap items-center gap-6 pt-6 border-t border-slate-50">
-                  <div className="flex items-center gap-2">
-                    <div className="h-6 w-6 rounded-full bg-slate-900 flex items-center justify-center text-[10px] text-white font-bold">
-                       {r.userId?.username?.charAt(0) || "A"}
-                    </div>
-                    <span className="text-[11px] font-black text-slate-800 tracking-tight">{r.userId?.username || "Citizen Representative"}</span>
+                  <div className="flex items-center gap-2 text-slate-400 text-[11px] font-bold">
+                    <MapPin size={14} className="text-indigo-500" /> {r.location.address}
                   </div>
                   <div className="flex items-center gap-2 text-slate-400 text-[11px] font-bold">
-                    <MapPin size={14} className="text-blue-500" /> {r.location.address}
-                  </div>
-                  <div className="flex items-center gap-2 text-slate-400 text-[11px] font-bold">
-                    <Clock size={14} /> {new Date(r.createdAt).toLocaleDateString()}
+                    <Clock size={14} /> Issued: {new Date(r.createdAt).toLocaleDateString()}
                   </div>
                 </div>
               </div>
-            ))
+            ))}
           )}
         </div>
 

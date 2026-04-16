@@ -84,14 +84,8 @@ export default function CrimeMap() {
       const token = localStorage.getItem("token");
       const headers = { Authorization: `Bearer ${token}` };
 
-      // Determine endpoint based on role
-      const user = JSON.parse(localStorage.getItem("user") || "{}");
-      const isPolice = user.role === "police";
-      const isAdmin = user.role === "admin";
-      
-      // Officers and Admins use the protected base endpoint (Admin sees all, Police sees assigned)
-      // Citizens use the community endpoint
-      const reportEndpoint = (isPolice || isAdmin) ? API : `${API}/community`;
+      // Use the dedicated map endpoint which handles role-based rendering server-side
+      const reportEndpoint = `${API}/map`;
 
       // Fetch Reports
       const gRes = await fetch(reportEndpoint, { headers });

@@ -305,95 +305,63 @@ export default function CitizenDashboard() {
            </div>
         </div>
       )}
-
-      {/* Crime Alerts Near You Section */}
+      {/* ── OFFICIAL SAFETY BROADCASTS CHANNEL ── */}
       <div className="mb-12">
         <div className="flex items-center justify-between mb-8 px-2">
           <div className="flex items-center gap-3">
-            <div className="p-2.5 bg-rose-50 rounded-2xl">
-              <ShieldAlert className="h-5 w-5 text-rose-500" />
+            <div className="p-3 bg-indigo-600 rounded-2xl shadow-lg shadow-indigo-200">
+              <ShieldAlert className="h-5 w-5 text-white" />
             </div>
             <div>
-              <h2 className="text-xl font-black text-slate-900 uppercase tracking-tight">Community Crime Alerts</h2>
-              <p className="text-xs text-slate-400 font-medium mt-0.5">Verified incidents reported in your community</p>
+              <h2 className="text-2xl font-black text-slate-900 uppercase tracking-tight">Official Safety Alerts</h2>
+              <p className="text-xs text-slate-400 font-bold uppercase tracking-widest mt-1">Verified broadcasts from Command Center</p>
             </div>
-            {crimeAlerts.length > 0 && (
-              <span className="ml-2 px-3 py-1 bg-rose-50 text-rose-600 text-[10px] font-black uppercase tracking-widest rounded-full border border-rose-100 flex items-center gap-1.5">
-                <span className="w-1.5 h-1.5 rounded-full bg-rose-500 animate-pulse inline-block" />
-                {crimeAlerts.length} Active
-              </span>
-            )}
           </div>
-          <Link to="/citizen/community" className="text-xs font-bold text-blue-600 hover:underline">View Community Board</Link>
+          <Link to="/citizen/alerts" className="px-4 py-2 bg-white border border-slate-200 hover:border-indigo-500 rounded-xl text-[10px] font-black uppercase tracking-widest text-slate-600 hover:text-indigo-600 transition-all shadow-sm">View Archive</Link>
         </div>
 
-        {alertsLoading ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
-            {[1,2,3].map(i => (
-              <div key={i} className="h-40 bg-slate-100 animate-pulse rounded-[24px]" />
-            ))}
-          </div>
-        ) : crimeAlerts.length === 0 ? (
-          <div className="bg-emerald-50 border border-emerald-100 rounded-[32px] p-10 text-center">
-            <div className="w-16 h-16 bg-emerald-100 rounded-full flex items-center justify-center mx-auto mb-4">
-              <ShieldCheck className="h-8 w-8 text-emerald-500" />
+        {adminAlerts.length === 0 ? (
+          <div className="bg-white border-2 border-dashed border-slate-100 rounded-[40px] p-16 text-center">
+            <div className="w-20 h-20 bg-slate-50 rounded-3xl flex items-center justify-center mx-auto mb-6 border border-slate-100">
+              <ShieldCheck className="h-10 w-10 text-slate-200" />
             </div>
-            <h3 className="text-lg font-black text-emerald-900 uppercase tracking-tight mb-1">Community Safe</h3>
-            <p className="text-sm text-emerald-700 font-medium">No verified incidents have been reported in your area recently.</p>
+            <h3 className="text-xl font-black text-slate-900 uppercase tracking-tight mb-2">Neighborhood Secure</h3>
+            <p className="text-sm text-slate-400 font-medium max-w-sm mx-auto">No active critical safety broadcasts have been issued for your sector currently.</p>
           </div>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
-            {crimeAlerts.map((alert) => {
-              const priorityConfig = {
-                Critical: { bg: "rose", label: "Critical", dot: "bg-rose-500" },
-                High:     { bg: "orange", label: "High",     dot: "bg-orange-400" },
-                Medium:   { bg: "amber", label: "Medium",   dot: "bg-amber-400" },
-                Low:      { bg: "blue",  label: "Low",      dot: "bg-blue-400" },
-              };
-              const pc = priorityConfig[alert.priority] || priorityConfig.Medium;
-              return (
-                <div
-                  key={alert._id}
-                  className="bg-white rounded-[24px] border border-slate-100 p-6 hover:shadow-xl hover:shadow-slate-200/50 transition-all group relative overflow-hidden"
-                >
-                  {/* Priority accent bar */}
-                  <div className={`absolute top-0 left-0 w-full h-1 bg-${pc.bg}-400 rounded-t-[24px]`} />
-
-                  <div className="flex items-start justify-between gap-3 mb-4">
-                    <div className={`p-2.5 bg-${pc.bg}-50 rounded-xl`}>
-                      <Siren className={`h-5 w-5 text-${pc.bg}-500`} />
+          <div className="grid grid-cols-1 gap-6">
+            {adminAlerts.slice(0, 3).map((alert) => (
+              <div
+                key={alert._id}
+                className={`group bg-white rounded-[32px] border-2 ${!alert.isRead ? 'border-indigo-100 ring-4 ring-indigo-500/5' : 'border-slate-50'} p-8 hover:border-indigo-300 transition-all relative overflow-hidden flex flex-col md:flex-row gap-8 items-start`}
+              >
+                  <div className="flex-1">
+                    <div className="flex items-center gap-2 mb-4">
+                       <span className="px-3 py-1 bg-indigo-50 text-indigo-600 text-[10px] font-black uppercase tracking-widest rounded-full border border-indigo-100">Official Broadcast</span>
+                       <span className="text-slate-300 text-xs">•</span>
+                       <span className="text-slate-400 text-[10px] font-black uppercase tracking-widest flex items-center gap-1">
+                          <Clock size={12}/> {new Date(alert.createdAt).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}
+                       </span>
                     </div>
-                    <span className={`flex items-center gap-1.5 px-3 py-1 rounded-full bg-${pc.bg}-50 text-${pc.bg}-600 text-[9px] font-black uppercase tracking-widest border border-${pc.bg}-100`}>
-                      <span className={`w-1.5 h-1.5 rounded-full ${pc.dot} animate-pulse`} />
-                      {pc.label} Priority
-                    </span>
+                    <h4 className="text-xl font-black text-slate-900 leading-snug mb-3 group-hover:text-indigo-600 transition-colors uppercase italic tracking-tight underline decoration-indigo-200 decoration-4 underline-offset-4">
+                      {alert.message}
+                    </h4>
+                    {alert.crimeId && (
+                      <div className="flex items-center gap-3 text-slate-500 text-xs font-bold bg-slate-50/50 p-4 rounded-2xl border border-slate-100/50">
+                        <MapPin className="h-4 w-4 text-indigo-500" />
+                        <span>Tactical Zone: {alert.crimeId.location?.address || "Coordinate Grid"}</span>
+                      </div>
+                    )}
                   </div>
-
-                  <div className="mb-3">
-                    <p className={`text-[9px] font-black text-${pc.bg}-500 uppercase tracking-[2px] mb-1`}>{alert.crimeType}</p>
-                    <h4 className="text-sm font-black text-slate-900 leading-snug group-hover:text-blue-600 transition-colors line-clamp-2">{alert.title}</h4>
+                  <div className="shrink-0 flex md:flex-col gap-3">
+                     <Link to="/citizen/alerts" className="px-6 py-4 bg-indigo-600 text-white rounded-2xl text-[10px] font-black uppercase tracking-widest hover:bg-slate-900 transition-all shadow-xl shadow-indigo-600/20">Read Instructions</Link>
+                     {alert.crimeId && <Link to="/citizen/tracking" className="px-6 py-4 bg-slate-900 text-white rounded-2xl text-[10px] font-black uppercase tracking-widest hover:bg-slate-800 transition-all">Track Pulse</Link>}
                   </div>
-
-                  <div className="flex items-center gap-1.5 text-slate-400 mb-4">
-                    <MapPin className="h-3.5 w-3.5 flex-shrink-0" />
-                    <p className="text-[11px] font-medium truncate">{alert.location?.address || "Location unavailable"}</p>
-                  </div>
-
-                  <div className="flex items-center justify-between pt-3 border-t border-slate-50">
-                    <span className="flex items-center gap-1.5 text-[10px] font-bold text-slate-400 uppercase tracking-wider">
-                      <Clock className="h-3 w-3" />
-                      {new Date(alert.createdAt).toLocaleDateString("en-US", { month: "short", day: "numeric" })}
-                    </span>
-                    <span className="px-2.5 py-1 bg-blue-50 text-blue-600 text-[9px] font-black uppercase tracking-wider rounded-full">
-                      {alert.status}
-                    </span>
-                  </div>
-                </div>
-              );
-            })}
+              </div>
+            ))}
           </div>
         )}
-      </div>
+      </div>v>
 
 
 

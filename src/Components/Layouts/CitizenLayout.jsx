@@ -111,7 +111,7 @@ export default function CitizenLayout() {
 
           <div className={`mt-6 mb-2 border-t border-[#112445] pt-6 px-3 text-xs font-semibold uppercase tracking-wider text-gray-500 ${!sidebarOpen && "hidden"}`}>Priority Actions</div>
           
-          <Link to="/citizen#admin-alerts" title={!sidebarOpen ? "Admin Alerts" : ""} className="flex items-center gap-3 px-3 py-3 rounded-[10px] transition-colors text-gray-300 hover:bg-[#112445] hover:text-[#1E5EFF]">
+          <Link to="/citizen/alerts" title={!sidebarOpen ? "Admin Alerts" : ""} className="flex items-center gap-3 px-3 py-3 rounded-[10px] transition-colors text-gray-300 hover:bg-[#112445] hover:text-[#1E5EFF]">
             <ShieldAlert size={20} />
             {sidebarOpen && <span className="truncate">Admin Alerts</span>}
           </Link>

@@ -142,6 +142,7 @@ function App() {
           <Route path="/map-citizen" element={<CrimeMap />} />
           <Route path="/emergency" element={<EmergencyContactsApp />} />
           <Route path="/citizen/settings" element={<CitizenSettings />} />
+          <Route path="/citizen/alerts" element={<CitizenAlerts />} />
         </Route>
 
         {/* ── SHARED AUTHENTICATED ROUTES (any role) ──────────────── */}
