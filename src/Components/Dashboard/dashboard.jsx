@@ -17,7 +17,8 @@ import {
   ShieldCheck,
   Bell,
   AlertTriangle,
-  RefreshCw
+  RefreshCw,
+  MapPin
 } from "lucide-react";
 
 export default function Dashboard() {
