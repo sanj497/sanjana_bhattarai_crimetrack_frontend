@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
-import { Shield, ShieldAlert, User as UserIcon, CheckCircle2, XCircle, Search, MoreVertical, ShieldCheck } from "lucide-react";
+import { Shield, ShieldAlert, User as UserIcon, CheckCircle2, XCircle, Search, MoreVertical, ShieldCheck, Trash2 } from "lucide-react";
 
 const Users = () => {
   const [users, setUsers] = useState([]);
@@ -198,36 +198,42 @@ const Users = () => {
 
                       {/* Actions Column */}
                       <td className="px-6 py-5 whitespace-nowrap text-right">
-                        {user.policeVerification?.status === "pending" ? (
-                          <div className="flex items-center justify-end gap-2">
+                        <div className="flex items-center justify-end gap-2">
+                          {user.policeVerification?.status === "pending" && (
+                            <>
+                              <button
+                                onClick={() => verifyPoliceApplication(user._id, "approve")}
+                                className="px-3 py-1.5 bg-emerald-50 text-emerald-600 hover:bg-emerald-500 hover:text-white rounded-lg text-[10px] font-black uppercase tracking-widest transition-all border border-emerald-100 hover:border-emerald-500"
+                              >
+                                Approve
+                              </button>
+                              <button
+                                onClick={() => verifyPoliceApplication(user._id, "reject")}
+                                className="px-3 py-1.5 bg-rose-50 text-rose-600 hover:bg-rose-500 hover:text-white rounded-lg text-[10px] font-black uppercase tracking-widest transition-all border border-rose-100 hover:border-rose-500"
+                              >
+                                Reject
+                              </button>
+                            </>
+                          )}
+                          
+                          {user.role === "police" && (
                             <button
-                              onClick={() => verifyPoliceApplication(user._id, "approve")}
-                              className="px-3 py-1.5 bg-emerald-50 text-emerald-600 hover:bg-emerald-500 hover:text-white rounded-lg text-[10px] font-black uppercase tracking-widest transition-all border border-emerald-100 hover:border-emerald-500"
+                              onClick={() => removePolice(user._id)}
+                              className="px-3 py-1.5 bg-slate-50 text-slate-500 hover:bg-rose-50 hover:text-rose-600 rounded-lg text-[10px] font-black uppercase tracking-widest transition-all border border-slate-200 hover:border-rose-200 inline-flex items-center gap-1.5"
                             >
-                              Approve
+                              <XCircle size={14} /> Revoke
                             </button>
-                            <button
-                              onClick={() => verifyPoliceApplication(user._id, "reject")}
-                              className="px-3 py-1.5 bg-rose-50 text-rose-600 hover:bg-rose-500 hover:text-white rounded-lg text-[10px] font-black uppercase tracking-widest transition-all border border-rose-100 hover:border-rose-500"
-                            >
-                              Reject
-                            </button>
-                          </div>
-                        ) : user.role === "police" ? (
-                          <button
-                            onClick={() => removePolice(user._id)}
-                            className="px-4 py-2 bg-slate-50 text-slate-500 hover:bg-rose-50 hover:text-rose-600 rounded-lg text-[10px] font-black uppercase tracking-widest transition-all border border-slate-200 hover:border-rose-200 inline-flex items-center gap-1.5"
-                          >
-                            <XCircle size={14} /> Revoke Status
-                          </button>
-                        ) : (
+                          )}
+
+                          {/* Global Remove Account Button */}
                           <button
                             onClick={() => removeUserAction(user._id)}
-                            className="px-4 py-2 bg-slate-50 text-slate-500 hover:bg-rose-600 hover:text-white rounded-lg text-[10px] font-black uppercase tracking-widest transition-all border border-slate-200 hover:border-rose-600 inline-flex items-center gap-1.5"
+                            title="Delete Account Permanently"
+                            className="px-3 py-1.5 bg-slate-50 text-slate-400 hover:bg-rose-600 hover:text-white rounded-lg text-[10px] font-black uppercase tracking-widest transition-all border border-slate-200 hover:border-rose-600 inline-flex items-center gap-1"
                           >
-                            <XCircle size={14} /> Remove User
+                            <Trash2 size={14} /> Remove
                           </button>
-                        )}
+                        </div>
                       </td>
                     </tr>
                   ))}
