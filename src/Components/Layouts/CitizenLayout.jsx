@@ -68,14 +68,14 @@ export default function CitizenLayout() {
           {sidebarOpen && (
             <div className="flex items-center gap-3">
               <div className="h-10 w-10 bg-white rounded-xl flex items-center justify-center shadow-lg overflow-hidden border border-[#00B8D9]">
-                <img src="/crimetrack.jpeg" alt="Logo" className="h-full w-full object-cover" />
+                <img src="https://res.cloudinary.com/dvziqqu1j/image/upload/v1776324979/crimetrack_logo.jpg" alt="Logo" className="h-full w-full object-cover" />
               </div>
               <span className="font-bold text-white text-xl tracking-tight uppercase italic" style={{ fontFamily: "Poppins, sans-serif" }}>CrimeTrack</span>
             </div>
           )}
           {!sidebarOpen && (
             <div className="h-10 w-10 bg-white rounded-xl flex items-center justify-center mx-auto shadow-lg overflow-hidden border border-[#00B8D9]">
-              <img src="/crimetrack.jpeg" alt="Logo" className="h-full w-full object-cover" />
+              <img src="https://res.cloudinary.com/dvziqqu1j/image/upload/v1776324979/crimetrack_logo.jpg" alt="Logo" className="h-full w-full object-cover" />
             </div>
           )}
         </div>

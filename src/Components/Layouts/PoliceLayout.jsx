@@ -69,7 +69,7 @@ export default function PoliceLayout() {
           {sidebarOpen && (
             <div className="flex items-center gap-3">
               <div className="h-10 w-10 bg-white rounded-xl flex items-center justify-center shadow-lg overflow-hidden border border-blue-500">
-                <img src="/crimetrack.jpeg" alt="Logo" className="h-full w-full object-cover" />
+                <img src="https://res.cloudinary.com/dvziqqu1j/image/upload/v1776324979/crimetrack_logo.jpg" alt="Logo" className="h-full w-full object-cover" />
               </div>
               <span className="font-black text-lg tracking-tighter text-white uppercase italic">Police HQ</span>
             </div>

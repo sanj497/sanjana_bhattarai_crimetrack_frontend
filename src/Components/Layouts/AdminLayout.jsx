@@ -89,7 +89,7 @@ export default function AdminLayout() {
                     {sidebarOpen && (
                         <div className="flex items-center gap-4 group cursor-pointer" onClick={() => navigate("/dashboard")}>
                             <div className="h-12 w-12 bg-white rounded-2xl flex items-center justify-center shadow-lg group-hover:scale-105 transition-transform overflow-hidden border-2 border-[#1E5EFF]">
-                              <img src="/crimetrack.jpeg" alt="Logo" className="h-full w-full object-cover" />
+                              <img src="https://res.cloudinary.com/dvziqqu1j/image/upload/v1776324979/crimetrack_logo.jpg" alt="Logo" className="h-full w-full object-cover" />
                             </div>
                             <div className="flex flex-col">
                               <span className="font-black text-white text-lg tracking-tight uppercase leading-none">CrimeTrack </span>
@@ -99,7 +99,7 @@ export default function AdminLayout() {
                     )}
                     {!sidebarOpen && (
                         <div className="h-12 w-12 bg-white rounded-2xl flex items-center justify-center mx-auto shadow-lg overflow-hidden border-2 border-[#1E5EFF]">
-                           <img src="/crimetrack.jpeg" alt="Logo" className="h-full w-full object-cover" />
+                           <img src="https://res.cloudinary.com/dvziqqu1j/image/upload/v1776324979/crimetrack_logo.jpg" alt="Logo" className="h-full w-full object-cover" />
                         </div>
                     )}
                 </div>

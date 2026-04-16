@@ -55,7 +55,7 @@ const ForgotPassword = () => {
         <div className="relative z-10">
           <div className="flex items-center space-x-3 mb-16">
             <div className="h-12 w-12 bg-white rounded-2xl flex items-center justify-center shadow-lg overflow-hidden border-2 border-[#1E5EFF]">
-              <img src="/crimetrack.jpeg" alt="Logo" className="h-full w-full object-cover" />
+              <img src="https://res.cloudinary.com/dvziqqu1j/image/upload/v1776324979/crimetrack_logo.jpg" alt="Logo" className="h-full w-full object-cover" />
             </div>
             <span className="text-3xl font-black tracking-tight text-white uppercase italic" style={{ fontFamily: "Poppins, sans-serif" }}>CrimeTrack</span>
           </div>
@@ -83,7 +83,7 @@ const ForgotPassword = () => {
         <div className="w-full max-w-md bg-white p-8 sm:p-12 rounded-[24px] shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-gray-100">
           <div className="md:hidden flex items-center space-x-2 mb-10 justify-center">
              <div className="h-10 w-10 bg-white rounded-xl flex items-center justify-center overflow-hidden border-2 border-[#1E5EFF]">
-               <img src="/crimetrack.jpeg" alt="Logo" className="h-full w-full object-cover" />
+               <img src="https://res.cloudinary.com/dvziqqu1j/image/upload/v1776324979/crimetrack_logo.jpg" alt="Logo" className="h-full w-full object-cover" />
              </div>
              <span className="text-2xl font-black text-[#0B1F3B] uppercase italic" style={{ fontFamily: "Poppins, sans-serif" }}>CrimeTrack</span>
           </div>

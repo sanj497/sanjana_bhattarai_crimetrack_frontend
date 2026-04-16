@@ -118,7 +118,7 @@ export default function CrimeReportingHome() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-20">
             <div className="flex items-center space-x-3">
-              <img src="/crimetrack.jpeg" alt="CrimeTrack Logo" className="h-12 w-12 object-cover rounded-2xl shadow-xl border-2 border-[#1E5EFF]" />
+              <img src="https://res.cloudinary.com/dvziqqu1j/image/upload/v1776324979/crimetrack_logo.jpg" alt="CrimeTrack Logo" className="h-10 w-10 object-cover rounded-xl" />
               <span className="text-2xl font-black text-[#0B1F3B] tracking-tight uppercase italic" style={{ fontFamily: "Poppins, sans-serif" }}>CrimeTrack</span>
             </div>
 
@@ -399,7 +399,7 @@ export default function CrimeReportingHome() {
           <div className="grid grid-cols-1 md:grid-cols-4 gap-12 mb-12">
             <div className="col-span-1 md:col-span-1">
               <div className="flex items-center space-x-2 mb-6">
-                <img src="/crimetrack.jpeg" alt="CrimeTrack Logo" className="h-10 w-10 object-cover rounded-xl" />
+                <img src="https://res.cloudinary.com/dvziqqu1j/image/upload/v1776324979/crimetrack_logo.jpg" alt="CrimeTrack Logo" className="h-10 w-10 object-cover rounded-xl" />
                 <span className="font-bold text-2xl text-white tracking-tight uppercase italic" style={{ fontFamily: "Poppins, sans-serif" }}>CrimeTrack</span>
               </div>
               <p className="text-gray-400 text-sm leading-relaxed">
