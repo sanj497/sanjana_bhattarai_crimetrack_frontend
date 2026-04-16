@@ -194,9 +194,13 @@ export default function CitizenDashboard() {
       if (data.success) {
         setUnreadCount(data.unreadCount || 0);
         if (data.notifications) {
-          setLocalPings(data.notifications.filter(n => n.type === "citizen_alert" && !n.isRead));
-          // Capture exclusively the official proximity-based safety alerts sent to citizens
-          setAdminAlerts(data.notifications.filter(n => n.type === "citizen_alert"));
+          const isAutoSystemPing = (msg) => msg?.includes("COMMUNITY SAFETY ALERT");
+          
+          // Unread Automated system warnings generated immediately when someone reports near you
+          setLocalPings(data.notifications.filter(n => n.type === "citizen_alert" && isAutoSystemPing(n.message) && !n.isRead));
+          
+          // Verified Broadcasts actually sent by Admin after they "read and analyze" the situation
+          setAdminAlerts(data.notifications.filter(n => n.type === "citizen_alert" && !isAutoSystemPing(n.message)));
         }
       }
     } catch (err) {}
