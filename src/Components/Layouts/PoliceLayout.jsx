@@ -125,7 +125,7 @@ export default function PoliceLayout() {
             {sidebarOpen && <span>Logout</span>}
           </button>
         </div>
-      </div>
+      </aside>
 
       {/* Main Content */}
       <div className="flex-1 flex flex-col overflow-hidden bg-slate-950">
