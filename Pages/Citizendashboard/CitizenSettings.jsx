@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { User, Mail, Shield, Plus, Trash2, Save, CheckCircle, AlertCircle, RefreshCw, Smartphone } from "lucide-react";
+import { User, Mail, Shield, Plus, Trash2, Save, CheckCircle, AlertCircle } from "lucide-react";
 
 const API_BASE = `${import.meta.env.VITE_BACKEND_URL}/api/auth`;
 
@@ -103,167 +103,122 @@ export default function CitizenSettings() {
   };
 
   if (fetching) return (
-    <div className="flex flex-col items-center justify-center min-h-[500px] gap-6 bg-white dark:bg-[#020617] font-sans">
-      <div className="w-16 h-16 border-4 border-blue-500/10 border-t-blue-600 rounded-full animate-spin shadow-xl shadow-blue-500/10"></div>
-      <span className="text-[10px] font-black text-slate-400 uppercase tracking-[4px] animate-pulse">Initializing Profiles...</span>
+    <div className="flex items-center justify-center min-h-[400px]">
+      <div className="w-8 h-8 border-4 border-blue-100 border-t-blue-600 rounded-full animate-spin"></div>
     </div>
   );
 
   return (
-    <div className="p-8 lg:p-12 max-w-7xl mx-auto font-sans bg-white dark:bg-[#020617] min-h-screen transition-colors duration-300">
-      <div className="mb-16">
-        <div className="flex items-center gap-3 text-blue-600 dark:text-blue-500 mb-4">
-           <Shield size={20} />
-           <span className="text-[10px] font-black uppercase tracking-[4px]">Dossier Management Control</span>
-        </div>
-        <h1 className="text-4xl lg:text-5xl font-black text-slate-900 dark:text-white tracking-tighter uppercase italic leading-none">Security <span className="text-blue-600 dark:text-blue-500 underline decoration-blue-500/10 decoration-8 underline-offset-8">Environment</span></h1>
-        <p className="text-slate-500 dark:text-slate-400 mt-6 font-bold text-sm uppercase tracking-widest opacity-80">Interface for profile credentials and emergency liaison vectors.</p>
+    <div className="p-8 max-w-4xl mx-auto font-sans">
+      <div className="mb-10">
+        <h1 className="text-3xl font-black text-slate-900 tracking-tight">Account & Security</h1>
+        <p className="text-slate-500 mt-2 font-medium underline decoration-blue-500/30">Manage your profile and emergency guardian network.</p>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
         
         {/* PROFILE SECTION */}
-        <section className="space-y-8">
-          <div className="flex items-center justify-between px-4">
-            <div className="flex items-center gap-3 text-slate-400 dark:text-slate-600 font-black uppercase tracking-[4px] text-[10px] italic">
-              <User size={16} />
-              Identity Protocol
-            </div>
-            <div className="h-0.5 flex-1 bg-slate-50 dark:bg-slate-900 mx-6 opacity-50" />
+        <section>
+          <div className="flex items-center gap-2 mb-6 text-slate-400 font-black uppercase tracking-widest text-[10px]">
+            <User size={14} />
+            Personal Identification
           </div>
-
-          <form onSubmit={handleUpdateProfile} className="bg-white dark:bg-slate-900/60 p-10 lg:p-12 rounded-[56px] border border-slate-100 dark:border-slate-800 shadow-sm hover:shadow-2xl transition-all duration-500 relative overflow-hidden group">
-            <div className="absolute top-0 right-0 h-32 w-32 bg-blue-500/5 rounded-full -mr-16 -mt-16 group-hover:scale-110 transition-transform duration-1000" />
-            
-            <div className="space-y-8 relative z-10">
-              <div className="space-y-3">
-                <label className="text-[10px] font-black uppercase text-slate-400 dark:text-slate-500 tracking-[3px] ml-4 italic leading-none">Command Name</label>
+          <form onSubmit={handleUpdateProfile} className="bg-white p-8 rounded-[32px] border border-slate-100 shadow-xl shadow-slate-200/20">
+            <div className="space-y-6">
+              <div>
+                <label className="text-[11px] font-black uppercase text-slate-400 mb-2 block ml-1">Full Name</label>
                 <div className="relative">
-                  <div className="absolute left-6 top-1/2 -translate-y-1/2 text-slate-300 dark:text-slate-700">
-                     <User size={20} />
-                  </div>
+                  <User className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-300" size={18} />
                   <input 
                     type="text" 
-                    className="w-full pl-16 pr-8 py-5 bg-slate-50 dark:bg-slate-950/50 border border-slate-100 dark:border-slate-800/80 rounded-[28px] focus:bg-white dark:focus:bg-slate-900 focus:ring-4 focus:ring-blue-500/5 focus:border-blue-500 transition-all outline-none text-base font-black uppercase tracking-tight text-slate-900 dark:text-white"
+                    className="w-full pl-12 pr-4 py-3.5 bg-slate-50 border border-slate-100 rounded-2xl focus:bg-white focus:ring-2 focus:ring-blue-500/10 focus:border-blue-500 transition-all outline-none text-sm font-semibold"
                     value={profile.username}
                     onChange={(e) => setProfile({ ...profile, username: e.target.value })}
                   />
                 </div>
               </div>
-
-              <div className="space-y-3">
-                <label className="text-[10px] font-black uppercase text-slate-400 dark:text-slate-500 tracking-[3px] ml-4 italic leading-none">Authentication Email</label>
+              <div>
+                <label className="text-[11px] font-black uppercase text-slate-400 mb-2 block ml-1">Email Address</label>
                 <div className="relative">
-                  <div className="absolute left-6 top-1/2 -translate-y-1/2 text-slate-300 dark:text-slate-700">
-                     <Mail size={20} />
-                  </div>
+                  <Mail className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-300" size={18} />
                   <input 
                     type="email" 
-                    className="w-full pl-16 pr-8 py-5 bg-slate-50 dark:bg-slate-950/50 border border-slate-100 dark:border-slate-800/80 rounded-[28px] focus:bg-white dark:focus:bg-slate-900 focus:ring-4 focus:ring-blue-500/5 focus:border-blue-500 transition-all outline-none text-base font-black uppercase tracking-tight text-slate-900 dark:text-white"
+                    className="w-full pl-12 pr-4 py-3.5 bg-slate-50 border border-slate-100 rounded-2xl focus:bg-white focus:ring-2 focus:ring-blue-500/10 focus:border-blue-500 transition-all outline-none text-sm font-semibold"
                     value={profile.email}
                     onChange={(e) => setProfile({ ...profile, email: e.target.value })}
                   />
                 </div>
               </div>
-
               <button 
                 type="submit" 
                 disabled={loading}
-                className="w-full bg-slate-950 dark:bg-blue-600 text-white py-6 rounded-[28px] font-black text-[11px] uppercase tracking-[5px] hover:bg-blue-600 dark:hover:bg-blue-500 transition-all shadow-xl shadow-blue-900/40 active:scale-95 disabled:opacity-50 flex items-center justify-center gap-3 italic group/btn"
+                className="w-full bg-[#0B1F3B] text-white py-4 rounded-2xl font-black text-xs uppercase tracking-widest hover:bg-blue-600 transition-all shadow-lg shadow-blue-900/10 active:scale-95 disabled:opacity-50 flex items-center justify-center gap-2"
               >
-                {loading ? <RefreshCw size={18} className="animate-spin" /> : <Save size={18} className="group-hover/btn:rotate-12 transition-transform" />}
-                Synchronize Profile
+                <Save size={16} />
+                Save Changes
               </button>
             </div>
           </form>
         </section>
 
         {/* GUARDIANS SECTION */}
-        <section className="space-y-8">
-          <div className="flex items-center justify-between px-4">
-            <div className="flex items-center gap-3 text-slate-400 dark:text-slate-600 font-black uppercase tracking-[4px] text-[10px] italic">
-              <Shield size={16} />
-              Emergency Liaison Network
-            </div>
-            <div className="h-0.5 flex-1 bg-slate-50 dark:bg-slate-900 mx-6 opacity-50" />
+        <section>
+          <div className="flex items-center gap-2 mb-6 text-slate-400 font-black uppercase tracking-widest text-[10px]">
+            <Shield size={14} />
+            Emergency Guardians
           </div>
-
-          <div className="space-y-6">
+          <div className="space-y-4">
             {/* Guardian List */}
-            <div className="grid grid-cols-1 gap-4 max-h-[350px] overflow-y-auto pr-3 no-scrollbar custom-scrollbar">
-              {profile.guardians?.map((g, i) => (
-                <div key={i} className="bg-white dark:bg-slate-900/40 p-6 rounded-[32px] border border-slate-100 dark:border-slate-800 shadow-sm flex items-center justify-between group hover:border-blue-500/40 transition-all duration-500">
-                   <div className="flex items-center gap-5">
-                      <div className="h-14 w-14 bg-blue-50 dark:bg-blue-950 text-blue-600 dark:text-blue-500 rounded-[22px] flex items-center justify-center font-black text-xl italic shadow-inner">
-                         {g.name.charAt(0).toUpperCase()}
-                      </div>
-                      <div className="text-left">
-                        <div className="text-base font-black text-slate-900 dark:text-white uppercase tracking-tight leading-none italic">{g.name}</div>
-                        <div className="text-[10px] text-slate-400 dark:text-slate-600 font-black uppercase tracking-widest mt-2">{g.email}</div>
-                      </div>
-                   </div>
-                   <button 
-                     onClick={() => handleRemoveGuardian(i)}
-                     className="p-3 text-slate-300 dark:text-slate-700 hover:text-rose-500 hover:bg-rose-50 dark:hover:bg-rose-500/10 rounded-xl transition-all opacity-0 group-hover:opacity-100"
-                   >
-                     <Trash2 size={20} />
-                   </button>
-                </div>
-              ))}
+            {profile.guardians?.map((g, i) => (
+              <div key={i} className="bg-white p-5 rounded-[24px] border border-slate-100 shadow-sm flex items-center justify-between group hover:border-red-100 transition-colors">
+                 <div className="flex items-center gap-4">
+                    <div className="h-10 w-10 bg-blue-50 text-blue-600 rounded-xl flex items-center justify-center font-bold">
+                       {g.name.charAt(0)}
+                    </div>
+                    <div>
+                      <div className="text-sm font-bold text-slate-800">{g.name}</div>
+                      <div className="text-[10px] text-slate-400 font-medium">{g.email}</div>
+                    </div>
+                 </div>
+                 <button 
+                   onClick={() => handleRemoveGuardian(i)}
+                   className="p-2 text-slate-300 hover:text-red-500 hover:bg-red-50 rounded-lg transition-all opacity-0 group-hover:opacity-100"
+                 >
+                   <Trash2 size={18} />
+                 </button>
+              </div>
+            ))}
 
-              {/* Empty State */}
-              {(!profile.guardians || profile.guardians.length === 0) && (
-                <div className="p-12 text-center border-2 border-dashed border-slate-100 dark:border-slate-800/50 rounded-[48px] bg-slate-50/20 dark:bg-transparent">
-                   <div className="h-20 w-20 bg-white dark:bg-slate-900 rounded-[32px] flex items-center justify-center mx-auto mb-6 shadow-sm border border-slate-50 dark:border-slate-800">
-                      <Shield size={32} className="text-slate-200 dark:text-slate-800" />
-                   </div>
-                   <p className="text-slate-400 dark:text-slate-600 text-[10px] font-black uppercase tracking-[4px] italic">Network Grid Silent</p>
-                   <p className="text-[9px] text-slate-300 dark:text-slate-700 mt-2 font-black uppercase tracking-widest">Bind guardians for SOS vector notification.</p>
-                </div>
-              )}
-            </div>
+            {/* Empty State */}
+            {(!profile.guardians || profile.guardians.length === 0) && (
+              <div className="p-8 text-center border-2 border-dashed border-slate-100 rounded-[32px]">
+                 <p className="text-slate-400 text-xs font-bold">No guardians added yet.</p>
+                 <p className="text-[10px] text-slate-300 mt-1">Add trusted contacts to be notified during SOS alerts.</p>
+              </div>
+            )}
 
             {/* Add Guardian Form */}
-            <div className="bg-slate-50 dark:bg-slate-900/30 p-10 rounded-[56px] border border-slate-100 dark:border-slate-800/50 relative overflow-hidden group">
-              <div className="absolute top-0 right-0 h-24 w-24 bg-blue-500/5 rounded-full -mr-12 -mt-12 group-hover:bg-blue-500/10 transition-colors" />
-              
-              <h4 className="text-[10px] font-black uppercase tracking-[4px] text-slate-400 dark:text-slate-600 mb-8 ml-2 italic">Register Liaison</h4>
-              <div className="space-y-5 relative z-10">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-                  <div className="relative">
-                    <User className="absolute left-6 top-1/2 -translate-y-1/2 text-slate-300 dark:text-slate-700" size={18} />
-                    <input 
-                      type="text" placeholder="FULL NAME" 
-                      className="w-full pl-14 pr-6 py-4 bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-2xl text-[11px] font-black uppercase tracking-tight focus:ring-4 focus:ring-blue-500/5 outline-none transition-all dark:text-white"
-                      value={newGuardian.name}
-                      onChange={e => setNewGuardian({...newGuardian, name: e.target.value})}
-                    />
-                  </div>
-                  <div className="relative">
-                    <Smartphone className="absolute left-6 top-1/2 -translate-y-1/2 text-slate-300 dark:text-slate-700" size={18} />
-                    <input 
-                      type="text" placeholder="CONTACT PHONE" 
-                      className="w-full pl-14 pr-6 py-4 bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-2xl text-[11px] font-black uppercase tracking-tight focus:ring-4 focus:ring-blue-500/5 outline-none transition-all dark:text-white"
-                      value={newGuardian.phone}
-                      onChange={e => setNewGuardian({...newGuardian, phone: e.target.value})}
-                    />
-                  </div>
-                </div>
-                <div className="relative">
-                   <Mail className="absolute left-6 top-1/2 -translate-y-1/2 text-slate-300 dark:text-slate-700" size={18} />
-                   <input 
-                    type="email" placeholder="EMAIL ADDRESS PROTOCOL" 
-                    className="w-full pl-14 pr-6 py-4 bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-2xl text-[11px] font-black uppercase tracking-tight focus:ring-4 focus:ring-blue-500/5 outline-none transition-all dark:text-white"
-                    value={newGuardian.email}
-                    onChange={e => setNewGuardian({...newGuardian, email: e.target.value})}
-                  />
-                </div>
+            <div className="bg-slate-50 p-6 rounded-[32px] border border-slate-100 mt-6">
+              <h4 className="text-xs font-black uppercase tracking-widest text-slate-400 mb-4 ml-1">Add New Guardian</h4>
+              <div className="space-y-3">
+                <input 
+                  type="text" placeholder="Full Name" 
+                  className="w-full px-4 py-3 bg-white border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-blue-500/20 outline-none transition-all"
+                  value={newGuardian.name}
+                  onChange={e => setNewGuardian({...newGuardian, name: e.target.value})}
+                />
+                <input 
+                  type="email" placeholder="Email Address" 
+                  className="w-full px-4 py-3 bg-white border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-blue-500/20 outline-none transition-all"
+                  value={newGuardian.email}
+                  onChange={e => setNewGuardian({...newGuardian, email: e.target.value})}
+                />
                 <button 
                   onClick={handleAddGuardian}
-                  className="w-full bg-blue-600/10 dark:bg-blue-600/5 text-blue-600 dark:text-blue-500 border border-blue-500/20 py-5 rounded-[24px] font-black text-[10px] uppercase tracking-[4px] flex items-center justify-center gap-3 hover:bg-blue-600 hover:text-white transition-all shadow-sm active:scale-95 italic italic group/add"
+                  className="w-full bg-blue-50 text-blue-600 border border-blue-100 py-3 rounded-xl font-bold text-xs uppercase tracking-widest flex items-center justify-center gap-2 hover:bg-blue-600 hover:text-white transition-all shadow-sm"
                 >
-                  <Plus size={18} className="group-hover/add:rotate-90 transition-transform" />
-                  Bind New Liaison
+                  <Plus size={16} />
+                  Add Guardian
                 </button>
               </div>
             </div>
@@ -273,19 +228,11 @@ export default function CitizenSettings() {
 
       {/* Global Status Message */}
       {message.text && (
-        <div className={`fixed bottom-10 left-1/2 -translate-x-1/2 px-10 py-6 rounded-[32px] shadow-2xl flex items-center gap-5 font-black text-[11px] uppercase tracking-[3px] animate-in slide-in-from-bottom-10 fade-in duration-500 z-50 italic backdrop-blur-xl border ${message.type === 'success' ? 'bg-emerald-600/90 text-white border-emerald-400/20' : 'bg-rose-600/90 text-white border-rose-400/20'}`}>
-           {message.type === 'success' ? <CheckCircle size={24} /> : <AlertCircle size={24} />}
+        <div className={`fixed bottom-8 left-1/2 -translate-x-1/2 px-6 py-4 rounded-2xl shadow-2xl flex items-center gap-3 font-bold text-sm animate-bounce z-50 ${message.type === 'success' ? 'bg-green-600 text-white' : 'bg-red-600 text-white'}`}>
+           {message.type === 'success' ? <CheckCircle size={20} /> : <AlertCircle size={20} />}
            {message.text}
         </div>
       )}
-
-      <style>{`
-        .no-scrollbar::-webkit-scrollbar { display: none; }
-        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
-        .custom-scrollbar::-webkit-scrollbar { width: 4px; }
-        .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
-        .custom-scrollbar::-webkit-scrollbar-thumb { background: rgba(148, 163, 184, 0.2); border-radius: 10px; }
-      `}</style>
     </div>
   );
 }

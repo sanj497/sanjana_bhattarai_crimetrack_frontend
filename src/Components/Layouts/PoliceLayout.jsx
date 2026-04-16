@@ -62,27 +62,27 @@ export default function PoliceLayout() {
   const currentPage = menuItems.find(item => item.path === location.pathname)?.name || 'Police Dashboard';
 
   return (
-    <div className="flex h-screen bg-white dark:bg-slate-900 text-slate-900 dark:text-white font-sans overflow-hidden">
-      {/* Sidebar - Theme based on logo (Deep Blue) */}
-      <aside className={`${sidebarOpen ? 'w-64' : 'w-24'} bg-slate-900 border-r border-slate-200 dark:border-slate-800 transition-all duration-300 flex flex-col z-20`}>
-        <div className="h-24 flex items-center justify-between px-6 border-b border-white/5 bg-slate-950/20 backdrop-blur-md">
+    <div className="flex h-screen bg-slate-900 text-white font-sans overflow-hidden">
+      {/* Sidebar */}
+      <aside className={`${sidebarOpen ? 'w-64' : 'w-24'} bg-slate-900 border-r border-slate-800 transition-all duration-300 flex flex-col z-20`}>
+        <div className="h-24 flex items-center justify-between px-6 border-b border-slate-800/50">
           {sidebarOpen && (
             <div className="flex items-center gap-3">
-              <div className="h-10 w-10 bg-white rounded-xl flex items-center justify-center shadow-lg overflow-hidden border-2 border-blue-500/30">
+              <div className="h-10 w-10 bg-white rounded-xl flex items-center justify-center shadow-lg overflow-hidden border border-blue-500/20">
                 <img src="https://res.cloudinary.com/dvziqqu1j/image/upload/v1776324979/crimetrack_logo.jpg" alt="Logo" className="h-full w-full object-cover" />
               </div>
               <span className="font-black text-xl tracking-tight text-white uppercase italic">Police HQ</span>
             </div>
           )}
           {!sidebarOpen && (
-              <div className="h-10 w-10 bg-white rounded-xl flex items-center justify-center mx-auto shadow-lg overflow-hidden border-2 border-blue-500/30">
+              <div className="h-10 w-10 bg-white rounded-xl flex items-center justify-center mx-auto shadow-lg overflow-hidden border border-blue-500/20">
                 <img src="https://res.cloudinary.com/dvziqqu1j/image/upload/v1776324979/crimetrack_logo.jpg" alt="Logo" className="h-full w-full object-cover" />
               </div>
           )}
         </div>
 
         <nav className="flex-1 overflow-y-auto py-8 px-4 flex flex-col gap-2 relative scrollbar-hide">
-          <div className={`text-[10px] font-black uppercase tracking-[4px] text-slate-500 mb-4 px-4 ${!sidebarOpen && "hidden"}`}>Tactical Suite</div>
+          <div className={`text-[10px] font-black uppercase tracking-[4px] text-slate-600 mb-4 px-4 ${!sidebarOpen && "hidden"}`}>Tactical Suite</div>
           
           {menuItems.map((item) => {
             const isActive = location.pathname === item.path;
@@ -94,13 +94,13 @@ export default function PoliceLayout() {
                 key={item.name}
                 to={item.path}
                 className={`flex items-center gap-4 px-4 py-3.5 rounded-2xl transition-all relative ${
-                  isActive ? 'bg-blue-600 text-white shadow-xl shadow-blue-600/30' : 'text-slate-400 hover:bg-white/5 hover:text-white'
+                  isActive ? 'bg-blue-600 text-white shadow-lg shadow-blue-600/30' : 'text-slate-500 hover:bg-slate-800 hover:text-white'
                 }`}
               >
                 <item.icon size={20} />
                 {sidebarOpen && (
                   <div className="flex-1 flex items-center justify-between">
-                    <span className="text-[11px] font-black uppercase tracking-widest">{item.name}</span>
+                    <span className="text-xs font-black uppercase tracking-widest">{item.name}</span>
                     {hasBadge && (
                       <span className="bg-rose-600 text-white text-[9px] font-black px-2 py-0.5 rounded-lg shadow-lg">
                         {badgeLabel}
@@ -116,25 +116,25 @@ export default function PoliceLayout() {
           })}
         </nav>
 
-        <div className="p-4 border-t border-white/5">
+        <div className="p-4 border-t border-slate-700">
           <button
             onClick={() => navigate('/logout')}
-            className="flex items-center gap-4 px-4 py-3.5 rounded-2xl text-slate-400 hover:text-white hover:bg-white/5 transition-all group"
+            className="flex items-center gap-3 py-3 px-4 rounded w-full bg-slate-700 hover:bg-red-600 transition-colors font-semibold shadow-sm"
           >
             <LogOut size={20} />
-            {sidebarOpen && <span className="text-[11px] font-black uppercase tracking-widest leading-none">Logout</span>}
+            {sidebarOpen && <span>Logout</span>}
           </button>
         </div>
-      </aside>
+      </div>
 
       {/* Main Content */}
-      <div className="flex-1 flex flex-col overflow-hidden bg-slate-50 dark:bg-slate-950">
+      <div className="flex-1 flex flex-col overflow-hidden bg-slate-950">
         {/* Header */}
-        <header className="h-24 bg-white/80 dark:bg-slate-900/80 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between px-10 shrink-0 z-30 sticky top-0 shadow-sm backdrop-blur-md">
+        <header className="h-24 bg-slate-900 border-b border-slate-800 flex items-center justify-between px-10 shrink-0 z-30 sticky top-0 shadow-2xl backdrop-blur-md bg-opacity-80">
           <div className="flex items-center gap-4">
              <div>
-                <div className="text-[10px] text-slate-400 dark:text-slate-600 font-black uppercase tracking-[3px] mb-1">Operational Command Node</div>
-                <h1 className="text-2xl font-black text-slate-900 dark:text-white italic tracking-tighter uppercase leading-none">{currentPage}</h1>
+                <div className="text-[10px] text-slate-600 font-black uppercase tracking-[3px] mb-1">Operational Command Node</div>
+                <h1 className="text-2xl font-black text-white italic tracking-tighter uppercase leading-none">{currentPage}</h1>
              </div>
           </div>
           
@@ -143,30 +143,28 @@ export default function PoliceLayout() {
               <input 
                 type="text" 
                 placeholder="Search Active Intel..." 
-                className="bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-2xl py-3 pl-12 pr-6 text-xs text-slate-900 dark:text-white focus:outline-none focus:border-blue-500 w-64 transition-all shadow-sm placeholder:text-slate-400 font-black uppercase tracking-widest"
+                className="bg-slate-950 border border-slate-800 rounded-2xl py-3 pl-12 pr-6 text-xs text-white focus:outline-none focus:border-blue-500 w-64 transition-all shadow-inner placeholder:text-slate-700 font-black uppercase tracking-widest"
               />
-              <Search className="absolute left-4 top-3 text-slate-300 dark:text-slate-700" size={16} />
+              <Search className="absolute left-4 top-3 text-slate-700" size={16} />
             </div>
             
             <div className="flex items-center gap-6 relative">
               <div className="relative">
                 <button 
                   onClick={() => setNotifOpen(!notifOpen)}
-                  className={`p-3 rounded-2xl transition-all duration-300 ${notifOpen ? 'bg-blue-600 text-white shadow-lg shadow-blue-600/20' : 'text-slate-400 hover:text-blue-600 hover:bg-blue-50'}`}
+                  className={`p-3 rounded-2xl transition-all duration-300 ${notifOpen ? 'bg-blue-600 text-white' : 'text-slate-500 hover:text-white hover:bg-slate-800'}`}
                 >
                   <Bell size={22} className={unreadCount > 0 && !notifOpen ? "animate-[swing_2s_ease-in-out_infinite] origin-top text-blue-500" : ""} />
                   {unreadCount > 0 && (
-                    <span className="absolute top-2 right-2 flex h-5 w-5 items-center justify-center rounded-full bg-blue-500 text-[10px] font-black text-white ring-4 ring-white dark:ring-slate-900 shadow-lg">
+                    <span className="absolute top-2 right-2 flex h-5 w-5 items-center justify-center rounded-full bg-blue-500 text-[10px] font-black text-white ring-4 ring-slate-900 shadow-lg">
                       {unreadCount}
                     </span>
                   )}
                 </button>
                 <NotificationDropdown isOpen={notifOpen} onClose={() => setNotifOpen(false)} />
               </div>
-
-              <ThemeToggle />
               
-              <div className="h-10 w-px bg-slate-100 dark:bg-slate-800 hidden md:block mx-1" />
+              <div className="h-10 w-px bg-slate-800 hidden md:block mx-1" />
 
               {(() => {
                 const u = getUser();
@@ -174,8 +172,8 @@ export default function PoliceLayout() {
                 return (
                   <div className="flex items-center gap-4">
                     <div className="text-right hidden sm:block">
-                      <div className="text-xs font-black text-slate-900 dark:text-white uppercase tracking-tighter leading-none">{u.username || "Officer"}</div>
-                      <div className="text-[9px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest mt-1">{u.role || "Patrol Unit"}</div>
+                      <div className="text-xs font-black text-white uppercase tracking-tighter leading-none">{u.username || "Officer"}</div>
+                      <div className="text-[9px] font-black text-slate-500 uppercase tracking-widest mt-1">{u.role || "Patrol Unit"}</div>
                     </div>
                     <div className="h-12 w-12 bg-blue-600 text-white flex items-center justify-center rounded-2xl font-black text-lg shadow-xl shadow-blue-900/40 relative group cursor-pointer border border-blue-500/50">
                         <div className="absolute inset-0 bg-white opacity-0 group-hover:opacity-10 transition-opacity rounded-2xl" />

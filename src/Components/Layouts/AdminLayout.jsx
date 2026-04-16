@@ -78,43 +78,43 @@ export default function AdminLayout() {
     }, [location.pathname, menu]);
 
     return (
-        <div className="flex h-screen overflow-hidden bg-white dark:bg-slate-950 font-sans text-slate-800 dark:text-slate-300">
+        <div className="flex h-screen overflow-hidden bg-slate-950 font-sans text-slate-300">
             {/* SIDEBAR */}
             <aside 
-              className={`flex flex-col bg-slate-900 border-r border-slate-200 dark:border-slate-800 transition-all duration-500 ease-[cubic-bezier(0.4,0,0.2,1)] z-40 ${sidebarOpen ? "w-72" : "w-24"} shrink-0 relative`}
+              className={`flex flex-col bg-[#050B18] text-gray-300 transition-all duration-500 ease-[cubic-bezier(0.4,0,0.2,1)] z-40 ${sidebarOpen ? "w-72" : "w-24"} shrink-0 border-r border-white/5 relative shadow-[20px_0_60px_-15px_rgba(0,0,0,0.3)]`}
             >
                 
                 {/* LOGO AREA */}
-                <div className="h-24 flex items-center justify-between px-6 border-b border-white/5 bg-slate-950/20 backdrop-blur-md">
+                <div className="h-24 flex items-center justify-between px-6 border-b border-white/5 bg-[#0A1324]/50 backdrop-blur-md">
                     {sidebarOpen && (
                         <div className="flex items-center gap-4 group cursor-pointer" onClick={() => navigate("/dashboard")}>
-                            <div className="h-12 w-12 bg-white rounded-2xl flex items-center justify-center shadow-lg group-hover:scale-105 transition-transform overflow-hidden border-2 border-blue-500/30">
+                            <div className="h-12 w-12 bg-white rounded-2xl flex items-center justify-center shadow-lg group-hover:scale-105 transition-transform overflow-hidden border-2 border-[#1E5EFF]">
                               <img src="https://res.cloudinary.com/dvziqqu1j/image/upload/v1776324979/crimetrack_logo.jpg" alt="Logo" className="h-full w-full object-cover" />
                             </div>
                             <div className="flex flex-col">
-                              <span className="font-black text-white text-lg tracking-tight uppercase leading-none italic">CrimeTrack </span>
-                              <span className="text-[10px] font-bold text-blue-400 tracking-[3px] uppercase mt-1">Admin HQ</span>
+                              <span className="font-black text-white text-lg tracking-tight uppercase leading-none">CrimeTrack </span>
+                              <span className="text-[10px] font-bold text-[#00B8D9] tracking-[3px] uppercase mt-1">Admin HQ</span>
                             </div>
                         </div>
                     )}
                     {!sidebarOpen && (
-                        <div className="h-12 w-12 bg-white rounded-2xl flex items-center justify-center mx-auto shadow-lg overflow-hidden border-2 border-blue-500/30">
+                        <div className="h-12 w-12 bg-white rounded-2xl flex items-center justify-center mx-auto shadow-lg overflow-hidden border-2 border-[#1E5EFF]">
                            <img src="https://res.cloudinary.com/dvziqqu1j/image/upload/v1776324979/crimetrack_logo.jpg" alt="Logo" className="h-full w-full object-cover" />
                         </div>
                     )}
                 </div>
 
-                {/* Navigation Toggle */}
+                {/* Navigation Toggle - Floating Style */}
                 <button 
                     onClick={() => setSidebarOpen(!sidebarOpen)}
-                    className="absolute top-12 -right-4 h-8 w-8 bg-blue-600 text-white rounded-full flex items-center justify-center shadow-xl z-50 cursor-pointer hover:scale-110 active:scale-95 transition-all border-4 border-white dark:border-slate-950"
+                    className="absolute top-12 -right-4 h-8 w-8 bg-blue-600 text-white rounded-full flex items-center justify-center shadow-xl z-50 cursor-pointer hover:scale-110 active:scale-95 transition-all border-4 border-slate-950"
                 >
                     {sidebarOpen ? <ChevronLeft size={16}/> : <ChevronRight size={16}/>}
                 </button>
 
                 {/* NAVIGATION */}
                 <nav className="flex-1 overflow-y-auto py-8 px-4 flex flex-col gap-1.5 scrollbar-hide">
-                    <div className={`text-[10px] font-black uppercase tracking-[4px] text-slate-500 mb-4 px-4 ${!sidebarOpen && "hidden"}`}>Command Suite</div>
+                    <div className={`text-[10px] font-black uppercase tracking-[4px] text-gray-500 mb-4 px-4 ${!sidebarOpen && "hidden"}`}>Command Suite</div>
                     
                     {menu.map((item) => {
                         const isActive = location.pathname === item.path || (item.path !== "/dashboard" && location.pathname.startsWith(item.path));
@@ -125,7 +125,7 @@ export default function AdminLayout() {
                                 key={item.name} 
                                 to={item.path} 
                                 title={!sidebarOpen ? item.name : ""} 
-                                className={`group flex items-center gap-4 px-5 py-4 rounded-[22px] transition-all relative overflow-hidden ${isActive ? "bg-blue-600 text-white shadow-xl shadow-blue-600/30 font-black" : "hover:bg-white/5 text-slate-400 hover:text-white"}`}
+                                className={`group flex items-center gap-4 px-5 py-4 rounded-[22px] transition-all relative overflow-hidden ${isActive ? "bg-blue-600 text-white shadow-lg shadow-blue-600/30 font-black" : "hover:bg-white/5 text-slate-500 hover:text-white"}`}
                             >
                                 <div className={`flex items-center justify-center min-w-[24px] transition-transform duration-300 ${isActive ? "scale-110" : "group-hover:scale-110"}`}>
                                    {React.cloneElement(item.icon, { size: 20 })}
@@ -134,7 +134,7 @@ export default function AdminLayout() {
                                    )}
                                 </div>
                                 
-                                {sidebarOpen && <span className="truncate text-[11px] font-black uppercase tracking-widest leading-none">{item.name}</span>}
+                                {sidebarOpen && <span className="truncate text-xs font-black uppercase tracking-widest leading-none">{item.name}</span>}
                                 
                                 {hasBadge && sidebarOpen && (
                                    <span className="ml-auto bg-rose-600 text-white text-[10px] font-black px-2 py-0.5 rounded-lg shadow-lg">
@@ -147,23 +147,25 @@ export default function AdminLayout() {
                 </nav>
 
                 {/* FOOTER AREA / USER BOX */}
-                <div className="p-4 mt-auto border-t border-white/5">
+                <div className="p-4 mt-auto border-t border-white/5 bg-[#0A1324]/30">
                     <button 
                         onClick={() => navigate("/logout")}
-                        className="w-full flex items-center gap-4 px-4 py-4 rounded-[18px] text-slate-400 hover:text-rose-400 hover:bg-rose-500/10 transition-all group"
+                        className="w-full flex items-center gap-4 px-4 py-4 rounded-[18px] text-gray-500 hover:text-rose-400 hover:bg-rose-500/10 transition-all border border-transparent hover:border-rose-500/20 group"
                     >
-                        <LogOut size={20} />
-                        {sidebarOpen && <span className="text-[11px] font-black uppercase tracking-widest leading-none">Terminate Session</span>}
+                        <div className="group-hover:rotate-12 transition-transform">
+                          <LogOut size={20} />
+                        </div>
+                        {sidebarOpen && <span className="text-sm font-bold uppercase tracking-widest text-[10px]">Terminate Session</span>}
                     </button>
                     
                     {sidebarOpen && (
                       <div className="mt-4 px-4 py-3 bg-white/5 rounded-2xl flex items-center gap-3 border border-white/5">
-                        <div className="h-8 w-8 bg-slate-950 rounded-lg border border-white/10 flex items-center justify-center text-[10px] font-black text-blue-400">
+                        <div className="h-8 w-8 bg-[#112445] rounded-lg border border-white/10 flex items-center justify-center text-[10px] font-black text-[#00B8D9]">
                           V1.2
                         </div>
                         <div className="flex flex-col">
-                          <span className="text-[10px] font-bold text-slate-500 uppercase tracking-tighter leading-none">Security Grid</span>
-                          <span className="text-[10px] font-black text-blue-400 uppercase mt-1">Active</span>
+                          <span className="text-[10px] font-bold text-gray-400 uppercase tracking-tighter leading-none">Central System</span>
+                          <span className="text-[10px] font-black text-[#00B8D9] uppercase mt-1">Encrypted</span>
                         </div>
                       </div>
                     )}
@@ -173,21 +175,21 @@ export default function AdminLayout() {
             {/* MAIN CONTENT */}
             <main className="flex-1 flex flex-col min-w-0 overflow-hidden relative text-left">
                 {/* HEADER */}
-                <header className="h-24 bg-white/80 dark:bg-slate-900/80 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between px-10 shrink-0 z-30 sticky top-0 shadow-sm backdrop-blur-md">
+                <header className="h-24 bg-slate-900 border-b border-slate-800 flex items-center justify-between px-10 shrink-0 z-30 sticky top-0 shadow-2xl backdrop-blur-md bg-opacity-80">
                     <div>
-                        <div className="text-[10px] text-slate-400 dark:text-slate-600 font-black uppercase tracking-[3px] mb-1">Administrative Clearing House</div>
-                        <h2 className="text-2xl font-black text-slate-900 dark:text-white italic tracking-tight uppercase">{activeItem}</h2>
+                        <div className="text-[10px] text-slate-600 font-black uppercase tracking-[3px] mb-1">Administrative Clearing House</div>
+                        <h2 className="text-2xl font-black text-white italic tracking-tight uppercase">{activeItem}</h2>
                     </div>
 
                     <div className="flex items-center gap-6 relative">
                         <div className="relative">
                             <button 
                               onClick={() => setNotifOpen(!notifOpen)}
-                              className={`p-3 rounded-2xl transition-all duration-300 ${notifOpen ? 'bg-blue-600 text-white shadow-lg shadow-blue-600/20' : 'text-slate-400 hover:text-blue-600 hover:bg-blue-50'}`}
+                              className={`p-3 rounded-2xl transition-all duration-300 ${notifOpen ? 'bg-blue-600 text-white' : 'text-slate-500 hover:text-white hover:bg-slate-800'}`}
                             >
                                 <Bell size={22} className={unreadCount > 0 && !notifOpen ? "animate-[swing_2s_ease-in-out_infinite] origin-top text-blue-500" : ""} />
                                 {unreadCount > 0 && (
-                                    <span className="absolute top-2 right-2 flex h-5 w-5 items-center justify-center rounded-full bg-blue-500 text-[10px] font-black text-white ring-4 ring-white dark:ring-slate-900 shadow-lg">
+                                    <span className="absolute top-2 right-2 flex h-5 w-5 items-center justify-center rounded-full bg-blue-500 text-[10px] font-black text-white ring-4 ring-slate-900 shadow-lg">
                                         {unreadCount}
                                     </span>
                                 )}
@@ -195,12 +197,10 @@ export default function AdminLayout() {
                             <NotificationDropdown isOpen={notifOpen} onClose={() => setNotifOpen(false)} />
                         </div>
 
-                        <ThemeToggle />
-                        
-                        <div className="h-10 w-px bg-slate-100 dark:bg-slate-800 hidden md:block mx-1" />
-                        <div className="hidden lg:flex items-center gap-3 px-5 py-3 bg-slate-50 dark:bg-slate-950 border border-slate-100 dark:border-slate-800 rounded-2xl text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest shadow-inner">
+                        <div className="h-10 w-px bg-slate-800 hidden md:block mx-1" />
+                        <div className="hidden lg:flex items-center gap-3 px-5 py-3 bg-slate-950 border border-slate-800 rounded-2xl text-[10px] font-black text-slate-500 uppercase tracking-widest shadow-inner">
                            <Activity size={14} className="text-blue-500" />
-                           <span className="text-slate-600 dark:text-white">{new Date().toLocaleDateString("en-US", { weekday: "short", month: "short", day: "numeric" })}</span>
+                           <span className="text-white">{new Date().toLocaleDateString("en-US", { weekday: "short", month: "short", day: "numeric" })}</span>
                         </div>
                         {(() => {
                           const u = getUser();
@@ -208,8 +208,8 @@ export default function AdminLayout() {
                           return (
                             <div className="flex items-center gap-4">
                               <div className="hidden md:flex flex-col items-end">
-                                <div className="text-xs font-black text-slate-900 dark:text-white uppercase tracking-tighter leading-none">{u.username || "Administrator"}</div>
-                                <div className="text-[9px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest mt-1">{u.role || "Executive Access"}</div>
+                                <div className="text-xs font-black text-white uppercase tracking-tighter leading-none">{u.username || "Administrator"}</div>
+                                <div className="text-[9px] font-black text-slate-500 uppercase tracking-widest mt-1">{u.role || "Executive Access"}</div>
                               </div>
                               <div className="h-12 w-12 bg-blue-600 text-white flex items-center justify-center rounded-2xl font-black text-lg shadow-xl shadow-blue-900/40 relative group cursor-pointer border border-blue-500/50">
                                 <div className="absolute inset-0 bg-white opacity-0 group-hover:opacity-10 transition-opacity rounded-2xl" />
@@ -222,7 +222,7 @@ export default function AdminLayout() {
                 </header>
 
                 {/* CONTENT AREA */}
-                <div className="flex-1 overflow-y-auto bg-slate-50 dark:bg-slate-950">
+                <div className="flex-1 overflow-y-auto bg-slate-950">
                     <div className="p-0 text-left">
                         <Outlet />
                     </div>
