@@ -116,16 +116,16 @@ const RegisterAdmin = () => {
           </div>
           <div className="max-w-md mt-12">
             <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-[8px] bg-white/10 text-[#A78BFA] font-medium text-xs mb-6 border border-white/10">
-              <Key className="h-4 w-4" /> Admin Only Portal
+              <Key className="h-4 w-4" /> Admin Registration
             </div>
             <h1 className="text-4xl lg:text-5xl font-bold mb-6 leading-tight" style={{ fontFamily: "Poppins, sans-serif" }}>
-              Administer. <br /><span className="text-[#7C3AED]">Control. Protect.</span>
+              Create Your <br /><span className="text-[#7C3AED]">Admin Account</span>
             </h1>
             <p className="text-lg text-gray-400 leading-relaxed mb-8">
-              Create your administrator account to manage reports, verify cases, dispatch police units, and oversee the entire CrimeTrack platform.
+              Sign up to manage crime reports, verify cases, and keep your community safe.
             </p>
             <div className="space-y-4">
-              {["Full report verification access","User & officer management","Real-time notification control","Case forwarding & dispatch"].map((f) => (
+              {["Review and verify crime reports","Manage users and police officers","Send notifications and alerts","Assign cases to police"].map((f) => (
                 <div key={f} className="flex items-center gap-3 text-sm text-gray-300">
                   <div className="h-5 w-5 rounded-full bg-[#7C3AED]/20 flex items-center justify-center">
                     <Activity className="h-3 w-3 text-[#7C3AED]" />
@@ -156,34 +156,34 @@ const RegisterAdmin = () => {
           {/* Badge */}
           <div className="flex justify-center mb-6">
             <span className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-purple-50 text-purple-700 font-bold text-xs border border-purple-100">
-              <Key className="h-3.5 w-3.5" /> ADMIN REGISTRATION
+              <Key className="h-3.5 w-3.5" /> Admin Account
             </span>
           </div>
 
           {step === "register" && (
             <>
               <div className="mb-8 text-center">
-                <h2 className="text-3xl font-bold text-[#0B1F3B] mb-2" style={{ fontFamily: "Poppins, sans-serif" }}>Create Admin Account</h2>
-                <p className="text-[#6B7280] text-sm">Requires a valid admin authorization key.</p>
+                <h2 className="text-3xl font-bold text-[#0B1F3B] mb-2" style={{ fontFamily: "Poppins, sans-serif" }}>Sign Up as Admin</h2>
+                <p className="text-[#6B7280] text-sm">You'll need an admin authorization key to continue.</p>
               </div>
 
               <form onSubmit={handleRegister} className="space-y-5">
                 {/* Username */}
                 <div className="space-y-1">
-                  <label className="text-sm font-semibold text-[#0B1F3B]">Full Name / Username</label>
+                  <label className="text-sm font-semibold text-[#0B1F3B]">Username</label>
                   <div className="relative">
                     <User className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
-                    <input type="text" name="username" placeholder="Admin username" value={form.username} onChange={handleChange}
+                    <input type="text" name="username" placeholder="Enter your username" value={form.username} onChange={handleChange}
                       className="w-full pl-11 pr-4 py-3.5 bg-[#F7F9FC] border border-gray-200 rounded-[12px] focus:outline-none focus:ring-2 focus:ring-purple-400/50 focus:bg-white transition text-[#111827]" required />
                   </div>
                 </div>
 
                 {/* Email */}
                 <div className="space-y-1">
-                  <label className="text-sm font-semibold text-[#0B1F3B]">Official Email Address</label>
+                  <label className="text-sm font-semibold text-[#0B1F3B]">Email Address</label>
                   <div className="relative">
                     <Mail className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
-                    <input type="email" name="email" placeholder="admin@crimetrack.gov" value={form.email} onChange={handleChange}
+                    <input type="email" name="email" placeholder="your@email.com" value={form.email} onChange={handleChange}
                       className="w-full pl-11 pr-4 py-3.5 bg-[#F7F9FC] border border-gray-200 rounded-[12px] focus:outline-none focus:ring-2 focus:ring-purple-400/50 focus:bg-white transition text-[#111827]" required />
                   </div>
                 </div>
@@ -213,10 +213,10 @@ const RegisterAdmin = () => {
 
                 {/* Authorization Key */}
                 <div className="space-y-1">
-                  <label className="text-sm font-semibold text-[#0B1F3B]">Admin Authorization Key</label>
+                  <label className="text-sm font-semibold text-[#0B1F3B]">Admin Secret Key</label>
                   <div className="relative">
                     <Key className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-purple-400" />
-                    <input type={showSecret ? "text" : "password"} name="secretKey" placeholder="Enter admin secret key"
+                    <input type={showSecret ? "text" : "password"} name="secretKey" placeholder="Enter your admin key"
                       value={form.secretKey} onChange={handleChange}
                       className="w-full pl-11 pr-12 py-3.5 bg-purple-50 border border-purple-200 rounded-[12px] focus:outline-none focus:ring-2 focus:ring-purple-400/50 focus:bg-white transition text-[#111827] font-mono" required />
                     <button type="button" onClick={() => setShowSecret(!showSecret)}
@@ -224,12 +224,12 @@ const RegisterAdmin = () => {
                       {showSecret ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
                     </button>
                   </div>
-                  <p className="text-[11px] text-gray-400 mt-1">Contact the system owner to obtain the admin key.</p>
+                  <p className="text-[11px] text-gray-400 mt-1">Ask the system administrator for your key.</p>
                 </div>
 
                 <button type="submit" disabled={loading}
                   className="w-full flex items-center justify-center gap-2 bg-purple-600 text-white py-4 rounded-[12px] font-bold hover:bg-purple-700 transition shadow-[0_4px_14px_0_rgba(124,58,237,0.35)] mt-4 disabled:opacity-70">
-                  {loading ? "Processing registration..." : "Register Admin Account"} <ArrowRight className="h-5 w-5" />
+                  {loading ? "Creating account..." : "Create Account"} <ArrowRight className="h-5 w-5" />
                 </button>
               </form>
 
@@ -239,8 +239,8 @@ const RegisterAdmin = () => {
                   <Link to="/login" className="font-bold text-purple-600 hover:text-purple-700 transition">Sign In</Link>
                 </p>
                 <p className="text-[#6B7280] text-xs mt-2">
-                  Registering as a police officer?{" "}
-                  <Link to="/register" className="font-semibold text-blue-600 hover:text-blue-700 transition">Use standard registration and select Police Officer</Link>
+                  Need a police account?{" "}
+                  <Link to="/register" className="font-semibold text-blue-600 hover:text-blue-700 transition">Sign up here instead</Link>
                 </p>
               </div>
             </>
@@ -252,28 +252,28 @@ const RegisterAdmin = () => {
                 <div className="inline-flex items-center justify-center h-16 w-16 rounded-full bg-purple-100 text-purple-600 mb-6">
                   <Shield className="h-8 w-8" />
                 </div>
-                <h2 className="text-3xl font-bold text-[#0B1F3B] mb-2" style={{ fontFamily: "Poppins, sans-serif" }}>Email Verification</h2>
+                <h2 className="text-3xl font-bold text-[#0B1F3B] mb-2" style={{ fontFamily: "Poppins, sans-serif" }}>Verify Your Email</h2>
                 <p className="text-[#6B7280] text-sm">
-                  Enter the 6-digit OTP sent to{" "}
+                  Enter the 6-digit code sent to{" "}
                   <span className="font-semibold text-[#0B1F3B]">{form.email}</span>
                 </p>
               </div>
-
+          
               <form onSubmit={handleVerifyOtp} className="space-y-6">
                 <input type="text" placeholder="000000" value={otp}
                   onChange={(e) => setOtp(e.target.value.replace(/\D/g, "").slice(0, 6))} maxLength={6}
                   className="w-full py-4 px-6 bg-[#F7F9FC] border border-gray-200 rounded-[12px] text-center text-4xl tracking-[0.5em] font-mono font-bold text-[#0B1F3B] focus:outline-none focus:ring-2 focus:ring-purple-400/50 focus:bg-white transition" />
-
+          
                 <button type="submit" disabled={loading || otp.length !== 6}
                   className="w-full flex items-center justify-center gap-2 bg-purple-600 text-white py-4 rounded-[12px] font-bold hover:bg-purple-700 transition shadow-[0_4px_14px_0_rgba(124,58,237,0.35)] disabled:opacity-50 disabled:cursor-not-allowed">
-                  {loading ? "Verifying..." : "Verify & Activate"} <Lock className="h-5 w-5" />
+                  {loading ? "Verifying..." : "Verify Email"} <Lock className="h-5 w-5" />
                 </button>
               </form>
-
+          
               <div className="mt-8 text-center">
                 <button type="button" onClick={() => { setStep("register"); setOtp(""); setMessage(""); }}
                   className="text-sm font-semibold text-[#6B7280] hover:text-[#0B1F3B] transition inline-flex items-center gap-1">
-                  <ChevronLeft className="h-4 w-4" /> Wrong email? Go back
+                  <ChevronLeft className="h-4 w-4" /> Go back
                 </button>
               </div>
             </>

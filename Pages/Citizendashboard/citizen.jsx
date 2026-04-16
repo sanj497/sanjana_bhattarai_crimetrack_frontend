@@ -274,7 +274,7 @@ export default function CitizenDashboard() {
               <ShieldCheck className="h-4 w-4" /> Secure Citizen Access
             </div>
             <h1 className="text-3xl md:text-4xl font-bold mb-default leading-tight">
-               Welcome back, {"\n"}<span className="text-accent-gold">{user.username || 'Citizen'}</span>
+               Welcome back, {"\n"}<span className="text-accent-gold">{user.username || user.name || user.email || 'User'}</span>
             </h1>
             <p className="text-text-secondary max-w-lg leading-relaxed text-sm mb-section">
                Your gateway to safety. Monitor your reported incidents and receive real-time updates from dispatch.
