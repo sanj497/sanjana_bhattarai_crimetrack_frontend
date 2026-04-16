@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { Navigate, useLocation } from "react-router-dom";
 
 /**
@@ -6,6 +6,18 @@ import { Navigate, useLocation } from "react-router-dom";
  */
 export default function PoliceRoute({ children }) {
   const location = useLocation();
+  const [stamp, setStamp] = useState(Date.now());
+
+  useEffect(() => {
+    const handleStorage = () => setStamp(Date.now());
+    window.addEventListener("storage", handleStorage);
+    window.addEventListener("authChange", handleStorage);
+    return () => {
+      window.removeEventListener("storage", handleStorage);
+      window.removeEventListener("authChange", handleStorage);
+    };
+  }, []);
+
   const token = localStorage.getItem("token");
   const userStr = localStorage.getItem("user");
 
