@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { useNavigate, Link, useLocation } from "react-router-dom";
 import { Mail, Lock, ArrowRight, Shield, Activity, ChevronLeft } from "lucide-react";
+import { toast } from "react-toastify";
 
 const Login = () => {
   const navigate = useNavigate();
@@ -42,11 +43,21 @@ const Login = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     
-    // Cross-tab safety: explicitly reject submittion if already logged in elsewhere
-    if (localStorage.getItem("token")) {
-      setError(true);
-      setMessage("Session already active in another tab. Redirecting...");
-      setTimeout(() => window.location.reload(), 1500);
+    // Cross-tab safety: explicitly reject submission if already logged in elsewhere
+    const token = localStorage.getItem("token");
+    const userStr = localStorage.getItem("user");
+    if (token) {
+      if (userStr) {
+        try {
+          const userObj = JSON.parse(userStr);
+          toast.error(`Please first logout the previous user (${userObj.email}), then login.`);
+        } catch {
+          toast.error("Please logout first before logging in again.");
+        }
+      } else {
+        toast.error("Please logout first before logging in again.");
+      }
+      setTimeout(() => window.location.reload(), 2500);
       return;
     }
 
