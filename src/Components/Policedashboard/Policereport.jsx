@@ -325,13 +325,50 @@ const Policereport = () => {
       </div>
 
       {totalPages > 1 && (
-        <div className="max-w-7xl mx-auto flex items-center justify-between p-6 bg-slate-900/40 border border-slate-800/50 rounded-3xl mt-6">
-          <span className="text-xs font-bold text-slate-500 uppercase tracking-widest">
-            Viewing Page {currentPage} of {totalPages} ({totalItems} Items)
-          </span>
-          <div className="flex items-center gap-3">
-            <button onClick={() => setCurrentPage(p => Math.max(1, p - 1))} disabled={currentPage === 1} className="px-5 py-2.5 text-[10px] font-black uppercase tracking-widest bg-slate-800 border border-slate-700 rounded-xl text-slate-300 hover:bg-slate-700 hover:border-slate-600 disabled:opacity-30 transition-colors">Prev</button>
-            <button onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))} disabled={currentPage === totalPages} className="px-5 py-2.5 text-[10px] font-black uppercase tracking-widest bg-slate-800 border border-slate-700 rounded-xl text-slate-300 hover:bg-slate-700 hover:border-slate-600 disabled:opacity-30 transition-colors">Next</button>
+        <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between p-8 bg-slate-900/40 border border-slate-800/50 rounded-[40px] mt-8 gap-6 shadow-2xl backdrop-blur-md">
+          <div className="flex flex-col">
+            <span className="text-[10px] font-black text-slate-500 uppercase tracking-[3px] mb-1">Pagination Control</span>
+            <span className="text-xs font-bold text-white uppercase tracking-widest leading-none">
+              Dossier {currentPage} <span className="text-slate-600 font-medium">of</span> {totalPages} <span className="text-slate-600 font-medium">—</span> {totalItems} Intelligence Files
+            </span>
+          </div>
+
+          <div className="flex items-center gap-2">
+            <button 
+              onClick={() => setCurrentPage(p => Math.max(1, p - 1))} 
+              disabled={currentPage === 1} 
+              className="w-12 h-12 flex items-center justify-center bg-slate-800 border border-slate-700 rounded-2xl text-slate-300 hover:bg-slate-700 hover:border-blue-500/50 hover:text-white disabled:opacity-20 disabled:cursor-not-allowed transition-all active:scale-95 shadow-lg"
+            >
+              <ChevronLeft size={20} />
+            </button>
+            
+            <div className="flex items-center gap-1 mx-2">
+              {Array.from({ length: totalPages }, (_, i) => i + 1)
+                .filter(p => p === 1 || p === totalPages || Math.abs(p - currentPage) <= 1)
+                .map((p, i, arr) => (
+                  <React.Fragment key={p}>
+                    {i > 0 && arr[i-1] !== p - 1 && <span className="px-2 text-slate-600">...</span>}
+                    <button
+                      onClick={() => setCurrentPage(p)}
+                      className={`h-12 w-12 rounded-2xl text-xs font-black transition-all flex items-center justify-center ${
+                        currentPage === p 
+                          ? 'bg-blue-600 text-white shadow-lg shadow-blue-600/30 scale-110' 
+                          : 'bg-slate-800/50 text-slate-500 hover:bg-slate-800 hover:text-slate-300'
+                      }`}
+                    >
+                      {p}
+                    </button>
+                  </React.Fragment>
+                ))}
+            </div>
+
+            <button 
+              onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))} 
+              disabled={currentPage === totalPages} 
+              className="w-12 h-12 flex items-center justify-center bg-slate-800 border border-slate-700 rounded-2xl text-slate-300 hover:bg-slate-700 hover:border-blue-500/50 hover:text-white disabled:opacity-20 disabled:cursor-not-allowed transition-all active:scale-95 shadow-lg"
+            >
+              <ChevronRight size={20} />
+            </button>
           </div>
         </div>
       )}

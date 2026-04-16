@@ -64,43 +64,56 @@ export default function PoliceLayout() {
   return (
     <div className="flex h-screen bg-slate-900 text-white font-sans overflow-hidden">
       {/* Sidebar */}
-      <div className={`${sidebarOpen ? 'w-64' : 'w-20'} bg-slate-800 border-r border-slate-700 transition-all duration-300 flex flex-col z-20`}>
-        <div className="p-4 flex items-center justify-between border-b border-slate-700">
+      <aside className={`${sidebarOpen ? 'w-64' : 'w-24'} bg-slate-900 border-r border-slate-800 transition-all duration-300 flex flex-col z-20`}>
+        <div className="h-24 flex items-center justify-between px-6 border-b border-slate-800/50">
           {sidebarOpen && (
             <div className="flex items-center gap-3">
-              <div className="h-10 w-10 bg-white rounded-xl flex items-center justify-center shadow-lg overflow-hidden border border-blue-500">
+              <div className="h-10 w-10 bg-white rounded-xl flex items-center justify-center shadow-lg overflow-hidden border border-blue-500/20">
                 <img src="https://res.cloudinary.com/dvziqqu1j/image/upload/v1776324979/crimetrack_logo.jpg" alt="Logo" className="h-full w-full object-cover" />
               </div>
-              <span className="font-black text-lg tracking-tighter text-white uppercase italic">Police HQ</span>
+              <span className="font-black text-xl tracking-tight text-white uppercase italic">Police HQ</span>
             </div>
           )}
-          <button onClick={() => setSidebarOpen(!sidebarOpen)} className="p-1 hover:bg-slate-700 rounded text-slate-400">
-            {sidebarOpen ? <X size={20} /> : <Menu size={20} />}
-          </button>
+          {!sidebarOpen && (
+              <div className="h-10 w-10 bg-white rounded-xl flex items-center justify-center mx-auto shadow-lg overflow-hidden border border-blue-500/20">
+                <img src="https://res.cloudinary.com/dvziqqu1j/image/upload/v1776324979/crimetrack_logo.jpg" alt="Logo" className="h-full w-full object-cover" />
+              </div>
+          )}
         </div>
 
-        <nav className="flex-1 p-4 flex flex-col gap-2 overflow-y-auto">
-          {menuItems.map((item) => (
-            <Link
-              key={item.name}
-              to={item.path}
-              className={`flex items-center gap-3 py-3 px-4 rounded transition-all duration-200 ${
-                location.pathname === item.path ? 'bg-blue-600 text-white' : 'text-slate-400 hover:bg-slate-700 hover:text-white'
-              }`}
-            >
-              <item.icon size={20} />
-              {sidebarOpen && (
-                <div className="flex-1 flex items-center justify-between">
-                  <span className="font-medium">{item.name}</span>
-                  {(item.name === 'Notifications' && unreadCount > 0) ? (
-                    <span className="bg-red-500 text-[10px] px-1.5 py-0.5 rounded-full">{unreadCount}</span>
-                  ) : item.badge && (
-                    <span className="bg-red-500 text-[10px] px-1.5 py-0.5 rounded-full">{item.badge}</span>
-                  )}
-                </div>
-              )}
-            </Link>
-          ))}
+        <nav className="flex-1 overflow-y-auto py-8 px-4 flex flex-col gap-2 relative scrollbar-hide">
+          <div className={`text-[10px] font-black uppercase tracking-[4px] text-slate-600 mb-4 px-4 ${!sidebarOpen && "hidden"}`}>Tactical Suite</div>
+          
+          {menuItems.map((item) => {
+            const isActive = location.pathname === item.path;
+            const hasBadge = (item.name === 'Notifications' && unreadCount > 0) || item.badge;
+            const badgeLabel = item.name === 'Notifications' ? unreadCount : item.badge;
+
+            return (
+              <Link
+                key={item.name}
+                to={item.path}
+                className={`flex items-center gap-4 px-4 py-3.5 rounded-2xl transition-all relative ${
+                  isActive ? 'bg-blue-600 text-white shadow-lg shadow-blue-600/30' : 'text-slate-500 hover:bg-slate-800 hover:text-white'
+                }`}
+              >
+                <item.icon size={20} />
+                {sidebarOpen && (
+                  <div className="flex-1 flex items-center justify-between">
+                    <span className="text-xs font-black uppercase tracking-widest">{item.name}</span>
+                    {hasBadge && (
+                      <span className="bg-rose-600 text-white text-[9px] font-black px-2 py-0.5 rounded-lg shadow-lg">
+                        {badgeLabel}
+                      </span>
+                    )}
+                  </div>
+                )}
+                {hasBadge && !sidebarOpen && (
+                  <div className="absolute top-3 right-3 h-2.5 w-2.5 bg-rose-600 rounded-full ring-2 ring-slate-900 animate-pulse" />
+                )}
+              </Link>
+            )
+          })}
         </nav>
 
         <div className="p-4 border-t border-slate-700">
@@ -117,30 +130,33 @@ export default function PoliceLayout() {
       {/* Main Content */}
       <div className="flex-1 flex flex-col overflow-hidden bg-slate-950">
         {/* Header */}
-        <header className="h-16 bg-slate-800 border-b border-slate-700 flex items-center justify-between px-6 z-30 shrink-0 sticky top-0">
+        <header className="h-24 bg-slate-900 border-b border-slate-800 flex items-center justify-between px-10 shrink-0 z-30 sticky top-0 shadow-2xl backdrop-blur-md bg-opacity-80">
           <div className="flex items-center gap-4">
-            <h1 className="text-xl font-bold text-white">{currentPage}</h1>
+             <div>
+                <div className="text-[10px] text-slate-600 font-black uppercase tracking-[3px] mb-1">Operational Command Node</div>
+                <h1 className="text-2xl font-black text-white italic tracking-tighter uppercase leading-none">{currentPage}</h1>
+             </div>
           </div>
           
           <div className="flex items-center gap-6 relative">
-            <div className="relative hidden md:block">
+            <div className="relative hidden xl:block">
               <input 
                 type="text" 
-                placeholder="Search cases..." 
-                className="bg-slate-900 border border-slate-700 rounded-lg py-1.5 pl-10 pr-4 text-sm focus:outline-none focus:border-blue-500"
+                placeholder="Search Active Intel..." 
+                className="bg-slate-950 border border-slate-800 rounded-2xl py-3 pl-12 pr-6 text-xs text-white focus:outline-none focus:border-blue-500 w-64 transition-all shadow-inner placeholder:text-slate-700 font-black uppercase tracking-widest"
               />
-              <Search className="absolute left-3 top-2 text-slate-500" size={16} />
+              <Search className="absolute left-4 top-3 text-slate-700" size={16} />
             </div>
             
-            <div className="flex items-center gap-4 border-l border-slate-700 pl-6 relative">
+            <div className="flex items-center gap-6 relative">
               <div className="relative">
                 <button 
                   onClick={() => setNotifOpen(!notifOpen)}
-                  className={`p-2 rounded-xl transition-all duration-300 ${notifOpen ? 'bg-slate-700 text-white' : 'text-slate-400 hover:text-white hover:bg-slate-700'}`}
+                  className={`p-3 rounded-2xl transition-all duration-300 ${notifOpen ? 'bg-blue-600 text-white' : 'text-slate-500 hover:text-white hover:bg-slate-800'}`}
                 >
-                  <Bell size={20} className={unreadCount > 0 && !notifOpen ? "animate-[swing_2s_ease-in-out_infinite] origin-top" : ""} />
+                  <Bell size={22} className={unreadCount > 0 && !notifOpen ? "animate-[swing_2s_ease-in-out_infinite] origin-top text-blue-500" : ""} />
                   {unreadCount > 0 && (
-                    <span className="absolute top-1.5 right-1.5 bg-red-500 w-4 h-4 rounded-full flex items-center justify-center text-[8px] font-bold ring-2 ring-slate-800">
+                    <span className="absolute top-2 right-2 flex h-5 w-5 items-center justify-center rounded-full bg-blue-500 text-[10px] font-black text-white ring-4 ring-slate-900 shadow-lg">
                       {unreadCount}
                     </span>
                   )}
@@ -148,18 +164,21 @@ export default function PoliceLayout() {
                 <NotificationDropdown isOpen={notifOpen} onClose={() => setNotifOpen(false)} />
               </div>
               
-              <ThemeToggle />
+              <div className="h-10 w-px bg-slate-800 hidden md:block mx-1" />
 
               {(() => {
                 const u = getUser();
                 const initials = u.username ? u.username.split(" ").map(w => w[0]).join("").toUpperCase().slice(0,2) : "P";
                 return (
-                  <div className="flex items-center gap-3">
+                  <div className="flex items-center gap-4">
                     <div className="text-right hidden sm:block">
-                      <div className="text-sm font-semibold">{u.username || "Officer"}</div>
-                      <div className="text-[10px] text-slate-500">{u.email || "police@crimetrack.gov"}</div>
+                      <div className="text-xs font-black text-white uppercase tracking-tighter leading-none">{u.username || "Officer"}</div>
+                      <div className="text-[9px] font-black text-slate-500 uppercase tracking-widest mt-1">{u.role || "Patrol Unit"}</div>
                     </div>
-                    <div className="w-8 h-8 rounded-full bg-blue-500 flex items-center justify-center font-bold text-xs ring-2 ring-slate-700">{initials}</div>
+                    <div className="h-12 w-12 bg-blue-600 text-white flex items-center justify-center rounded-2xl font-black text-lg shadow-xl shadow-blue-900/40 relative group cursor-pointer border border-blue-500/50">
+                        <div className="absolute inset-0 bg-white opacity-0 group-hover:opacity-10 transition-opacity rounded-2xl" />
+                        {initials}
+                    </div>
                   </div>
                 );
               })()}

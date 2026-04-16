@@ -60,49 +60,60 @@ function FeedbackModal({ crime, onClose, onSubmit }) {
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm">
-      <div className="bg-white rounded-[32px] p-8 w-full max-w-md shadow-2xl relative overflow-hidden">
-        <div className="flex justify-between items-center mb-6">
-          <h2 className="text-xl font-black text-slate-900 uppercase tracking-tighter">Submit Feedback</h2>
-          <button onClick={onClose} className="text-slate-400 hover:text-slate-700 font-bold p-2">✕</button>
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-xl">
+      <div className="bg-slate-900 border border-slate-800 rounded-[32px] p-8 w-full max-w-md shadow-2xl relative overflow-hidden">
+        <div className="absolute top-0 right-0 p-6 opacity-5 pointer-events-none">
+           <MessageSquare size={120} />
+        </div>
+        <div className="flex justify-between items-center mb-8 relative z-10">
+          <h2 className="text-xl font-black text-white uppercase tracking-tighter italic underline decoration-blue-500 decoration-4 underline-offset-8">Submit Feedback</h2>
+          <button onClick={onClose} className="text-slate-500 hover:text-white font-bold p-2 transition-colors">✕</button>
         </div>
         
-        <div className="mb-6 bg-slate-50 p-4 rounded-2xl border border-slate-100">
-          <p className="text-[10px] font-black text-blue-500 uppercase tracking-widest mb-1">Incident Reference</p>
-          <p className="font-bold text-slate-700">{crime.title}</p>
-          <p className="text-xs text-slate-500 mt-1">
-            Assigned Officer: {crime.workflow?.assignedToOfficer?.username || "Not assigned yet"}
+        <div className="mb-6 bg-slate-950/80 p-5 rounded-2xl border border-slate-800 relative z-10">
+          <p className="text-[10px] font-black text-blue-500 uppercase tracking-widest mb-2 flex items-center gap-2">
+            <Activity size={10} /> Incident Reference
+          </p>
+          <p className="font-bold text-white text-lg tracking-tight mb-1">{crime.title}</p>
+          <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest flex items-center gap-1.5 mt-2">
+            <Shield size={10} /> Agent: {crime.workflow?.assignedToOfficer?.username || "PENDING"}
           </p>
         </div>
 
-        <div className="mb-6">
-          <label className="block text-[10px] font-black text-slate-500 uppercase tracking-widest mb-3">Rate the Investigation</label>
-          <div className="flex gap-2">
+        <div className="mb-8 relative z-10 text-center">
+          <label className="block text-[10px] font-black text-slate-500 uppercase tracking-widest mb-4">Investigative Quality Rating</label>
+          <div className="flex justify-center gap-3">
             {[1,2,3,4,5].map(star => (
-              <button key={star} onClick={() => setRating(star)} className="focus:outline-none transition-transform hover:scale-110">
-                <Star className={`h-8 w-8 ${rating >= star ? "fill-amber-400 text-amber-400" : "text-slate-200"}`} />
+              <button key={star} onClick={() => setRating(star)} className="focus:outline-none transition-all hover:scale-125 hover:rotate-12 active:scale-90">
+                <Star className={`h-10 w-10 ${rating >= star ? "fill-amber-400 text-amber-400 drop-shadow-[0_0_10px_rgba(251,191,36,0.4)]" : "text-slate-800"}`} />
               </button>
             ))}
           </div>
         </div>
 
-        <div className="mb-8">
-          <label className="block text-[10px] font-black text-slate-500 uppercase tracking-widest mb-3">Your Comments</label>
+        <div className="mb-8 relative z-10">
+          <label className="block text-[10px] font-black text-slate-500 uppercase tracking-widest mb-3 flex items-center gap-2">
+            <FileText size={10} /> Witness Statement / Feedback
+          </label>
           <textarea
              rows={4}
              value={message}
              onChange={(e) => setMessage(e.target.value)}
-             placeholder="How was your experience with this investigation?"
-             className="w-full bg-slate-50 border border-slate-200 rounded-2xl p-4 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 resize-none"
+             placeholder="Report your interaction experience..."
+             className="w-full bg-slate-950 border border-slate-800 rounded-2xl p-5 text-sm text-white focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 resize-none transition-all placeholder:text-slate-700 font-medium"
           />
         </div>
 
         <button 
           onClick={handleSubmit} 
           disabled={isSubmitting}
-          className="w-full py-4 bg-blue-600 text-white rounded-2xl font-black uppercase tracking-widest text-[10px] hover:bg-blue-500 active:scale-95 transition-all shadow-xl shadow-blue-600/20 disabled:opacity-50"
+          className="w-full py-5 bg-blue-600 text-white rounded-2xl font-black uppercase tracking-widest text-[10px] hover:bg-blue-500 active:scale-[0.98] transition-all shadow-xl shadow-blue-600/20 disabled:opacity-50 flex items-center justify-center gap-3"
         >
-          {isSubmitting ? "Submitting..." : "Submit Feedback"}
+          {isSubmitting ? (
+             <div className="h-4 w-4 border-2 border-white/20 border-t-white rounded-full animate-spin" />
+          ) : (
+             <>TRANSFORM FEEDBACK <ChevronRight size={14} /></>
+          )}
         </button>
       </div>
     </div>
@@ -118,7 +129,6 @@ export default function CitizenDashboard() {
   const [alertsLoading, setAlertsLoading] = useState(true);
   const [unreadCount, setUnreadCount] = useState(0);
   const [localPings, setLocalPings] = useState([]);
-  const [adminAlerts, setAdminAlerts] = useState([]);
 
   useEffect(() => {
     const storedUser = localStorage.getItem("user");
@@ -198,9 +208,6 @@ export default function CitizenDashboard() {
           
           // Unread Automated system warnings generated immediately when someone reports near you
           setLocalPings(data.notifications.filter(n => n.type === "citizen_alert" && isAutoSystemPing(n.message) && !n.isRead));
-          
-          // Verified Broadcasts actually sent by Admin after they "read and analyze" the situation
-          setAdminAlerts(data.notifications.filter(n => n.type === "citizen_alert" && !isAutoSystemPing(n.message)));
         }
       }
     } catch (err) {}
@@ -209,7 +216,7 @@ export default function CitizenDashboard() {
   const [feedbackCrime, setFeedbackCrime] = useState(null);
 
   return (
-    <div className="p-6 md:p-10 font-sans min-h-full bg-[#f8fafc]">
+    <div className="p-6 md:p-10 font-sans min-h-full bg-slate-950 text-slate-300">
       {feedbackCrime && (
          <FeedbackModal 
            crime={feedbackCrime} 
@@ -252,13 +259,14 @@ export default function CitizenDashboard() {
            { label: "Intelligence Logs", val: myCrimes.length, icon: <FileText />, color: "blue" },
            { label: "Trust Score", val: "Optimal", icon: <Shield />, color: "emerald" },
          ].map((stat, i) => (
-           <div key={i} className="bg-white p-8 rounded-[32px] border border-slate-100 flex items-center gap-6 group hover:border-blue-500/30 transition-all shadow-sm">
-              <div className={`p-5 bg-${stat.color}-50 text-${stat.color}-500 rounded-2xl group-hover:scale-110 transition-transform`}>
+           <div key={i} className="bg-slate-900/40 border border-slate-800/50 p-8 rounded-[40px] flex items-center gap-6 group hover:border-blue-500/20 transition-all shadow-2xl relative overflow-hidden">
+              <div className="absolute top-0 right-0 h-20 w-20 bg-blue-500/5 rounded-full -mr-10 -mt-10 group-hover:bg-blue-500/10 transition-colors" />
+              <div className={`p-5 bg-${stat.color}-500/10 text-${stat.color}-500 rounded-3xl group-hover:bg-${stat.color}-500 group-hover:text-white transition-all shadow-lg`}>
                  {stat.icon}
               </div>
-              <div>
-                 <p className="text-[10px] text-slate-400 font-black mb-1 uppercase tracking-[2px]">{stat.label}</p>
-                 <h3 className="text-2xl font-black text-slate-900 leading-none">{stat.val}</h3>
+              <div className="relative z-10">
+                 <p className="text-[10px] text-slate-500 font-black mb-1 uppercase tracking-[3px]">{stat.label}</p>
+                 <h3 className="text-3xl font-black text-white leading-none tracking-tight">{stat.val}</h3>
               </div>
            </div>
          ))}
@@ -305,63 +313,7 @@ export default function CitizenDashboard() {
            </div>
         </div>
       )}
-      {/* ── OFFICIAL SAFETY BROADCASTS CHANNEL ── */}
-      <div className="mb-12">
-        <div className="flex items-center justify-between mb-8 px-2">
-          <div className="flex items-center gap-3">
-            <div className="p-3 bg-indigo-600 rounded-2xl shadow-lg shadow-indigo-200">
-              <ShieldAlert className="h-5 w-5 text-white" />
-            </div>
-            <div>
-              <h2 className="text-2xl font-black text-slate-900 uppercase tracking-tight">Official Safety Alerts</h2>
-              <p className="text-xs text-slate-400 font-bold uppercase tracking-widest mt-1">Verified broadcasts from Command Center</p>
-            </div>
-          </div>
-          <Link to="/citizen/alerts" className="px-4 py-2 bg-white border border-slate-200 hover:border-indigo-500 rounded-xl text-[10px] font-black uppercase tracking-widest text-slate-600 hover:text-indigo-600 transition-all shadow-sm">View Archive</Link>
-        </div>
 
-        {adminAlerts.length === 0 ? (
-          <div className="bg-white border-2 border-dashed border-slate-100 rounded-[40px] p-16 text-center">
-            <div className="w-20 h-20 bg-slate-50 rounded-3xl flex items-center justify-center mx-auto mb-6 border border-slate-100">
-              <ShieldCheck className="h-10 w-10 text-slate-200" />
-            </div>
-            <h3 className="text-xl font-black text-slate-900 uppercase tracking-tight mb-2">Neighborhood Secure</h3>
-            <p className="text-sm text-slate-400 font-medium max-w-sm mx-auto">No active critical safety broadcasts have been issued for your sector currently.</p>
-          </div>
-        ) : (
-          <div className="grid grid-cols-1 gap-6">
-            {adminAlerts.slice(0, 3).map((alert) => (
-              <div
-                key={alert._id}
-                className={`group bg-white rounded-[32px] border-2 ${!alert.isRead ? 'border-indigo-100 ring-4 ring-indigo-500/5' : 'border-slate-50'} p-8 hover:border-indigo-300 transition-all relative overflow-hidden flex flex-col md:flex-row gap-8 items-start`}
-              >
-                  <div className="flex-1">
-                    <div className="flex items-center gap-2 mb-4">
-                       <span className="px-3 py-1 bg-indigo-50 text-indigo-600 text-[10px] font-black uppercase tracking-widest rounded-full border border-indigo-100">Official Broadcast</span>
-                       <span className="text-slate-300 text-xs">•</span>
-                       <span className="text-slate-400 text-[10px] font-black uppercase tracking-widest flex items-center gap-1">
-                          <Clock size={12}/> {new Date(alert.createdAt).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}
-                       </span>
-                    </div>
-                    <h4 className="text-xl font-black text-slate-900 leading-snug mb-3 group-hover:text-indigo-600 transition-colors uppercase italic tracking-tight underline decoration-indigo-200 decoration-4 underline-offset-4">
-                      {alert.message}
-                    </h4>
-                    {alert.crimeId && (
-                      <div className="flex items-center gap-3 text-slate-500 text-xs font-bold bg-slate-50/50 p-4 rounded-2xl border border-slate-100/50">
-                        <MapPin className="h-4 w-4 text-indigo-500" />
-                        <span>Tactical Zone: {alert.crimeId.location?.address || "Coordinate Grid"}</span>
-                      </div>
-                    )}
-                  </div>
-                  <div className="shrink-0 flex md:flex-col gap-3">
-                     <Link to="/citizen/alerts" className="px-6 py-4 bg-indigo-600 text-white rounded-2xl text-[10px] font-black uppercase tracking-widest hover:bg-slate-900 transition-all shadow-xl shadow-indigo-600/20">Read Instructions</Link>
-                     {alert.crimeId && <Link to="/citizen/tracking" className="px-6 py-4 bg-slate-900 text-white rounded-2xl text-[10px] font-black uppercase tracking-widest hover:bg-slate-800 transition-all">Track Pulse</Link>}
-                  </div>
-              </div>
-            ))}
-          </div>
-        )}
-      </div>
 
 
 

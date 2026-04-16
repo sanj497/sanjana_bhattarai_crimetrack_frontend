@@ -60,53 +60,52 @@ export default function CitizenLayout() {
   const pageTitle = getPageTitle();
 
   return (
-    <div className="flex h-screen overflow-hidden bg-[#F7F9FC] font-sans text-[#111827]">
+    <div className="flex h-screen overflow-hidden bg-slate-950 font-sans text-slate-300">
       {/* SIDEBAR */}
-      <aside className={`flex flex-col bg-[#0B1F3B] text-gray-300 transition-all duration-300 ease-in-out z-20 ${sidebarOpen ? "w-64" : "w-20"} shrink-0 border-r border-[#112445]`}>
-        {/* LOGO */}
-        <div className="h-20 flex items-center justify-between px-5 border-b border-[#112445]">
+      <aside className={`flex flex-col bg-slate-900 border-r border-slate-800 transition-all duration-300 ease-in-out z-20 ${sidebarOpen ? "w-64" : "w-20"} shrink-0`}>
+        {/* LOGO AREA */}
+        <div className="h-24 flex items-center justify-between px-6 border-b border-slate-800/50">
           {sidebarOpen && (
             <div className="flex items-center gap-3">
-              <div className="h-10 w-10 bg-white rounded-xl flex items-center justify-center shadow-lg overflow-hidden border border-[#00B8D9]">
+              <div className="h-10 w-10 bg-white rounded-xl flex items-center justify-center shadow-lg overflow-hidden border border-blue-500/20">
                 <img src="https://res.cloudinary.com/dvziqqu1j/image/upload/v1776324979/crimetrack_logo.jpg" alt="Logo" className="h-full w-full object-cover" />
               </div>
-              <span className="font-bold text-white text-xl tracking-tight uppercase italic" style={{ fontFamily: "Poppins, sans-serif" }}>CrimeTrack</span>
+              <span className="font-black text-white text-xl tracking-tight uppercase italic">CrimeTrack</span>
             </div>
           )}
           {!sidebarOpen && (
-            <div className="h-10 w-10 bg-white rounded-xl flex items-center justify-center mx-auto shadow-lg overflow-hidden border border-[#00B8D9]">
+            <div className="h-10 w-10 bg-white rounded-xl flex items-center justify-center mx-auto shadow-lg overflow-hidden border border-blue-500/20">
               <img src="https://res.cloudinary.com/dvziqqu1j/image/upload/v1776324979/crimetrack_logo.jpg" alt="Logo" className="h-full w-full object-cover" />
             </div>
           )}
         </div>
         
-        {/* Toggle Button Inside Sidebar (Absolute trick typically, but we'll put it inline or just make the logo area clickable) */}
         <button 
           onClick={() => setSidebarOpen(!sidebarOpen)}
-          className="absolute top-20 -right-3 h-6 w-6 bg-white border border-gray-200 rounded-full flex items-center justify-center text-gray-600 hover:text-[#1E5EFF] z-50 cursor-pointer shadow-sm transition"
+          className="absolute top-24 -right-3 h-6 w-6 bg-slate-800 border border-slate-700 rounded-full flex items-center justify-center text-slate-400 hover:text-white z-50 cursor-pointer shadow-xl transition"
         >
           {sidebarOpen ? <ChevronLeft size={14}/> : <ChevronRight size={14}/>}
         </button>
 
         {/* NAVIGATION LINKS */}
-        <nav className="flex-1 overflow-y-auto py-6 px-3 flex flex-col gap-2 relative">
-          <div className={`text-xs font-semibold uppercase tracking-wider text-gray-500 mb-2 px-3 ${!sidebarOpen && "hidden"}`}>Menu</div>
+        <nav className="flex-1 overflow-y-auto py-8 px-4 flex flex-col gap-2 relative">
+          <div className={`text-[10px] font-black uppercase tracking-[4px] text-slate-600 mb-4 px-3 ${!sidebarOpen && "hidden"}`}>Command Hub</div>
           
           {navItems.map((item) => {
             const isActive = location.pathname === item.path;
             const hasBadge = item.label === "Notifications" && unreadCount > 0;
 
             return (
-              <Link key={item.label} to={item.path} title={!sidebarOpen ? item.label : ""} className={`flex items-center gap-3 px-3 py-3 rounded-[10px] transition-colors relative ${isActive ? "bg-[#1E5EFF]/10 text-[#00B8D9] font-semibold" : "hover:bg-[#112445] hover:text-white"}`}>
+              <Link key={item.label} to={item.path} title={!sidebarOpen ? item.label : ""} className={`flex items-center gap-4 px-4 py-3.5 rounded-2xl transition-all relative ${isActive ? "bg-blue-600 text-white shadow-lg shadow-blue-600/20 font-black" : "text-slate-500 hover:bg-slate-800 hover:text-white"}`}>
                 <div className="flex items-center justify-center">
                    {item.icon}
                    {hasBadge && !sidebarOpen && (
-                      <div className="absolute top-2 right-2 h-2 w-2 bg-red-500 rounded-full ring-1 ring-[#0B1F3B]" />
+                      <div className="absolute top-2 right-2 h-2.5 w-2.5 bg-blue-500 rounded-full ring-2 ring-slate-900 animate-pulse" />
                    )}
                 </div>
-                {sidebarOpen && <span className="truncate">{item.label}</span>}
+                {sidebarOpen && <span className="truncate text-xs font-black uppercase tracking-widest">{item.label}</span>}
                 {hasBadge && sidebarOpen && (
-                   <span className="ml-auto bg-red-500 text-white text-[9px] font-black px-1.5 py-0.5 rounded-md min-w-[18px] text-center">
+                   <span className="ml-auto bg-blue-500 text-white text-[9px] font-black px-2 py-0.5 rounded-lg shadow-lg">
                      {unreadCount}
                    </span>
                 )}
@@ -114,34 +113,24 @@ export default function CitizenLayout() {
             )
           })}
 
-          <div className={`mt-6 mb-2 border-t border-[#112445] pt-6 px-3 text-xs font-semibold uppercase tracking-wider text-gray-500 ${!sidebarOpen && "hidden"}`}>Priority Actions</div>
+          <div className={`mt-8 mb-4 border-t border-slate-800/50 pt-8 px-4 text-[10px] font-black uppercase tracking-[4px] text-slate-600 ${!sidebarOpen && "hidden"}`}>Priority Ops</div>
           
-          <Link to="/citizen/alerts" title={!sidebarOpen ? "Admin Alerts" : ""} className="flex items-center gap-3 px-3 py-3 rounded-[10px] transition-colors text-gray-300 hover:bg-[#112445] hover:text-[#1E5EFF]">
-            <ShieldAlert size={20} />
-            {sidebarOpen && <span className="truncate">Admin Alerts</span>}
-          </Link>
-
-          <Link to="/report" title={!sidebarOpen ? "Report Crime" : ""} className={`flex items-center gap-3 px-3 py-3 rounded-[10px] transition-colors ${location.pathname === "/report" ? "bg-red-500/10 text-[#E63946] font-semibold" : "text-gray-300 hover:bg-[#112445] hover:text-[#E63946]"}`}>
+          <Link to="/report" title={!sidebarOpen ? "Report Crime" : ""} className={`flex items-center gap-4 px-4 py-3.5 rounded-2xl transition-all ${location.pathname === "/report" ? "bg-rose-600 text-white shadow-lg shadow-rose-600/20" : "text-slate-500 hover:bg-slate-800 hover:text-rose-500"}`}>
             <AlertTriangle size={20} />
-            {sidebarOpen && <span className="truncate">Report Crime</span>}
+            {sidebarOpen && <span className="truncate text-xs font-black uppercase tracking-widest">Report Crime</span>}
           </Link>
           
-          <Link to="/emergency" title={!sidebarOpen ? "Emergency" : ""} className="flex items-center gap-3 px-3 py-3 rounded-[10px] transition-colors bg-[#E63946] text-white hover:bg-red-700 shadow-[0_4px_12px_rgba(230,57,70,0.3)] mt-2">
+          <Link to="/emergency" title={!sidebarOpen ? "Emergency" : ""} className="flex items-center gap-4 px-4 py-4 rounded-2xl transition-all bg-rose-600 text-white hover:bg-rose-500 shadow-xl shadow-rose-900/20 mt-4 group">
             <ShieldAlert size={20} className="animate-pulse" />
-            {sidebarOpen && <span className="truncate font-bold">Emergency Signal</span>}
-          </Link>
-          
-          <Link to="/feedback" title={!sidebarOpen ? "Feedback" : ""} className={`flex items-center gap-3 px-3 py-3 rounded-[10px] transition-colors mt-2 ${location.pathname === "/feedback" ? "bg-[#1E5EFF]/10 text-[#00B8D9] font-semibold" : "text-gray-300 hover:bg-[#112445] hover:text-white"}`}>
-            <MessageSquare size={20} />
-            {sidebarOpen && <span className="truncate">Submit Feedback</span>}
+            {sidebarOpen && <span className="truncate font-black text-xs uppercase tracking-[2px]">Dispatch SOS</span>}
           </Link>
         </nav>
 
         {/* BOTTOM USER/LOGOUT AREA */}
-        <div className="p-4 border-t border-[#112445]">
-          <Link to="/logout" title={!sidebarOpen ? "Logout" : ""} className="flex items-center gap-3 px-3 py-3 rounded-[10px] text-gray-400 hover:text-white hover:bg-[#112445] transition-colors">
+        <div className="p-6 border-t border-slate-800/50">
+          <Link to="/logout" title={!sidebarOpen ? "Logout" : ""} className="flex items-center gap-4 px-4 py-3.5 rounded-2xl text-slate-500 hover:text-white hover:bg-slate-800 transition-all">
             <LogOut size={20} />
-            {sidebarOpen && <span>Disconnect</span>}
+            {sidebarOpen && <span className="text-xs font-black uppercase tracking-widest">Terminate Session</span>}
           </Link>
         </div>
       </aside>
@@ -149,20 +138,20 @@ export default function CitizenLayout() {
       {/* MAIN CONTENT AREA */}
       <main className="flex-1 flex flex-col min-w-0 overflow-hidden relative">
         {/* HEADER */}
-        <header className="h-20 bg-white border-b border-gray-100 flex items-center justify-between px-8 shrink-0 z-30 sticky top-0 shadow-sm">
+        <header className="h-24 bg-slate-900 border-b border-slate-800 flex items-center justify-between px-10 shrink-0 z-30 sticky top-0 shadow-2xl backdrop-blur-md bg-opacity-80">
           <div>
-            <div className="text-xs text-gray-500 font-semibold uppercase tracking-wider mb-1">Citizen Portal Dashboard</div>
-            <h2 className="text-xl font-bold text-[#0B1F3B]" style={{ fontFamily: "Poppins, sans-serif" }}>{pageTitle}</h2>
+            <div className="text-[10px] text-slate-600 font-black uppercase tracking-[3px] mb-1">Citizen Protection Portal</div>
+            <h2 className="text-2xl font-black text-white uppercase tracking-tighter italic">{pageTitle}</h2>
           </div>
-          <div className="flex items-center gap-4 relative">
+          <div className="flex items-center gap-6 relative">
              <div className="relative">
                 <button 
                   onClick={() => setNotifOpen(!notifOpen)}
-                  className={`p-2 rounded-xl transition-all duration-300 ${notifOpen ? 'bg-blue-50 text-blue-600' : 'text-gray-400 hover:text-[#1E5EFF] hover:bg-slate-50'}`}
+                  className={`p-3 rounded-2xl transition-all duration-300 ${notifOpen ? 'bg-blue-600 text-white' : 'text-slate-500 hover:text-white hover:bg-slate-800'}`}
                 >
-                  <Bell size={22} className={unreadCount > 0 && !notifOpen ? "animate-[swing_2s_ease-in-out_infinite] origin-top" : ""} />
+                  <Bell size={22} className={unreadCount > 0 && !notifOpen ? "animate-[swing_2s_ease-in-out_infinite] origin-top text-blue-500" : ""} />
                   {unreadCount > 0 && (
-                    <span className="absolute top-1.5 right-1.5 flex h-4.5 w-4.5 items-center justify-center rounded-full bg-red-500 text-[10px] font-black text-white ring-2 ring-white">
+                    <span className="absolute top-2 right-2 flex h-5 w-5 items-center justify-center rounded-full bg-blue-500 text-[10px] font-black text-white ring-4 ring-slate-900 shadow-lg">
                       {unreadCount}
                     </span>
                   )}
@@ -170,22 +159,22 @@ export default function CitizenLayout() {
                 <NotificationDropdown isOpen={notifOpen} onClose={() => setNotifOpen(false)} />
              </div>
              
-             <ThemeToggle />
-
-             <div className="h-8 w-px bg-gray-100 hidden sm:block mx-1" />
-             <div className="hidden sm:block text-sm text-[#1E5EFF] bg-[#1E5EFF]/10 px-4 py-2 rounded-full font-semibold border border-[#1E5EFF]/20">
-               {new Date().toLocaleDateString("en-US", { weekday: "long", year: "numeric", month: "long", day: "numeric" })}
+             <div className="h-10 w-px bg-slate-800 hidden sm:block mx-2" />
+             <div className="hidden lg:flex items-center gap-3 px-5 py-3 bg-slate-950 border border-slate-800 rounded-2xl text-[10px] font-black text-slate-500 uppercase tracking-widest shadow-inner">
+               <Activity size={14} className="text-blue-500" />
+               <span className="text-white">{new Date().toLocaleDateString("en-US", { weekday: "long", month: "short", day: "numeric" })}</span>
              </div>
              {(() => {
                const u = getUser();
-               const initials = u.username ? u.username.split(" ").map(w => w[0]).join("").toUpperCase().slice(0,2) : "U";
+               const initials = u.username ? u.username.split(" ").map(w => w[0]).join("").toUpperCase().slice(0,2) : "C";
                return (
-                 <div className="flex items-center gap-2">
+                 <div className="flex items-center gap-4">
                    <div className="hidden sm:block text-right">
-                     <div className="text-xs font-bold text-[#0B1F3B]">{u.username || "Citizen"}</div>
-                     <div className="text-[10px] text-gray-400">{u.email || ""}</div>
+                     <div className="text-xs font-black text-white uppercase tracking-tighter">{u.username || "Authorized Citizen"}</div>
+                     <div className="text-[9px] font-black text-slate-500 uppercase tracking-widest mt-0.5">{u.role || "Level 1 Access"}</div>
                    </div>
-                   <div className="h-10 w-10 bg-[#0B1F3B] text-white flex items-center justify-center rounded-full font-bold shadow-md">
+                   <div className="h-12 w-12 bg-blue-600 text-white flex items-center justify-center rounded-2xl font-black text-lg shadow-xl shadow-blue-900/40 relative group cursor-pointer border border-blue-500/50">
+                     <div className="absolute inset-0 bg-white opacity-0 group-hover:opacity-10 transition-opacity rounded-2xl" />
                      {initials}
                    </div>
                  </div>

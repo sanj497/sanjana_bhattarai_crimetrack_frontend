@@ -78,7 +78,7 @@ export default function AdminLayout() {
     }, [location.pathname, menu]);
 
     return (
-        <div className="flex h-screen overflow-hidden bg-[#F7F9FC] font-sans text-[#111827]">
+        <div className="flex h-screen overflow-hidden bg-slate-950 font-sans text-slate-300">
             {/* SIDEBAR */}
             <aside 
               className={`flex flex-col bg-[#050B18] text-gray-300 transition-all duration-500 ease-[cubic-bezier(0.4,0,0.2,1)] z-40 ${sidebarOpen ? "w-72" : "w-24"} shrink-0 border-r border-white/5 relative shadow-[20px_0_60px_-15px_rgba(0,0,0,0.3)]`}
@@ -107,7 +107,7 @@ export default function AdminLayout() {
                 {/* Navigation Toggle - Floating Style */}
                 <button 
                     onClick={() => setSidebarOpen(!sidebarOpen)}
-                    className="absolute top-12 -right-4 h-8 w-8 bg-[#1E5EFF] text-white rounded-full flex items-center justify-center shadow-[0_4px_10px_rgba(30,94,255,0.4)] z-50 cursor-pointer hover:scale-110 active:scale-95 transition-all border-4 border-[#F7F9FC]"
+                    className="absolute top-12 -right-4 h-8 w-8 bg-blue-600 text-white rounded-full flex items-center justify-center shadow-xl z-50 cursor-pointer hover:scale-110 active:scale-95 transition-all border-4 border-slate-950"
                 >
                     {sidebarOpen ? <ChevronLeft size={16}/> : <ChevronRight size={16}/>}
                 </button>
@@ -125,23 +125,19 @@ export default function AdminLayout() {
                                 key={item.name} 
                                 to={item.path} 
                                 title={!sidebarOpen ? item.name : ""} 
-                                className={`group flex items-center gap-4 px-4 py-4 rounded-[18px] transition-all relative overflow-hidden ${isActive ? "bg-gradient-to-r from-[#1E5EFF]/20 to-transparent text-[#00B8D9] font-bold" : "hover:bg-white/5 text-gray-400 hover:text-white"}`}
+                                className={`group flex items-center gap-4 px-5 py-4 rounded-[22px] transition-all relative overflow-hidden ${isActive ? "bg-blue-600 text-white shadow-lg shadow-blue-600/30 font-black" : "hover:bg-white/5 text-slate-500 hover:text-white"}`}
                             >
-                                {isActive && (
-                                  <div className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-8 bg-[#00B8D9] rounded-r-full shadow-[0_0_15px_#00B8D9]" />
-                                )}
-                                
                                 <div className={`flex items-center justify-center min-w-[24px] transition-transform duration-300 ${isActive ? "scale-110" : "group-hover:scale-110"}`}>
-                                   {React.cloneElement(item.icon, { size: 22, strokeWidth: isActive ? 2.5 : 2 })}
+                                   {React.cloneElement(item.icon, { size: 20 })}
                                    {hasBadge && !sidebarOpen && (
-                                      <div className="absolute top-3 right-3 h-2 w-2 bg-rose-500 rounded-full ring-2 ring-[#050B18] animate-pulse" />
+                                      <div className="absolute top-3 right-3 h-2.5 w-2.5 bg-rose-500 rounded-full ring-2 ring-slate-900 animate-pulse" />
                                    )}
                                 </div>
                                 
-                                {sidebarOpen && <span className="truncate text-sm tracking-tight">{item.name}</span>}
+                                {sidebarOpen && <span className="truncate text-xs font-black uppercase tracking-widest leading-none">{item.name}</span>}
                                 
                                 {hasBadge && sidebarOpen && (
-                                   <span className="ml-auto bg-rose-600 text-white text-[10px] font-black px-2 py-0.5 rounded-full shadow-[0_0_10px_rgba(225,29,72,0.3)]">
+                                   <span className="ml-auto bg-rose-600 text-white text-[10px] font-black px-2 py-0.5 rounded-lg shadow-lg">
                                      {unreadCount}
                                    </span>
                                 )}
@@ -179,21 +175,21 @@ export default function AdminLayout() {
             {/* MAIN CONTENT */}
             <main className="flex-1 flex flex-col min-w-0 overflow-hidden relative text-left">
                 {/* HEADER */}
-                <header className="h-20 bg-white border-b border-gray-100 flex items-center justify-between px-8 shrink-0 z-30 sticky top-0 shadow-sm">
+                <header className="h-24 bg-slate-900 border-b border-slate-800 flex items-center justify-between px-10 shrink-0 z-30 sticky top-0 shadow-2xl backdrop-blur-md bg-opacity-80">
                     <div>
-                        <div className="text-[10px] text-gray-400 font-bold uppercase tracking-widest mb-0.5">Administrator Portal</div>
-                        <h2 className="text-xl font-extrabold text-[#0B1F3B] tracking-tight">{activeItem}</h2>
+                        <div className="text-[10px] text-slate-600 font-black uppercase tracking-[3px] mb-1">Administrative Clearing House</div>
+                        <h2 className="text-2xl font-black text-white italic tracking-tight uppercase">{activeItem}</h2>
                     </div>
 
                     <div className="flex items-center gap-6 relative">
                         <div className="relative">
                             <button 
                               onClick={() => setNotifOpen(!notifOpen)}
-                              className={`p-2 rounded-xl transition-all duration-300 ${notifOpen ? 'bg-blue-50 text-blue-600' : 'text-gray-400 hover:text-[#1E5EFF] hover:bg-slate-50'}`}
+                              className={`p-3 rounded-2xl transition-all duration-300 ${notifOpen ? 'bg-blue-600 text-white' : 'text-slate-500 hover:text-white hover:bg-slate-800'}`}
                             >
-                                <Bell size={22} className={unreadCount > 0 && !notifOpen ? "animate-[swing_2s_ease-in-out_infinite] origin-top" : ""} />
+                                <Bell size={22} className={unreadCount > 0 && !notifOpen ? "animate-[swing_2s_ease-in-out_infinite] origin-top text-blue-500" : ""} />
                                 {unreadCount > 0 && (
-                                    <span className="absolute top-1.5 right-1.5 flex h-4.5 w-4.5 items-center justify-center rounded-full bg-red-500 text-[10px] font-black text-white ring-2 ring-white">
+                                    <span className="absolute top-2 right-2 flex h-5 w-5 items-center justify-center rounded-full bg-blue-500 text-[10px] font-black text-white ring-4 ring-slate-900 shadow-lg">
                                         {unreadCount}
                                     </span>
                                 )}
@@ -201,30 +197,32 @@ export default function AdminLayout() {
                             <NotificationDropdown isOpen={notifOpen} onClose={() => setNotifOpen(false)} />
                         </div>
 
-                        {/* Dark Mode Toggle */}
-                        <ThemeToggle />
-
-                        <div className="h-8 w-px bg-gray-100 hidden md:block" />
+                        <div className="h-10 w-px bg-slate-800 hidden md:block mx-1" />
+                        <div className="hidden lg:flex items-center gap-3 px-5 py-3 bg-slate-950 border border-slate-800 rounded-2xl text-[10px] font-black text-slate-500 uppercase tracking-widest shadow-inner">
+                           <Activity size={14} className="text-blue-500" />
+                           <span className="text-white">{new Date().toLocaleDateString("en-US", { weekday: "short", month: "short", day: "numeric" })}</span>
+                        </div>
                         {(() => {
                           const u = getUser();
                           const initials = u.username ? u.username.split(" ").map(w => w[0]).join("").toUpperCase().slice(0,2) : "A";
                           return (
-                            <>
-                              <div className="hidden md:flex flex-col items-end mr-2">
-                                <div className="text-xs font-bold text-[#0B1F3B]">{u.username || "Administrator"}</div>
-                                <div className="text-[10px] text-gray-400">{u.email || "admin@crimetrack.gov"}</div>
+                            <div className="flex items-center gap-4">
+                              <div className="hidden md:flex flex-col items-end">
+                                <div className="text-xs font-black text-white uppercase tracking-tighter leading-none">{u.username || "Administrator"}</div>
+                                <div className="text-[9px] font-black text-slate-500 uppercase tracking-widest mt-1">{u.role || "Executive Access"}</div>
                               </div>
-                              <div className="h-10 w-10 bg-[#0B1F3B] text-white flex items-center justify-center rounded-xl font-black shadow-lg transform rotate-3 hover:rotate-0 transition-transform cursor-default">
+                              <div className="h-12 w-12 bg-blue-600 text-white flex items-center justify-center rounded-2xl font-black text-lg shadow-xl shadow-blue-900/40 relative group cursor-pointer border border-blue-500/50">
+                                <div className="absolute inset-0 bg-white opacity-0 group-hover:opacity-10 transition-opacity rounded-2xl" />
                                 {initials}
                               </div>
-                            </>
+                            </div>
                           );
                         })()}
                     </div>
                 </header>
 
                 {/* CONTENT AREA */}
-                <div className="flex-1 overflow-y-auto bg-[#F7F9FC]">
+                <div className="flex-1 overflow-y-auto bg-slate-950">
                     <div className="p-0 text-left">
                         <Outlet />
                     </div>
