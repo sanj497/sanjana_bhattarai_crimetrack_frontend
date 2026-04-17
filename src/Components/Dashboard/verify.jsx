@@ -512,6 +512,80 @@ const Verify = () => {
                 {/* FORWARD TO POLICE SECTION */}
                 {report.status === "Verified" && (
                   <div className="space-y-6">
+                    {/* ALERT COMMUNITY BUTTON */}
+                    <div className="bg-rose-600 rounded-[40px] p-8 shadow-2xl shadow-rose-600/20 space-y-6">
+                      <div className="flex items-center gap-3 text-white">
+                        <Bell size={20} className="animate-pulse" />
+                        <h3 className="text-lg font-black tracking-tighter uppercase leading-none">Alert Community Crime</h3>
+                      </div>
+                      
+                      <p className="text-rose-100 text-[11px] font-bold leading-relaxed">
+                        Send immediate safety alert to {nearbyCitizens.length || 'nearby'} citizens in the vicinity of this incident at <span className="underline decoration-2 underline-offset-4">{report.location?.address}</span>.
+                      </p>
+
+                      {fetchingCitizens ? (
+                        <div className="py-6 flex flex-col items-center justify-center gap-2">
+                           <div className="h-5 w-5 border-2 border-rose-300 border-t-white rounded-full animate-spin" />
+                           <span className="text-[9px] font-black text-rose-200 uppercase tracking-widest">Scanning nearby users...</span>
+                        </div>
+                      ) : (
+                        <div className="bg-rose-700/50 rounded-2xl p-4 border border-rose-500/30">
+                          <div className="flex items-center justify-between mb-3">
+                            <span className="text-[9px] font-black text-rose-200 uppercase tracking-widest">Nearby Citizens</span>
+                            <span className="text-xs font-black text-white bg-rose-800/50 px-3 py-1 rounded-full">{nearbyCitizens.length} Users</span>
+                          </div>
+                          
+                          {nearbyCitizens.length > 0 ? (
+                            <div className="space-y-2 max-h-[200px] overflow-y-auto pr-2">
+                              {nearbyCitizens.slice(0, 5).map((citizen, idx) => (
+                                <div key={citizen._id} className="flex items-center gap-3 p-3 bg-rose-800/30 rounded-xl border border-rose-600/30">
+                                  <div className="h-8 w-8 bg-rose-600 rounded-lg flex items-center justify-center text-white text-xs font-bold">
+                                    {idx + 1}
+                                  </div>
+                                  <div className="flex-1">
+                                    <div className="text-xs font-bold text-white">{citizen.username || 'Citizen'}</div>
+                                    <div className="text-[10px] text-rose-200">Distance: {citizen.distanceText || 'Nearby'}</div>
+                                  </div>
+                                </div>
+                              ))}
+                              {nearbyCitizens.length > 5 && (
+                                <div className="text-[10px] text-rose-300 text-center py-2 font-bold">
+                                  +{nearbyCitizens.length - 5} more users
+                                </div>
+                              )}
+                            </div>
+                          ) : (
+                            <div className="text-[10px] font-bold text-rose-200 text-center py-4">
+                              No citizens found in immediate vicinity
+                            </div>
+                          )}
+                        </div>
+                      )}
+
+                      <button 
+                        onClick={handleBroadcastSafeAlert}
+                        disabled={isBroadcasting || nearbyCitizens.length === 0}
+                        className="w-full py-5 bg-white text-rose-700 rounded-3xl text-xs font-black uppercase tracking-[2px] shadow-xl hover:bg-rose-50 transition-all active:scale-95 disabled:opacity-30 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                      >
+                        {isBroadcasting ? (
+                          <>
+                            <div className="h-4 w-4 border-2 border-rose-600/30 border-t-rose-600 rounded-full animate-spin" />
+                            Broadcasting Alert...
+                          </>
+                        ) : (
+                          <>
+                            <Bell size={16} />
+                            Alert Nearby Citizens Now
+                          </>
+                        )}
+                      </button>
+                      
+                      <p className="text-[9px] text-rose-200 text-center font-bold">
+                        This will send push notifications and email alerts to all nearby users
+                      </p>
+                    </div>
+
+                    {/* FORWARD TO POLICE SECTION */}
                     <div className="bg-blue-600 rounded-[40px] p-8 shadow-2xl shadow-blue-600/20 space-y-6">
                       <div className="flex items-center gap-3 text-white">
                         <ShieldAlert size={20} className="animate-pulse" />
