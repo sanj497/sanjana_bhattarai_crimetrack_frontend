@@ -20,6 +20,7 @@ import {
   Eye,
   Filter
 } from "lucide-react";
+import { apiGet } from "../../utils/api";
 
 const Policereport = () => {
   const { globalSearch = "" } = useOutletContext() || {};
@@ -42,27 +43,23 @@ const Policereport = () => {
   const fetchCrimes = useCallback(async () => {
     setLoading(true);
     try {
-      const token = localStorage.getItem("token");
-      if (!token) {
-        setError("Session expired. Please re-authenticate.");
-        setLoading(false);
-        return;
-      }
-
       const searchQuery = globalSearch || searchTerm;
-      const res = await fetch(`${API_BASE}?page=${currentPage}&limit=${itemsPerPage}&status=${filter}&search=${searchQuery}`, {
-        headers: { Authorization: `Bearer ${token}` },
+      const data = await apiGet('/api/report', {
+        page: currentPage,
+        limit: itemsPerPage,
+        status: filter,
+        search: searchQuery
       });
-
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error || "Data bridge failure");
       
       setCrimes(Array.isArray(data.crimes) ? data.crimes : []);
       setTotalPages(data.totalPages || 1);
       setTotalItems(data.totalItems || 0);
     } catch (err) {
-      console.error(err);
-      setError(err.message);
+      console.error("Fetch crimes error:", err);
+      setError(err.message || "Failed to load crime reports");
+      setCrimes([]);
+      setTotalPages(1);
+      setTotalItems(0);
     } finally {
       setLoading(false);
     }

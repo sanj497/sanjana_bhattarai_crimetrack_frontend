@@ -82,15 +82,42 @@ export default function PoliceLayout() {
   const fetchDataCounts = async () => {
     try {
       const token = localStorage.getItem("token");
+      
+      // Check if token exists
+      if (!token) {
+        console.warn("No token found - user needs to login");
+        return;
+      }
+      
       const headers = { "Authorization": `Bearer ${token}` };
       
       // Notifications
       const nRes = await fetch(`${import.meta.env.VITE_BACKEND_URL}/api/notifications`, { headers });
+      
+      // Handle 401
+      if (nRes.status === 401) {
+        console.error("Token expired in PoliceLayout");
+        localStorage.removeItem("token");
+        localStorage.removeItem("user");
+        window.location.href = "/login";
+        return;
+      }
+      
       const nData = await nRes.json();
       if (nData.success) setUnreadCount(nData.unreadCount || 0);
 
       // Active SOS
       const sRes = await fetch(`${import.meta.env.VITE_BACKEND_URL}/api/emergency/sos`, { headers });
+      
+      // Handle 401
+      if (sRes.status === 401) {
+        console.error("Token expired in PoliceLayout SOS fetch");
+        localStorage.removeItem("token");
+        localStorage.removeItem("user");
+        window.location.href = "/login";
+        return;
+      }
+      
       const sData = await sRes.json();
       if (sData.success) {
         // Count SOS alerts that are not resolved (status not "Resolved")
