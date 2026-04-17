@@ -131,7 +131,7 @@ export default function CommunityBoard() {
         <div className="lg:col-span-7 space-y-6">
           {filtered.length === 0 ? (
             <div className="p-20 text-center bg-white rounded-[40px] border border-dashed border-slate-200 shadow-inner">
-               <ShieldCheck className="mx-auto text-emerald-100 mb-6" size={80} />
+               <ShieldCheck className="mx-auto text-emerald-100 mb-6" size={48} />
                <p className="text-slate-400 font-black uppercase tracking-widest text-sm decoration-emerald-100">Sector Status: Secure</p>
                <p className="text-slate-300 text-xs mt-2 font-medium">No official safety broadcasts are currently archived for this community.</p>
             </div>

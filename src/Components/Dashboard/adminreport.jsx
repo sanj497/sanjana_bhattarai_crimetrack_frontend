@@ -37,6 +37,7 @@ export default function AdminReport() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [filter, setFilter] = useState("All");
+  const [imageErrors, setImageErrors] = useState({});
   
   // Server-Side Pagination & Stats
   const [currentPage, setCurrentPage] = useState(1);
@@ -156,21 +157,19 @@ export default function AdminReport() {
               <div className="relative h-48 md:h-60 group">
                 <div className="absolute top-6 right-6 px-4 py-1.5 rounded-full text-[9px] font-black uppercase tracking-widest text-white shadow-2xl z-20 backdrop-blur-md bg-opacity-80" style={{ backgroundColor: statusColor(crime.status) }}>{crime.status}</div>
                 {crime.evidence && crime.evidence.length > 0 ? (
-                   <img 
-                     src={crime.evidence[0].url || crime.evidence[0]} 
-                     alt="Evidence" 
-                     className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-1000 opacity-60 group-hover:opacity-100" 
-                     onError={(e) => {
-                       console.error("Failed to load evidence:", crime.evidence[0]);
-                       e.target.style.display = 'none';
-                       e.target.parentElement.innerHTML = `
-                         <div class="w-full h-full bg-slate-950 flex flex-col items-center justify-center text-slate-700 gap-4 border-b border-slate-800">
-                           <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="opacity-20 animate-pulse"><rect width="18" height="18" x="3" y="3" rx="2" ry="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21"/></svg>
-                           <span class="text-[9px] font-black uppercase tracking-[4px] opacity-40">Image Load Failed</span>
-                         </div>
-                       `;
-                     }}
-                   />
+                   imageErrors[crime._id] ? (
+                     <div className="w-full h-full bg-slate-950 flex flex-col items-center justify-center text-slate-700 gap-4 border-b border-slate-800">
+                       <Camera size={40} className="opacity-20 animate-pulse" />
+                       <span className="text-[9px] font-black uppercase tracking-[4px] opacity-40">Image Load Failed</span>
+                     </div>
+                   ) : (
+                     <img 
+                       src={crime.evidence[0].url || crime.evidence[0]} 
+                       alt="Evidence" 
+                       className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-1000 opacity-60 group-hover:opacity-100" 
+                       onError={() => setImageErrors(prev => ({ ...prev, [crime._id]: true }))}
+                     />
+                   )
                 ) : (
                    <div className="w-full h-full bg-slate-950 flex flex-col items-center justify-center text-slate-700 gap-4 border-b border-slate-800">
                      <Camera size={48} className="opacity-20 animate-pulse" />
@@ -187,12 +186,12 @@ export default function AdminReport() {
               
               <div className="p-6 md:p-8 lg:p-10 flex-1 flex flex-col">
                 <div className="flex items-center gap-2 md:gap-3 mb-4 md:mb-6">
-                  <span className="bg-blue-600/10 text-blue-500 px-4 py-1.5 rounded-xl text-[10px] font-black uppercase tracking-widest border border-blue-500/10 flex items-center gap-2">
-                    <CrimeIcon size={12} /> {crime.crimeType}
+                  <span className="bg-blue-600/10 text-blue-500 px-3 py-1.5 rounded-lg text-[10px] font-semibold uppercase tracking-wide border border-blue-500/20 flex items-center gap-2">
+                    <CrimeIcon size={14} /> {crime.crimeType}
                   </span>
                   {crime.priority === "High" && (
-                    <span className="bg-rose-500/10 text-rose-500 px-4 py-1.5 rounded-xl text-[10px] font-black uppercase tracking-widest border border-rose-500/10 flex items-center gap-2">
-                      <ShieldAlert size={12} /> Critical
+                    <span className="bg-rose-500/10 text-rose-500 px-3 py-1.5 rounded-lg text-[10px] font-semibold uppercase tracking-wide border border-rose-500/20 flex items-center gap-2">
+                      <ShieldAlert size={14} /> Critical
                     </span>
                   )}
                 </div>
@@ -201,17 +200,17 @@ export default function AdminReport() {
                 <p className="text-slate-500 text-xs md:text-sm leading-relaxed mb-6 md:mb-8 font-medium line-clamp-2">"{crime.description || "Intelligence pending."}"</p>
                 
                 <div className="mt-auto space-y-3 md:space-y-4">
-                    <div className="flex items-center gap-3 md:gap-4 p-3 md:p-5 bg-slate-950/50 rounded-xl md:rounded-[24px] border border-slate-800/50 transition-colors group-hover:border-slate-700">
-                       <MapPin size={16} className="md:size-18 text-blue-600 shrink-0" />
-                       <span className="text-[10px] md:text-xs font-black text-slate-400 uppercase tracking-tight line-clamp-1">{crime.location?.address || "Location data not available"}</span>
+                    <div className="flex items-center gap-3 p-3 bg-slate-950/50 rounded-lg border border-slate-800/50 transition-colors group-hover:border-slate-700">
+                       <MapPin size={14} className="text-blue-600 shrink-0" />
+                       <span className="text-[10px] md:text-xs font-medium text-slate-400 tracking-tight line-clamp-1">{crime.location?.address || "Location data not available"}</span>
                     </div>
 
                     {crime.status === "ForwardedToPolice" && crime.workflow?.assignedToOfficer && (
-                       <div className="flex items-center gap-3 md:gap-4 p-3 md:p-5 bg-blue-500/5 rounded-xl md:rounded-[24px] border border-blue-500/10">
-                          <User size={16} className="md:size-18 text-blue-500 shrink-0" />
+                       <div className="flex items-center gap-3 p-3 bg-blue-500/5 rounded-lg border border-blue-500/10">
+                          <User size={14} className="text-blue-500 shrink-0" />
                           <div className="flex flex-col">
-                             <span className="text-[8px] md:text-[9px] font-black text-blue-500/50 uppercase tracking-widest leading-none mb-1">Assigned Officer</span>
-                             <span className="text-[10px] md:text-xs font-black text-white uppercase">{crime.workflow.assignedToOfficer.username}</span>
+                             <span className="text-[9px] font-semibold text-blue-500/70 uppercase tracking-wide leading-none mb-1">Assigned Officer</span>
+                             <span className="text-[10px] md:text-xs font-semibold text-white">{crime.workflow.assignedToOfficer.username}</span>
                           </div>
                        </div>
                     )}
@@ -219,22 +218,22 @@ export default function AdminReport() {
                     <div className="grid grid-cols-2 gap-3 md:gap-4 pt-4 md:pt-6">
                         {crime.status === "Pending" && (
                             <>
-                               <button onClick={() => navigate(`/admin/verify/${crime._id}`)} className="col-span-2 py-3 md:py-5 bg-emerald-600 text-white rounded-xl md:rounded-2xl text-[9px] md:text-[10px] font-black uppercase tracking-widest flex items-center justify-center gap-2 md:gap-3 hover:bg-emerald-500 transition-all shadow-xl shadow-emerald-900/20 active:scale-95">
-                                  <CheckCircle size={14} className="md:size-16" /> Verify Report
+                               <button onClick={() => navigate(`/admin/verify/${crime._id}`)} className="col-span-2 py-3 md:py-4 bg-emerald-600 text-white rounded-xl md:rounded-2xl text-[10px] md:text-[11px] font-bold uppercase tracking-wide flex items-center justify-center gap-2 hover:bg-emerald-500 transition-all shadow-lg shadow-emerald-900/20 active:scale-95">
+                                  <CheckCircle size={16} /> Verify Report
                                </button>
-                               <button onClick={() => handleAction(crime._id, "Rejected")} className="py-3 md:py-4 border border-rose-500/20 text-rose-500 rounded-xl md:rounded-2xl text-[9px] md:text-[10px] font-black uppercase tracking-widest flex items-center justify-center gap-2 hover:bg-rose-500/10 transition-all">
-                                  <XCircle size={12} className="md:size-14" /> Reject
+                               <button onClick={() => handleAction(crime._id, "Rejected")} className="py-3 md:py-3.5 border border-rose-500/20 text-rose-500 rounded-xl md:rounded-2xl text-[10px] md:text-[11px] font-bold uppercase tracking-wide flex items-center justify-center gap-2 hover:bg-rose-500/10 transition-all">
+                                  <XCircle size={16} /> Reject
                                </button>
                             </>
                         )}
                         {crime.status === "Verified" && (
-                           <button onClick={() => navigate(`/admin/verify/${crime._id}`)} className="col-span-2 py-3 md:py-5 bg-blue-600 text-white rounded-xl md:rounded-2xl text-[9px] md:text-[10px] font-black uppercase tracking-widest flex items-center justify-center gap-2 md:gap-3 hover:bg-blue-500 transition-all shadow-xl shadow-blue-900/20 active:scale-95">
-                              <Send size={14} className="md:size-16" /> Send to Police
+                           <button onClick={() => navigate(`/admin/verify/${crime._id}`)} className="col-span-2 py-3 md:py-4 bg-blue-600 text-white rounded-xl md:rounded-2xl text-[10px] md:text-[11px] font-bold uppercase tracking-wide flex items-center justify-center gap-2 hover:bg-blue-500 transition-all shadow-lg shadow-blue-900/20 active:scale-95">
+                              <Send size={16} /> Send to Police
                            </button>
                         )}
                         {crime.status !== "Pending" && crime.status !== "Verified" && (
-                           <button onClick={() => navigate(`/admin/verify/${crime._id}`)} className="col-span-2 py-3 md:py-5 bg-slate-800 text-white rounded-xl md:rounded-2xl text-[9px] md:text-[10px] font-black uppercase tracking-widest flex items-center justify-center gap-2 md:gap-3 hover:bg-slate-700 transition-all border border-slate-700">
-                              <Eye size={14} className="md:size-16" /> View Full Report
+                           <button onClick={() => navigate(`/admin/verify/${crime._id}`)} className="col-span-2 py-3 md:py-4 bg-slate-800 text-white rounded-xl md:rounded-2xl text-[10px] md:text-[11px] font-bold uppercase tracking-wide flex items-center justify-center gap-2 hover:bg-slate-700 transition-all border border-slate-700">
+                              <Eye size={16} /> View Full Report
                            </button>
                         )}
                     </div>
@@ -294,7 +293,7 @@ export default function AdminReport() {
 
       {crimes.length === 0 && (
         <div className="flex flex-col items-center justify-center py-20 md:py-40 text-slate-400 gap-4 md:gap-6">
-          <Inbox size={60} className="md:size-80 opacity-20" />
+          <Inbox size={48} className="md:size-64 opacity-20" />
           <div className="text-center"><h4 className="text-lg md:text-xl font-black text-slate-900 mb-1">No Reports Found</h4><p className="text-xs md:text-sm font-medium">No case files match your current selection.</p></div>
         </div>
       )}

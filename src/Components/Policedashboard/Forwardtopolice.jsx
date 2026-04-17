@@ -126,7 +126,7 @@ const Forwardtopolice = () => {
         {!fetchingCrime && crime && (
           <div className="bg-slate-900 border border-slate-800 rounded-[32px] p-8 mb-8 shadow-2xl overflow-hidden relative">
             <div className="absolute top-0 right-0 p-6 opacity-10">
-               <Shield size={80} />
+               <Shield size={48} />
             </div>
             
             <div className="relative z-10">
