@@ -15,6 +15,7 @@ export default function PoliceLayout() {
   const [sosCount, setSosCount] = useState(0);
   const [notifOpen, setNotifOpen] = useState(false);
   const [uploadingPicture, setUploadingPicture] = useState(false);
+  const [globalSearch, setGlobalSearch] = useState("");
   const fileInputRef = useRef(null);
   const navigate = useNavigate();
   const location = useLocation();
@@ -134,7 +135,7 @@ export default function PoliceLayout() {
               <div className="h-10 w-10 bg-white rounded-xl flex items-center justify-center shadow-lg overflow-hidden border border-blue-500/20">
                 <img src="https://res.cloudinary.com/dvziqqu1j/image/upload/v1776324979/crimetrack_logo.jpg" alt="Logo" className="h-full w-full object-cover" />
               </div>
-              <span className="font-black text-xl tracking-tight text-white uppercase italic">Police HQ</span>
+              <span className="font-black text-xl tracking-tight text-white uppercase italic">Police Dashboard</span>
             </div>
           )}
           {!sidebarOpen && (
@@ -145,7 +146,7 @@ export default function PoliceLayout() {
         </div>
 
         <nav className="flex-1 overflow-y-auto py-8 px-4 flex flex-col gap-2 relative scrollbar-hide">
-          <div className={`text-[10px] font-black uppercase tracking-[4px] text-slate-600 mb-4 px-4 ${!sidebarOpen && "hidden"}`}>Tactical Suite</div>
+          {/* <div className={`text-[10px] font-black uppercase tracking-[4px] text-slate-600 mb-4 px-4 ${!sidebarOpen && "hidden"}`}>Dashboard Operational</div> */}
           
           {menuItems.map((item) => {
             const isActive = location.pathname === item.path;
@@ -206,9 +207,24 @@ export default function PoliceLayout() {
               <input 
                 type="text" 
                 placeholder="Search Active Intel..." 
+                value={globalSearch}
+                onChange={(e) => setGlobalSearch(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') {
+                    window.dispatchEvent(new CustomEvent('global-search', { detail: globalSearch }));
+                  }
+                }}
                 className="bg-slate-950 border border-slate-800 rounded-2xl py-3 pl-12 pr-6 text-xs text-white focus:outline-none focus:border-blue-500 w-64 transition-all shadow-inner placeholder:text-slate-700 font-black uppercase tracking-widest"
               />
               <Search className="absolute left-4 top-3 text-slate-700" size={16} />
+              {globalSearch && (
+                <button
+                  onClick={() => setGlobalSearch("")}
+                  className="absolute right-3 top-2.5 text-slate-500 hover:text-white"
+                >
+                  <X size={16} />
+                </button>
+              )}
             </div>
             
             <div className="flex items-center gap-6 relative">
@@ -268,7 +284,7 @@ export default function PoliceLayout() {
 
         {/* Dynamic Content */}
         <div className="flex-1 overflow-y-auto">
-            <Outlet />
+            <Outlet context={{ globalSearch }} />
         </div>
       </div>
     </div>

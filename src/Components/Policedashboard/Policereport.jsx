@@ -1,12 +1,15 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import React from "react";
+import { useOutletContext } from "react-router-dom";
 import { 
   Shield, 
   Search, 
   MapPin, 
   Clock, 
-  ChevronRight, 
   ChevronLeft,
+  ChevronRight,
+  ChevronsLeft,
+  ChevronsRight,
   CheckCircle2, 
   XCircle, 
   AlertCircle,
@@ -14,10 +17,12 @@ import {
   CheckSquare,
   ClipboardList,
   RefreshCw,
-  Eye
+  Eye,
+  Filter
 } from "lucide-react";
 
 const Policereport = () => {
+  const { globalSearch = "" } = useOutletContext() || {};
   const [crimes, setCrimes] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -30,11 +35,11 @@ const Policereport = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [totalItems, setTotalItems] = useState(0);
-  const itemsPerPage = 6;
+  const [itemsPerPage, setItemsPerPage] = useState(6);
 
   const API_BASE = `${import.meta.env.VITE_BACKEND_URL}/api/report`;
 
-  const fetchCrimes = async () => {
+  const fetchCrimes = useCallback(async () => {
     setLoading(true);
     try {
       const token = localStorage.getItem("token");
@@ -44,7 +49,8 @@ const Policereport = () => {
         return;
       }
 
-      const res = await fetch(`${API_BASE}?page=${currentPage}&limit=${itemsPerPage}&status=${filter}&search=${searchTerm}`, {
+      const searchQuery = globalSearch || searchTerm;
+      const res = await fetch(`${API_BASE}?page=${currentPage}&limit=${itemsPerPage}&status=${filter}&search=${searchQuery}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
 
@@ -60,19 +66,33 @@ const Policereport = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [currentPage, filter, itemsPerPage, searchTerm, globalSearch]);
 
   useEffect(() => {
     fetchCrimes();
-  }, [currentPage, filter]);
+  }, [fetchCrimes]);
 
+  // Handle global search from layout
   useEffect(() => {
-    const delayDebounce = setTimeout(() => {
+    if (globalSearch) {
+      setSearchTerm(globalSearch);
       setCurrentPage(1);
-      fetchCrimes();
-    }, 500);
-    return () => clearTimeout(delayDebounce);
-  }, [searchTerm]);
+    }
+  }, [globalSearch]);
+
+  // Listen for global search event from layout header
+  useEffect(() => {
+    const handleGlobalSearch = (event) => {
+      const searchTerm = event.detail;
+      setSearchTerm(searchTerm);
+      setCurrentPage(1);
+    };
+
+    window.addEventListener('global-search', handleGlobalSearch);
+    return () => {
+      window.removeEventListener('global-search', handleGlobalSearch);
+    };
+  }, []);
 
   const updateStatus = async (id, status) => {
     setUpdatingId(id);
@@ -137,27 +157,38 @@ const Policereport = () => {
             <span className="text-[10px] font-black uppercase tracking-[3px]">Police Intelligence Bureau</span>
           </div>
           <h1 className="text-4xl font-black text-white tracking-tighter uppercase leading-none">Command Center</h1>
+          <p className="text-slate-500 text-xs mt-2 font-bold uppercase tracking-wider">Manage and investigate assigned cases</p>
         </div>
 
         <div className="flex items-center gap-4 bg-slate-900/50 p-2 rounded-2xl border border-slate-800/50 backdrop-blur-xl w-full md:w-auto">
-          <div className="relative flex-1 md:w-64">
+          <div className="relative flex-1 md:w-80">
             <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500" size={16} />
             <input 
               type="text" 
-              placeholder="Search reports..." 
+              placeholder="Search by title, description, or location..." 
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
+              onKeyDown={(e) => e.key === 'Enter' && fetchCrimes()}
               className="w-full bg-transparent pl-12 pr-4 py-3 text-xs font-bold outline-none text-white placeholder:text-slate-600"
             />
           </div>
+          <button
+            onClick={fetchCrimes}
+            className="bg-blue-600 hover:bg-blue-500 text-white px-6 py-3 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all flex items-center gap-2"
+          >
+            <Search size={14} />
+            Search
+          </button>
         </div>
       </div>
 
       <div className="max-w-7xl mx-auto grid grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
         {[
-          { label: "Active Intelligence", value: totalItems, icon: <ClipboardList />, color: "blue" },
+          { label: "Total Cases", value: totalItems, icon: <ClipboardList />, color: "blue" },
           { label: "Pending Response", value: crimes.filter(c => c.status === "ForwardedToPolice").length, icon: <Shield />, color: "amber" },
-        ].slice(0, 4).map((stat, i) => (
+          { label: "Under Investigation", value: crimes.filter(c => c.status === "UnderInvestigation").length, icon: <Activity />, color: "indigo" },
+          { label: "Resolved Cases", value: crimes.filter(c => c.status === "Resolved").length, icon: <CheckCircle2 />, color: "emerald" },
+        ].map((stat, i) => (
           <div key={i} className="bg-slate-900/40 border border-slate-800/50 p-6 rounded-[32px] group hover:border-blue-500/30 transition-all">
             <div className={`p-3 rounded-2xl w-fit mb-4 bg-${stat.color}-500/10 text-${stat.color}-500`}>
               {stat.icon}
@@ -168,14 +199,25 @@ const Policereport = () => {
         ))}
       </div>
 
-      <div className="max-w-7xl mx-auto flex gap-3 mb-8 overflow-x-auto pb-4 no-scrollbar">
-        {["All", "ForwardedToPolice", "UnderInvestigation", "Resolved", "Rejected"].map((s) => (
+      <div className="max-w-7xl mx-auto flex flex-wrap gap-3 mb-8 pb-4">
+        {[
+          { value: "All", label: "All Cases" },
+          { value: "ForwardedToPolice", label: "New Assignments" },
+          { value: "UnderInvestigation", label: "Under Investigation" },
+          { value: "Resolved", label: "Resolved" },
+          { value: "Rejected", label: "Rejected" }
+        ].map((s) => (
           <button
-            key={s}
-            onClick={() => { setFilter(s); setCurrentPage(1); }}
-            className={`px-6 py-2.5 rounded-full text-[10px] font-black uppercase tracking-widest transition-all whitespace-nowrap border-2 ${filter === s ? 'bg-blue-600 border-blue-600 text-white shadow-lg shadow-blue-600/20' : 'bg-transparent border-slate-800 text-slate-500 hover:border-slate-700'}`}
+            key={s.value}
+            onClick={() => { setFilter(s.value); setCurrentPage(1); }}
+            className={`px-6 py-2.5 rounded-full text-[10px] font-black uppercase tracking-widest transition-all whitespace-nowrap border-2 flex items-center gap-2 ${
+              filter === s.value 
+                ? 'bg-blue-600 border-blue-600 text-white shadow-lg shadow-blue-600/20' 
+                : 'bg-transparent border-slate-800 text-slate-500 hover:border-slate-700'
+            }`}
           >
-            {s === "ForwardedToPolice" ? "New Assignments" : s}
+            <Filter size={12} />
+            {s.label}
           </button>
         ))}
       </div>
@@ -326,19 +368,43 @@ const Policereport = () => {
       </div>
 
       {totalPages > 1 && (
-        <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between p-8 bg-slate-900/40 border border-slate-800/50 rounded-[40px] mt-8 gap-6 shadow-2xl backdrop-blur-md">
-          <div className="flex flex-col">
+        <div className="max-w-7xl mx-auto flex flex-col lg:flex-row items-center justify-between p-8 bg-slate-900/40 border border-slate-800/50 rounded-[40px] mt-8 gap-6 shadow-2xl backdrop-blur-md">
+          <div className="flex flex-col items-center lg:items-start">
             <span className="text-[10px] font-black text-slate-500 uppercase tracking-[3px] mb-1">Pagination Control</span>
             <span className="text-xs font-bold text-white uppercase tracking-widest leading-none">
-              Dossier {currentPage} <span className="text-slate-600 font-medium">of</span> {totalPages} <span className="text-slate-600 font-medium">—</span> {totalItems} Intelligence Files
+              Showing {(currentPage - 1) * itemsPerPage + 1} - {Math.min(currentPage * itemsPerPage, totalItems)} of {totalItems} cases
             </span>
           </div>
 
           <div className="flex items-center gap-2">
+            <span className="text-[10px] font-bold text-slate-500 uppercase mr-2">Per Page:</span>
+            <select
+              value={itemsPerPage}
+              onChange={(e) => { setItemsPerPage(Number(e.target.value)); setCurrentPage(1); }}
+              className="bg-slate-800 border border-slate-700 rounded-xl px-3 py-2 text-xs font-bold text-white outline-none focus:border-blue-500"
+            >
+              <option value={6}>6</option>
+              <option value={12}>12</option>
+              <option value={24}>24</option>
+              <option value={48}>48</option>
+            </select>
+          </div>
+
+          <div className="flex items-center gap-2">
+            <button 
+              onClick={() => setCurrentPage(1)} 
+              disabled={currentPage === 1} 
+              className="w-12 h-12 flex items-center justify-center bg-slate-800 border border-slate-700 rounded-2xl text-slate-300 hover:bg-slate-700 hover:border-blue-500/50 hover:text-white disabled:opacity-20 disabled:cursor-not-allowed transition-all active:scale-95 shadow-lg"
+              title="First Page"
+            >
+              <ChevronsLeft size={20} />
+            </button>
+            
             <button 
               onClick={() => setCurrentPage(p => Math.max(1, p - 1))} 
               disabled={currentPage === 1} 
               className="w-12 h-12 flex items-center justify-center bg-slate-800 border border-slate-700 rounded-2xl text-slate-300 hover:bg-slate-700 hover:border-blue-500/50 hover:text-white disabled:opacity-20 disabled:cursor-not-allowed transition-all active:scale-95 shadow-lg"
+              title="Previous Page"
             >
               <ChevronLeft size={20} />
             </button>
@@ -348,7 +414,7 @@ const Policereport = () => {
                 .filter(p => p === 1 || p === totalPages || Math.abs(p - currentPage) <= 1)
                 .map((p, i, arr) => (
                   <React.Fragment key={p}>
-                    {i > 0 && arr[i-1] !== p - 1 && <span className="px-2 text-slate-600">...</span>}
+                    {i > 0 && arr[i-1] !== p - 1 && <span className="px-2 text-slate-600 font-bold">...</span>}
                     <button
                       onClick={() => setCurrentPage(p)}
                       className={`h-12 w-12 rounded-2xl text-xs font-black transition-all flex items-center justify-center ${
@@ -367,8 +433,18 @@ const Policereport = () => {
               onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))} 
               disabled={currentPage === totalPages} 
               className="w-12 h-12 flex items-center justify-center bg-slate-800 border border-slate-700 rounded-2xl text-slate-300 hover:bg-slate-700 hover:border-blue-500/50 hover:text-white disabled:opacity-20 disabled:cursor-not-allowed transition-all active:scale-95 shadow-lg"
+              title="Next Page"
             >
               <ChevronRight size={20} />
+            </button>
+
+            <button 
+              onClick={() => setCurrentPage(totalPages)} 
+              disabled={currentPage === totalPages} 
+              className="w-12 h-12 flex items-center justify-center bg-slate-800 border border-slate-700 rounded-2xl text-slate-300 hover:bg-slate-700 hover:border-blue-500/50 hover:text-white disabled:opacity-20 disabled:cursor-not-allowed transition-all active:scale-95 shadow-lg"
+              title="Last Page"
+            >
+              <ChevronsRight size={20} />
             </button>
           </div>
         </div>
