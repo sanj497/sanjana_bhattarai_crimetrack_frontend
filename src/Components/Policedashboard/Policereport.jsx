@@ -1,6 +1,5 @@
 import { useEffect, useState, useCallback } from "react";
 import React from "react";
-import { useOutletContext } from "react-router-dom";
 import { 
   Shield, 
   Search, 
@@ -20,10 +19,8 @@ import {
   Eye,
   Filter
 } from "lucide-react";
-import { apiGet } from "../../utils/api";
 
 const Policereport = () => {
-  const { globalSearch = "" } = useOutletContext() || {};
   const [crimes, setCrimes] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -43,13 +40,38 @@ const Policereport = () => {
   const fetchCrimes = useCallback(async () => {
     setLoading(true);
     try {
-      const searchQuery = globalSearch || searchTerm;
-      const data = await apiGet('/api/report', {
-        page: currentPage,
-        limit: itemsPerPage,
-        status: filter,
-        search: searchQuery
+      const token = localStorage.getItem("token");
+      if (!token) {
+        setError("Session expired. Please login again.");
+        setLoading(false);
+        setTimeout(() => {
+          window.location.href = "/login";
+        }, 2000);
+        return;
+      }
+
+      const res = await fetch(`${API_BASE}?page=${currentPage}&limit=${itemsPerPage}&status=${filter}&search=${searchTerm}`, {
+        headers: { 
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json"
+        },
       });
+
+      if (res.status === 401) {
+        console.error("Authentication token expired or invalid");
+        localStorage.removeItem("token");
+        localStorage.removeItem("user");
+        setError("Session expired. Redirecting to login...");
+        setTimeout(() => {
+          window.location.href = "/login";
+        }, 2000);
+        return;
+      }
+
+      const data = await res.json();
+      if (!res.ok) {
+        throw new Error(data.error || data.msg || "Failed to fetch reports");
+      }
       
       setCrimes(Array.isArray(data.crimes) ? data.crimes : []);
       setTotalPages(data.totalPages || 1);
@@ -63,33 +85,22 @@ const Policereport = () => {
     } finally {
       setLoading(false);
     }
-  }, [currentPage, filter, itemsPerPage, searchTerm, globalSearch]);
+  }, [currentPage, filter, itemsPerPage, searchTerm]);
 
   useEffect(() => {
     fetchCrimes();
   }, [fetchCrimes]);
 
-  // Handle global search from layout
+  // Debounced search
   useEffect(() => {
-    if (globalSearch) {
-      setSearchTerm(globalSearch);
-      setCurrentPage(1);
-    }
-  }, [globalSearch]);
-
-  // Listen for global search event from layout header
-  useEffect(() => {
-    const handleGlobalSearch = (event) => {
-      const searchTerm = event.detail;
-      setSearchTerm(searchTerm);
-      setCurrentPage(1);
-    };
-
-    window.addEventListener('global-search', handleGlobalSearch);
-    return () => {
-      window.removeEventListener('global-search', handleGlobalSearch);
-    };
-  }, []);
+    const delayDebounce = setTimeout(() => {
+      if (searchTerm) {
+        setCurrentPage(1);
+        fetchCrimes();
+      }
+    }, 500);
+    return () => clearTimeout(delayDebounce);
+  }, [searchTerm]);
 
   const updateStatus = async (id, status) => {
     setUpdatingId(id);

@@ -81,26 +81,6 @@ export default function NewBoard() {
           <h2 className="text-3xl font-black text-white tracking-tight">Dashboard Overview</h2>
           <p className="text-slate-500 text-sm font-medium mt-1">Monitor and manage all assigned cases</p>
         </div>
-        <div className="flex gap-4">
-           <div className="bg-slate-900 border border-slate-800 p-4 rounded-3xl flex items-center gap-4 shadow-xl">
-              <div className="h-10 w-10 bg-emerald-500/10 text-emerald-500 rounded-2xl flex items-center justify-center">
-                 <Shield size={20} className="animate-pulse" />
-              </div>
-              <div>
-                 <div className="text-[10px] font-bold text-slate-500 uppercase tracking-wide leading-none mb-1">Status</div>
-                 <div className="text-sm font-bold text-white">Active Duty</div>
-              </div>
-           </div>
-           <div className="hidden lg:flex bg-slate-900 border border-slate-800 p-4 rounded-3xl items-center gap-4 shadow-xl">
-              <div className="h-10 w-10 bg-blue-500/10 text-blue-500 rounded-2xl flex items-center justify-center">
-                 <Activity size={20} />
-              </div>
-              <div>
-                 <div className="text-[10px] font-bold text-slate-500 uppercase tracking-wide leading-none mb-1">System</div>
-                 <div className="text-sm font-bold text-white">Connected</div>
-              </div>
-           </div>
-        </div>
       </div>
 
       {/* Stats Grid */}

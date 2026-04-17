@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Shield, AlertTriangle, FileText, MapPin, Bell, Search, Menu, X, Siren, LogOut, LayoutDashboard, PhoneCall, Settings } from 'lucide-react';
+import { Shield, AlertTriangle, FileText, MapPin, Bell, Siren, LogOut, LayoutDashboard, PhoneCall, Settings } from 'lucide-react';
 import { useNavigate, Outlet, Link, useLocation } from 'react-router-dom';
 import NotificationDropdown from '../Dashboard/NotificationDropdown';
 import ThemeToggle from '../Dashboard/ThemeToggle';
@@ -15,7 +15,6 @@ export default function PoliceLayout() {
   const [sosCount, setSosCount] = useState(0);
   const [notifOpen, setNotifOpen] = useState(false);
   const [uploadingPicture, setUploadingPicture] = useState(false);
-  const [globalSearch, setGlobalSearch] = useState("");
   const fileInputRef = useRef(null);
   const navigate = useNavigate();
   const location = useLocation();
@@ -230,31 +229,6 @@ export default function PoliceLayout() {
           </div>
           
           <div className="flex items-center gap-6 relative">
-            <div className="relative hidden xl:block">
-              <input 
-                type="text" 
-                placeholder="Search Active Intel..." 
-                value={globalSearch}
-                onChange={(e) => setGlobalSearch(e.target.value)}
-                onKeyDown={(e) => {
-                  if (e.key === 'Enter') {
-                    window.dispatchEvent(new CustomEvent('global-search', { detail: globalSearch }));
-                  }
-                }}
-                className="bg-slate-950 border border-slate-800 rounded-2xl py-3 pl-12 pr-6 text-xs text-white focus:outline-none focus:border-blue-500 w-64 transition-all shadow-inner placeholder:text-slate-700 font-black uppercase tracking-widest"
-              />
-              <Search className="absolute left-4 top-3 text-slate-700" size={16} />
-              {globalSearch && (
-                <button
-                  onClick={() => setGlobalSearch("")}
-                  className="absolute right-3 top-2.5 text-slate-500 hover:text-white"
-                >
-                  <X size={16} />
-                </button>
-              )}
-            </div>
-            
-            <div className="flex items-center gap-6 relative">
               <div className="relative">
                 <button 
                   onClick={() => setNotifOpen(!notifOpen)}
@@ -305,13 +279,12 @@ export default function PoliceLayout() {
                   </div>
                 );
               })()}
-            </div>
           </div>
         </header>
 
         {/* Dynamic Content */}
         <div className="flex-1 overflow-y-auto">
-            <Outlet context={{ globalSearch }} />
+            <Outlet />
         </div>
       </div>
     </div>
