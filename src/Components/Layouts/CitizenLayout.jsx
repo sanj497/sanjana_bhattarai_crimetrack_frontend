@@ -16,7 +16,6 @@ const navItems = [
   { icon: <MessageSquare size={20} />, label: "Feedback", path: "/feedback" },
   { icon: <AlertTriangle size={20} />, label: "Emergency", path: "/emergency", badge: "SOS" },
   { icon: <Bell size={20} />, label: "Notifications", path: "/notifications" },
-  { icon: <Settings size={20} />, label: "Complaints", path: "/complaints" },
   { icon: <Settings size={20} />, label: "Settings", path: "/citizen/settings" },
 ];
 
