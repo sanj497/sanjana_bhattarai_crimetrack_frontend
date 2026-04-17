@@ -120,7 +120,7 @@ const Verify = () => {
 
       setFetchingCitizens(true);
       try {
-        const response = await fetch(`${API_BASE}/${id}/nearby-citizens?radius=10000`, {
+        const response = await fetch(`${API_BASE}/${id}/nearby-citizens?radius=20000`, {
           headers: { "Authorization": `Bearer ${token}` }
         });
         const data = await response.json();
@@ -167,7 +167,7 @@ const Verify = () => {
       }
 
       alert(`Case successfully forwarded to ${selectedOfficer.name || selectedOfficer.username}`);
-      navigate("/admin");
+      navigate("/forward-admin");
     } catch (err) {
       console.error("Forward error:", err);
       alert(`Forwarding Error: ${err.message}`);
@@ -520,7 +520,7 @@ const Verify = () => {
                       </div>
                       
                       <p className="text-rose-100 text-[11px] font-bold leading-relaxed">
-                        Send immediate safety alert to {nearbyCitizens.length || 'nearby'} citizens in the vicinity of this incident at <span className="underline decoration-2 underline-offset-4">{report.location?.address}</span>.
+                        Send immediate safety alert to citizens within 20km radius of this incident at <span className="underline decoration-2 underline-offset-4">{report.location?.address}</span>.
                       </p>
 
                       {fetchingCitizens ? (

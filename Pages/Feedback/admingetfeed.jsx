@@ -1,19 +1,31 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
 import React from "react";
+import { ChevronLeft, ChevronRight, Star, Trash2, MessageSquare, Calendar } from "lucide-react";
+
 const API = `${import.meta.env.VITE_BACKEND_URL}/api/feedback`;
 
 export default function AdminFeedback() {
   const [feedbacks, setFeedbacks] = useState([]);
   const [loading, setLoading] = useState(true);
   const token = localStorage.getItem("token");
+  
+  // Pagination state
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const [totalItems, setTotalItems] = useState(0);
+  const itemsPerPage = 8;
 
-  const fetchFeedbacks = async () => {
+  const fetchFeedbacks = async (page = currentPage) => {
+    setLoading(true);
     try {
-      const { data } = await axios.get(API, {
+      const { data } = await axios.get(`${API}?page=${page}&limit=${itemsPerPage}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       setFeedbacks(data.feedbacks);
+      setTotalPages(data.pagination.totalPages);
+      setTotalItems(data.pagination.total);
+      setCurrentPage(data.pagination.page);
     } catch (err) {
       console.error("Failed to fetch feedbacks");
     } finally {
@@ -27,77 +39,91 @@ export default function AdminFeedback() {
       await axios.delete(`${API}/${id}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
-      setFeedbacks((prev) => prev.filter((f) => f._id !== id));
+      // Refresh current page after deletion
+      fetchFeedbacks(currentPage);
     } catch (err) {
       alert("Failed to delete");
     }
   };
 
   useEffect(() => {
-    fetchFeedbacks();
-  }, []);
+    fetchFeedbacks(currentPage);
+  }, [currentPage]);
 
   if (loading)
     return (
-      <div style={{ display: "flex", alignItems: "center", justifyContent: "center", minHeight: "300px", color: "#64748b" }}>
-        <p style={{ fontSize: "14px", fontWeight: 600, animate: "pulse 2s infinite" }}>Gathering community insights...</p>
+      <div className="flex items-center justify-center min-h-[400px]">
+        <div className="text-center">
+          <div className="h-12 w-12 border-4 border-slate-700 border-t-blue-500 rounded-full animate-spin mx-auto mb-4" />
+          <p className="text-slate-400 text-sm font-semibold">Gathering community insights...</p>
+        </div>
       </div>
     );
 
   return (
-    <div style={{ padding: "40px", background: "#0b0f1a", minHeight: "calc(100vh - 80px)", color: "#e5e7eb", fontFamily: "Inter, system-ui, sans-serif" }}>
-      <div style={{ maxWidth: "800px", margin: "0 auto" }}>
+    <div className="p-8 md:p-10 min-h-screen bg-[#020617] font-sans">
+      <div className="max-w-5xl mx-auto">
         {/* Header */}
-        <div style={{ marginBottom: "32px" }}>
-          <h2 style={{ fontSize: "28px", fontWeight: 900, color: "#fff", margin: 0 }}>📋 User Feedback</h2>
-          <p style={{ fontSize: "14px", color: "#94a3b8", marginTop: "8px" }}>
-            {feedbacks.length} response{feedbacks.length !== 1 ? "s" : ""} collected from citizens
-          </p>
+        <div className="mb-10">
+          <div className="flex items-center gap-4 mb-3">
+            <div className="h-14 w-14 bg-blue-600/10 rounded-2xl flex items-center justify-center">
+              <MessageSquare className="text-blue-500" size={28} />
+            </div>
+            <div>
+              <h2 className="text-3xl font-black text-white uppercase tracking-tight">User Feedback</h2>
+              <p className="text-slate-400 text-sm font-medium mt-1">
+                {totalItems} response{totalItems !== 1 ? "s" : ""} collected from citizens
+              </p>
+            </div>
+          </div>
         </div>
 
         {/* Empty State */}
         {feedbacks.length === 0 ? (
-          <div style={{ textAlign: "center", padding: "80px", color: "#4b5563", background: "#111827", borderRadius: "20px", border: "1px solid #1f2937" }}>
-            <p style={{ fontSize: "48px", marginBottom: "16px" }}>💬</p>
-            <p style={{ fontWeight: 600 }}>No feedback records found.</p>
+          <div className="text-center py-20 bg-slate-900/50 rounded-[32px] border border-slate-800">
+            <MessageSquare size={64} className="text-slate-600 mx-auto mb-4" />
+            <p className="text-slate-400 font-semibold text-lg">No feedback records found.</p>
+            <p className="text-slate-500 text-sm mt-2">Citizen feedback will appear here once submitted.</p>
           </div>
         ) : (
-          <div style={{ display: "flex", flexDirection: "column", gap: "20px" }}>
-            {feedbacks.map((f) => (
+          <>
+            <div className="space-y-6 mb-8">
+              {feedbacks.map((f) => (
               <div
                 key={f._id}
-                style={{
-                  background: "rgba(17, 24, 39, 0.7)", backdropFilter: "blur(12px)",
-                  borderRadius: "20px", padding: "24px", border: "1px solid #1f2937",
-                  transition: "all 0.3s ease", boxShadow: "0 10px 30px rgba(0,0,0,0.15)"
-                }}
+                className="bg-slate-900/70 backdrop-blur-xl rounded-[24px] p-8 border border-slate-800 transition-all hover:border-slate-700 hover:shadow-2xl hover:shadow-blue-500/5"
               >
                 {/* Card Header */}
-                <div style={{ display: "flex", alignItems: "center", justifySpaceBetween: "space-between", marginBottom: "16px" }}>
-                  <div style={{ flex: 1 }}>
-                    <span style={{ fontWeight: 800, fontSize: "16px", color: "#fff" }}>
+                <div className="flex items-center justify-between mb-6">
+                  <div className="flex-1">
+                    <span className="font-bold text-lg text-white">
                       {f.name || f.userId?.email?.split("@")[0] || "Anonymous User"}
                     </span>
-                    <div style={{ fontSize: "12px", color: "#6b7280", marginTop: "2px" }}>{f.userId?.email || "No email provided"}</div>
+                    <div className="text-xs text-slate-500 mt-1">{f.userId?.email || "No email provided"}</div>
                   </div>
-                  <div style={{ display: "flex", alignItems: "center", gap: "4px" }}>
+                  <div className="flex items-center gap-1">
                     {[...Array(5)].map((_, i) => (
-                      <span key={i} style={{ color: i < (f.rating || 0) ? "#fbbf24" : "#1f2937", fontSize: "14px" }}>★</span>
+                      <Star 
+                        key={i} 
+                        size={18} 
+                        className={i < (f.rating || 0) ? "fill-amber-400 text-amber-400" : "text-slate-700"} 
+                      />
                     ))}
-                    <span style={{ fontSize: "12px", color: "#4b5563", marginLeft: "6px" }}>({f.rating || 0}/5)</span>
+                    <span className="text-xs text-slate-500 ml-2 font-semibold">({f.rating || 0}/5)</span>
                   </div>
                 </div>
 
                 {/* Message */}
-                <div style={{ background: "rgba(0,0,0,0.2)", padding: "16px", borderRadius: "12px", border: "1px solid #1f2937" }}>
-                   <p style={{ fontSize: "14px", color: "#cbd5e1", lineHeight: "1.6", fontStyle: "italic", margin: 0 }}>
+                <div className="bg-slate-950/50 p-6 rounded-2xl border border-slate-800">
+                   <p className="text-slate-300 text-sm leading-relaxed italic">
                     "{f.message}"
                   </p>
                 </div>
 
                 {/* Card Footer */}
-                <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginTop: "20px", paddingTop: "16px", borderTop: "1px solid rgba(255,255,255,0.03)" }}>
-                  <div style={{ fontSize: "11px", color: "#4b5563", fontWeight: 600, letterSpacing: "0.5px" }}>
+                <div className="flex items-center justify-between mt-6 pt-5 border-t border-slate-800/50">
+                  <div className="flex items-center gap-2 text-slate-500 text-xs font-semibold">
+                    <Calendar size={14} />
                     {new Date(f.createdAt).toLocaleDateString("en-US", {
                       year: "numeric",
                       month: "long",
@@ -106,23 +132,62 @@ export default function AdminFeedback() {
                   </div>
                   <button
                     onClick={() => handleDelete(f._id)}
-                    style={{
-                      display: "flex", alignItems: "center", gap: "8px",
-                      background: "rgba(239, 68, 68, 0.1)", color: "#f87171", border: "1px solid rgba(239, 68, 68, 0.2)",
-                      fontSize: "12px", fontWeight: 700, padding: "8px 16px", borderRadius: "8px", cursor: "pointer",
-                      transition: "all 0.2s"
-                    }}
-                    onMouseEnter={e => { e.currentTarget.style.background = "#ef4444"; e.currentTarget.style.color = "#fff"; }}
-                    onMouseLeave={e => { e.currentTarget.style.background = "rgba(239, 68, 68, 0.1)"; e.currentTarget.style.color = "#f87171"; }}
+                    className="flex items-center gap-2 bg-rose-500/10 text-rose-400 border border-rose-500/20 text-xs font-bold px-5 py-2.5 rounded-xl hover:bg-rose-500 hover:text-white transition-all"
                   >
-                    🗑 DELETE
+                    <Trash2 size={14} />
+                    DELETE
                   </button>
                 </div>
               </div>
             ))}
-          </div>
+            </div>
+
+            {/* Pagination Controls */}
+            {totalPages > 1 && (
+              <div className="flex items-center justify-between px-6 py-5 bg-slate-900/50 rounded-[24px] border border-slate-800">
+                <div className="text-xs font-bold text-slate-400 uppercase tracking-widest">
+                  Page {currentPage} of {totalPages} ({totalItems} Feedback{totalItems !== 1 ? "s" : ""})
+                </div>
+                <div className="flex items-center gap-3">
+                  <button 
+                    onClick={() => setCurrentPage(p => Math.max(1, p - 1))} 
+                    disabled={currentPage === 1} 
+                    className="flex items-center gap-2 px-5 py-2.5 bg-slate-800 border border-slate-700 rounded-xl text-slate-300 text-xs font-bold uppercase tracking-widest hover:bg-slate-700 hover:text-white disabled:opacity-40 disabled:cursor-not-allowed transition-all"
+                  >
+                    <ChevronLeft size={16} />
+                    Prev
+                  </button>
+                  
+                  <div className="flex gap-2">
+                    {Array.from({ length: totalPages }).map((_, i) => (
+                      <button
+                        key={i}
+                        onClick={() => setCurrentPage(i + 1)}
+                        className={`w-10 h-10 rounded-xl flex items-center justify-center text-xs font-bold transition-all ${
+                          currentPage === i + 1
+                            ? "bg-blue-600 text-white shadow-lg shadow-blue-600/30"
+                            : "bg-slate-800 text-slate-400 border border-slate-700 hover:border-blue-600 hover:text-white"
+                        }`}
+                      >
+                        {i + 1}
+                      </button>
+                    ))}
+                  </div>
+
+                  <button 
+                    onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))} 
+                    disabled={currentPage === totalPages} 
+                    className="flex items-center gap-2 px-5 py-2.5 bg-slate-800 border border-slate-700 rounded-xl text-slate-300 text-xs font-bold uppercase tracking-widest hover:bg-slate-700 hover:text-white disabled:opacity-40 disabled:cursor-not-allowed transition-all"
+                  >
+                    Next
+                    <ChevronRight size={16} />
+                  </button>
+                </div>
+              </div>
+            )}
+          </>
         )}
       </div>
     </div>
   );
-}
+}
