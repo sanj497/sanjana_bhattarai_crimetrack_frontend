@@ -64,6 +64,8 @@ export default function AdminReport() {
 
       if (!res.ok) throw new Error("Unauthorized or failed request");
       const data = await res.json();
+      console.log("📋 Admin reports received:", data);
+      console.log("📸 First crime evidence:", data.crimes?.[0]?.evidence);
       setCrimes(Array.isArray(data.crimes) ? data.crimes : []);
       setTotalPages(data.totalPages || 1);
       setTotalItems(data.totalItems || 0);
@@ -153,13 +155,32 @@ export default function AdminReport() {
             <div key={i} className="bg-slate-900/40 border border-slate-800/50 rounded-[48px] overflow-hidden hover:border-blue-500/30 transition-all group flex flex-col shadow-2xl relative">
               <div className="relative h-60 group">
                 <div className="absolute top-6 right-6 px-4 py-1.5 rounded-full text-[9px] font-black uppercase tracking-widest text-white shadow-2xl z-20 backdrop-blur-md bg-opacity-80" style={{ backgroundColor: statusColor(crime.status) }}>{crime.status}</div>
-                {crime.evidence?.[0]?.url ? (
-                   <img src={crime.evidence[0].url} alt="Evidence" className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-1000 opacity-60 group-hover:opacity-100" />
+                {crime.evidence && crime.evidence.length > 0 ? (
+                   <img 
+                     src={crime.evidence[0].url || crime.evidence[0]} 
+                     alt="Evidence" 
+                     className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-1000 opacity-60 group-hover:opacity-100" 
+                     onError={(e) => {
+                       console.error("Failed to load evidence:", crime.evidence[0]);
+                       e.target.style.display = 'none';
+                       e.target.parentElement.innerHTML = `
+                         <div class="w-full h-full bg-slate-950 flex flex-col items-center justify-center text-slate-700 gap-4 border-b border-slate-800">
+                           <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="opacity-20 animate-pulse"><rect width="18" height="18" x="3" y="3" rx="2" ry="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21"/></svg>
+                           <span class="text-[9px] font-black uppercase tracking-[4px] opacity-40">Image Load Failed</span>
+                         </div>
+                       `;
+                     }}
+                   />
                 ) : (
                    <div className="w-full h-full bg-slate-950 flex flex-col items-center justify-center text-slate-700 gap-4 border-b border-slate-800">
                      <Camera size={48} className="opacity-20 animate-pulse" />
                      <span className="text-[9px] font-black uppercase tracking-[4px] opacity-40">No Image Available</span>
                    </div>
+                )}
+                {crime.evidence && crime.evidence.length > 1 && (
+                  <div className="absolute bottom-4 left-4 bg-slate-950/90 backdrop-blur-md border border-slate-800 px-3 py-1.5 rounded-full z-20">
+                    <span className="text-[9px] font-black text-white uppercase tracking-widest">+{crime.evidence.length - 1} more</span>
+                  </div>
                 )}
                 <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-transparent to-transparent opacity-60" />
               </div>
