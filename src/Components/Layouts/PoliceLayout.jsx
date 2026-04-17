@@ -1,8 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Shield, AlertTriangle, FileText, MapPin, Bell, Siren, LogOut, LayoutDashboard, PhoneCall, Settings } from 'lucide-react';
+import { Shield, AlertTriangle, FileText, MapPin, Siren, LogOut, LayoutDashboard, PhoneCall, Settings } from 'lucide-react';
 import { useNavigate, Outlet, Link, useLocation } from 'react-router-dom';
-import NotificationDropdown from '../Dashboard/NotificationDropdown';
-import ThemeToggle from '../Dashboard/ThemeToggle';
 import { toast } from 'react-toastify';
 
 const getUser = () => {
@@ -11,9 +9,7 @@ const getUser = () => {
 
 export default function PoliceLayout() {
   const [sidebarOpen, setSidebarOpen] = useState(true);
-  const [unreadCount, setUnreadCount] = useState(0);
   const [sosCount, setSosCount] = useState(0);
-  const [notifOpen, setNotifOpen] = useState(false);
   const [uploadingPicture, setUploadingPicture] = useState(false);
   const fileInputRef = useRef(null);
   const navigate = useNavigate();
@@ -90,21 +86,6 @@ export default function PoliceLayout() {
       
       const headers = { "Authorization": `Bearer ${token}` };
       
-      // Notifications
-      const nRes = await fetch(`${import.meta.env.VITE_BACKEND_URL}/api/notifications`, { headers });
-      
-      // Handle 401
-      if (nRes.status === 401) {
-        console.error("Token expired in PoliceLayout");
-        localStorage.removeItem("token");
-        localStorage.removeItem("user");
-        window.location.href = "/login";
-        return;
-      }
-      
-      const nData = await nRes.json();
-      if (nData.success) setUnreadCount(nData.unreadCount || 0);
-
       // Active SOS
       const sRes = await fetch(`${import.meta.env.VITE_BACKEND_URL}/api/emergency/sos`, { headers });
       
@@ -131,10 +112,8 @@ export default function PoliceLayout() {
   React.useEffect(() => {
     fetchDataCounts();
     const handleSync = () => fetchDataCounts();
-    window.addEventListener("new-notification-received", handleSync);
     window.addEventListener("sos-alert-received", handleSync);
     return () => {
-      window.removeEventListener("new-notification-received", handleSync);
       window.removeEventListener("sos-alert-received", handleSync);
     };
   }, []);
@@ -144,7 +123,6 @@ export default function PoliceLayout() {
     { name: 'Live Map', icon: MapPin, path: '/police/map' },
     { name: 'Reports', icon: FileText, path: '/police/reports' },
     { name: 'SOS Alerts', icon: Siren, path: '/police/sos' },
-    { name: 'Notifications', icon: Bell, path: '/notifications' },
     { name: 'Emergency', icon: PhoneCall, path: '/police/emergency' },
     { name: 'Settings', icon: Settings, path: '/police/settings' },
   ];
@@ -229,22 +207,6 @@ export default function PoliceLayout() {
           </div>
           
           <div className="flex items-center gap-6 relative">
-              <div className="relative">
-                <button 
-                  onClick={() => setNotifOpen(!notifOpen)}
-                  className={`p-3 rounded-2xl transition-all duration-300 ${notifOpen ? 'bg-blue-600 text-white' : 'text-slate-500 hover:text-white hover:bg-slate-800'}`}
-                >
-                  <Bell size={22} className={unreadCount > 0 && !notifOpen ? "animate-[swing_2s_ease-in-out_infinite] origin-top text-blue-500" : ""} />
-                  {unreadCount > 0 && (
-                    <span className="absolute top-2 right-2 flex h-5 w-5 items-center justify-center rounded-full bg-blue-500 text-[10px] font-black text-white ring-4 ring-slate-900 shadow-lg">
-                      {unreadCount}
-                    </span>
-                  )}
-                </button>
-                <NotificationDropdown isOpen={notifOpen} onClose={() => setNotifOpen(false)} />
-              </div>
-              
-              <div className="h-10 w-px bg-slate-800 hidden md:block mx-1" />
 
               {(() => {
                 const u = getUser();
