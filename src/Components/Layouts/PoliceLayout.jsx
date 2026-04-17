@@ -116,7 +116,7 @@ export default function PoliceLayout() {
     { name: 'Dashboard', icon: LayoutDashboard, path: '/police/dashboard' },
     { name: 'Live Map', icon: MapPin, path: '/police/map' },
     { name: 'Reports', icon: FileText, path: '/police/reports' },
-    { name: 'SOS Alerts', icon: Siren, path: '/police/sos', badge: sosCount > 0 ? sosCount.toString() : null },
+    { name: 'SOS Alerts', icon: Siren, path: '/police/sos' },
     { name: 'Notifications', icon: Bell, path: '/notifications' },
     { name: 'Emergency', icon: PhoneCall, path: '/police/emergency' },
     { name: 'Settings', icon: Settings, path: '/police/settings' },
@@ -149,8 +149,8 @@ export default function PoliceLayout() {
           
           {menuItems.map((item) => {
             const isActive = location.pathname === item.path;
-            const hasBadge = (item.name === 'Notifications' && unreadCount > 0) || item.badge;
-            const badgeLabel = item.name === 'Notifications' ? unreadCount : item.badge;
+            const hasBadge = item.badge;
+            const badgeLabel = item.badge;
 
             return (
               <Link

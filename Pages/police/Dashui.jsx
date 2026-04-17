@@ -40,9 +40,9 @@ export default function NewBoard() {
   const resolved = crimes.filter(c => c.status === "Resolved");
 
   const stats = [
-    { label: 'Total Assigned', value: crimes.length, icon: ClipboardList, color: 'bg-blue-500' },
+    { label: 'Total Cases', value: crimes.length, icon: ClipboardList, color: 'bg-blue-500' },
     { label: 'New Cases', value: forwarded.length, icon: FileText, color: 'bg-amber-500' },
-    { label: 'Investigating', value: investigating.length, icon: Activity, color: 'bg-indigo-500' },
+    { label: 'In Progress', value: investigating.length, icon: Activity, color: 'bg-indigo-500' },
     { label: 'Resolved', value: resolved.length, icon: CheckSquare, color: 'bg-emerald-500' },
   ];
 
@@ -50,16 +50,16 @@ export default function NewBoard() {
   const dashboardCases = [...forwarded, ...investigating].slice(0, 6);
 
   const statusConfig = {
-    ForwardedToPolice: { label: "New Assignment", color: "amber", icon: <FileText size={12} /> },
-    UnderInvestigation: { label: "Investigating", color: "indigo", icon: <Activity size={12} /> },
+    ForwardedToPolice: { label: "New", color: "amber", icon: <FileText size={12} /> },
+    UnderInvestigation: { label: "In Progress", color: "indigo", icon: <Activity size={12} /> },
     Resolved: { label: "Resolved", color: "emerald", icon: <CheckCircle2 size={12} /> },
   };
 
   const chartData = [
-    { name: 'New Cases', value: forwarded.length, color: '#f59e0b' },
-    { name: 'Investigating', value: investigating.length, color: '#6366f1' },
+    { name: 'New', value: forwarded.length, color: '#f59e0b' },
+    { name: 'In Progress', value: investigating.length, color: '#6366f1' },
     { name: 'Resolved', value: resolved.length, color: '#10b981' },
-    { name: 'Total Assigned', value: crimes.length, color: '#3b82f6' },
+    { name: 'Total', value: crimes.length, color: '#3b82f6' },
   ];
 
   const CustomTooltip = ({ active, payload, label }) => {
@@ -78,8 +78,8 @@ export default function NewBoard() {
     <div className="p-8 font-sans bg-slate-950 min-h-full">
       <div className="flex justify-between items-center mb-10">
         <div>
-          <h2 className="text-3xl font-black text-white tracking-tight">OPERATIONAL COMMAND</h2>
-          <p className="text-slate-500 text-sm font-medium mt-1 uppercase tracking-widest">Real-time Precinct Oversight</p>
+          <h2 className="text-3xl font-black text-white tracking-tight">Dashboard Overview</h2>
+          <p className="text-slate-500 text-sm font-medium mt-1">Monitor and manage all assigned cases</p>
         </div>
         <div className="flex gap-4">
            <div className="bg-slate-900 border border-slate-800 p-4 rounded-3xl flex items-center gap-4 shadow-xl">
@@ -87,8 +87,8 @@ export default function NewBoard() {
                  <Shield size={20} className="animate-pulse" />
               </div>
               <div>
-                 <div className="text-[10px] font-black text-slate-500 uppercase tracking-widest leading-none mb-1">Precinct Status</div>
-                 <div className="text-sm font-black text-white uppercase tracking-tight">Active Duty</div>
+                 <div className="text-[10px] font-bold text-slate-500 uppercase tracking-wide leading-none mb-1">Status</div>
+                 <div className="text-sm font-bold text-white">Active Duty</div>
               </div>
            </div>
            <div className="hidden lg:flex bg-slate-900 border border-slate-800 p-4 rounded-3xl items-center gap-4 shadow-xl">
@@ -96,8 +96,8 @@ export default function NewBoard() {
                  <Activity size={20} />
               </div>
               <div>
-                 <div className="text-[10px] font-black text-slate-500 uppercase tracking-widest leading-none mb-1">Network Intel</div>
-                 <div className="text-sm font-black text-white uppercase tracking-tight">Synchronized</div>
+                 <div className="text-[10px] font-bold text-slate-500 uppercase tracking-wide leading-none mb-1">System</div>
+                 <div className="text-sm font-bold text-white">Connected</div>
               </div>
            </div>
         </div>
@@ -128,20 +128,20 @@ export default function NewBoard() {
              <AlertTriangle className="text-white animate-pulse" size={32} />
           </div>
           <div>
-            <h3 className="text-2xl font-black text-white uppercase tracking-tighter">Emergency SOS Broadcast</h3>
-            <p className="text-red-200/60 text-sm font-medium">Coordinate immediately with all available active patrol units.</p>
+            <h3 className="text-2xl font-black text-white uppercase tracking-tighter">Emergency SOS Alerts</h3>
+            <p className="text-red-200/60 text-sm font-medium">Respond to emergency alerts from citizens in your area.</p>
           </div>
         </div>
         
         <Link
           to="/police/sos"
-          className="flex items-center gap-3 bg-red-600 hover:bg-red-700 text-white font-black uppercase text-xs tracking-widest px-10 py-5 rounded-2xl transition-all shadow-xl shadow-red-600/20 active:scale-95"
+          className="flex items-center gap-3 bg-red-600 hover:bg-red-700 text-white font-bold uppercase text-xs tracking-wide px-10 py-5 rounded-2xl transition-all shadow-xl shadow-red-600/20 active:scale-95"
         >
           <span className="relative flex h-2.5 w-2.5">
             <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-white opacity-75"></span>
             <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-white"></span>
           </span>
-          Trigger Dispatch
+          View SOS Alerts
         </Link>
       </div>
 
@@ -152,7 +152,7 @@ export default function NewBoard() {
                   <div className="p-2 bg-blue-500/10 rounded-xl text-blue-500 group-hover:scale-110 transition-transform">
                       <BarChart3 size={18}/>
                   </div>
-                  <h3 className="text-lg font-black text-white uppercase tracking-tight">Operational Workload Distribution</h3>
+                  <h3 className="text-lg font-bold text-white">Case Status Overview</h3>
               </div>
           </div>
           <div className="h-[300px] w-full">
@@ -172,13 +172,13 @@ export default function NewBoard() {
           </div>
       </div>
 
-      {/* Forwarded Cases — Card Grid */}
+      {/* Assigned Cases */}
       <div className="mb-6 flex items-center justify-between">
-        <h3 className="text-xl font-black text-white tracking-tight flex items-center gap-3">
+        <h3 className="text-xl font-bold text-white flex items-center gap-3">
           <Siren className="text-blue-500" size={24} />
-          Priority Response Queue
+          Assigned Cases
         </h3>
-        <Link to="/police/reports" className="text-xs font-bold text-blue-500 hover:text-blue-400 uppercase tracking-widest">Full Case Log</Link>
+        <Link to="/police/reports" className="text-xs font-bold text-blue-500 hover:text-blue-400 uppercase">View All Cases</Link>
       </div>
 
       {loading ? (
