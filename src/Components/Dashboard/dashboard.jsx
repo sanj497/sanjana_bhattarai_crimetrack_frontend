@@ -122,9 +122,9 @@ export default function Dashboard() {
     };
 
     return (
-        <div className="min-h-screen bg-primary-dark p-4 md:p-6 lg:p-8 text-text-secondary font-body">
+        <div className="min-h-screen bg-primary-dark px-3 sm:px-4 md:px-6 lg:px-8 py-4 md:py-6 text-text-secondary font-body">
             {/* Header */}
-            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-6 md:mb-8 gap-4">
+            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-4 sm:mb-6 md:mb-8 gap-3 sm:gap-4">
                 <div>
                     <h1 className="text-xl md:text-2xl lg:text-3xl text-text-primary mb-1 font-bold">Welcome to the CrimeTrack Admin</h1>
                 </div>

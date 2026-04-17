@@ -65,8 +65,8 @@ export default function NewBoard() {
   };
 
   return (
-    <div className="p-4 md:p-6 lg:p-8 font-sans bg-slate-950 min-h-full">
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 md:mb-10 gap-4">
+    <div className="px-3 sm:px-4 md:px-6 lg:px-8 py-4 md:py-6 font-sans bg-slate-950 min-h-full">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4 sm:mb-6 md:mb-10 gap-3 sm:gap-4">
         <div>
           <h2 className="text-2xl md:text-3xl font-black text-white tracking-tight">Dashboard Overview</h2>
           <p className="text-slate-500 text-xs md:text-sm font-medium mt-1">Monitor and manage all assigned cases</p>

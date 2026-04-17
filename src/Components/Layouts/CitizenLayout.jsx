@@ -213,10 +213,10 @@ export default function CitizenLayout() {
       </aside>
 
       {/* MAIN CONTENT AREA */}
-      <main className="flex-1 flex flex-col min-w-0 overflow-hidden relative">
+      <main className="flex-1 flex flex-col min-w-0 overflow-hidden relative w-full max-w-full">
         {/* HEADER */}
-        <header className="h-20 md:h-24 bg-slate-900 border-b border-slate-800 flex items-center justify-between px-4 md:px-10 shrink-0 z-30 sticky top-0 shadow-2xl backdrop-blur-md bg-opacity-80">
-          <div className="flex items-center gap-3 md:gap-4">
+        <header className="h-20 md:h-24 bg-slate-900 border-b border-slate-800 flex items-center justify-between px-3 sm:px-4 md:px-10 shrink-0 z-30 sticky top-0 shadow-2xl backdrop-blur-md bg-opacity-80">
+          <div className="flex items-center gap-2 sm:gap-3 md:gap-4 min-w-0 flex-1">
             {/* Mobile Menu Button */}
             <button
               onClick={() => setMobileMenuOpen(true)}
@@ -226,9 +226,9 @@ export default function CitizenLayout() {
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
               </svg>
             </button>
-            <div>
-              <div className="text-[8px] md:text-[10px] text-slate-600 font-black uppercase tracking-[2px] md:tracking-[3px] mb-1">Citizen Protection Portal</div>
-              <h2 className="text-lg md:text-2xl font-black text-white uppercase tracking-tighter italic">{pageTitle}</h2>
+            <div className="min-w-0 flex-1">
+              <div className="text-[8px] md:text-[10px] text-slate-600 font-black uppercase tracking-[2px] md:tracking-[3px] mb-1 truncate">Citizen Protection Portal</div>
+              <h2 className="text-base sm:text-lg md:text-2xl font-black text-white uppercase tracking-tighter italic truncate">{pageTitle}</h2>
             </div>
           </div>
           <div className="flex items-center gap-3 md:gap-6 relative">

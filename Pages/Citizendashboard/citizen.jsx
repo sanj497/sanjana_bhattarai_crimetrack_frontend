@@ -255,7 +255,7 @@ export default function CitizenDashboard() {
   const [feedbackCrime, setFeedbackCrime] = useState(null);
 
   return (
-    <div className="p-4 md:p-6 lg:p-8 font-body min-h-full bg-primary-dark text-text-secondary">
+    <div className="px-3 sm:px-4 md:px-6 lg:px-8 py-4 md:py-6 font-body min-h-full bg-primary-dark text-text-secondary">
       {feedbackCrime && (
          <FeedbackModal 
            crime={feedbackCrime} 

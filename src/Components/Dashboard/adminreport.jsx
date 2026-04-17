@@ -123,8 +123,8 @@ export default function AdminReport() {
     );
 
   return (
-    <div className="p-4 md:p-6 lg:p-8 bg-slate-950 min-h-screen font-sans text-slate-300">
-      <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 md:gap-6 mb-8 md:mb-12">
+    <div className="px-3 sm:px-4 md:px-6 lg:px-8 py-4 md:py-6 bg-slate-950 min-h-screen font-sans text-slate-300">
+      <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-3 sm:gap-4 md:gap-6 mb-6 sm:mb-8 md:mb-12">
         <div>
            <h2 className="text-2xl md:text-3xl font-black text-white tracking-tighter uppercase mb-1">Manage Reports</h2>
            <p className="text-[10px] font-black text-slate-500 uppercase tracking-[2px] md:tracking-[4px]">Review and handle all submitted cases</p>
