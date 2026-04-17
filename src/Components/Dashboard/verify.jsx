@@ -71,6 +71,8 @@ const Verify = () => {
           throw new Error(data.error || "Error fetching report intelligence");
         }
 
+        console.log("📋 Report data received:", data.crime);
+        console.log("📸 Evidence data:", data.crime?.evidence);
         setReport(data.crime);
       } catch (err) {
         console.error("Error fetching report:", err);
@@ -417,21 +419,30 @@ const Verify = () => {
                      </div>
                   </div>
 
-                  {report.evidence?.length > 0 && (
-                     <div>
-                        <label className="text-[9px] font-black text-slate-600 uppercase tracking-[2px] block mb-4">Evidence Photos</label>
+                  {/* Evidence Section */}
+                  <div>
+                     <label className="text-[9px] font-black text-slate-600 uppercase tracking-[2px] block mb-4">Evidence Photos</label>
+                     {report.evidence && report.evidence.length > 0 ? (
                         <div className="grid grid-cols-2 gap-4">
                            {report.evidence.map((img, idx) => (
                               <img 
                                 key={idx} 
-                                src={img.url} 
-                                alt="Evidence" 
+                                src={img.url || img} 
+                                alt={`Evidence ${idx + 1}`} 
                                 className="w-full h-40 object-cover rounded-3xl border border-slate-800/50 hover:scale-[1.02] transition-transform cursor-crosshair shadow-lg" 
+                                onError={(e) => {
+                                  console.error(`Failed to load evidence ${idx}:`, img.url || img);
+                                  e.target.style.display = 'none';
+                                }}
                               />
                            ))}
                         </div>
-                     </div>
-                  )}
+                     ) : (
+                        <div className="bg-slate-950/50 border border-slate-800 rounded-2xl p-6 text-center">
+                           <p className="text-slate-500 text-xs font-semibold">No evidence photos uploaded for this report</p>
+                        </div>
+                     )}
+                  </div>
                </div>
             </div>
          </div>
