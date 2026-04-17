@@ -235,11 +235,11 @@ export default function CitizenLayout() {
             <div className="relative">
               <button
                 onClick={() => setNotifOpen(!notifOpen)}
-                className={`p-2 md:p-3 rounded-xl md:rounded-2xl transition-all duration-300 ${notifOpen ? 'bg-blue-600 text-white' : 'text-slate-500 hover:text-white hover:bg-slate-800'}`}
+                className={`p-1.5 md:p-2 rounded-lg md:rounded-xl transition-all duration-300 ${notifOpen ? 'bg-blue-600 text-white' : 'text-slate-500 hover:text-white hover:bg-slate-800'}`}
               >
-                <Bell size={18} className="md:size-22" />
+                <Bell size={16} className="md:w-5 md:h-5" />
                 {unreadCount > 0 && (
-                  <span className="absolute top-1 right-1 md:top-2 md:right-2 flex h-4 w-4 md:h-5 md:w-5 items-center justify-center rounded-full bg-blue-500 text-[8px] md:text-[10px] font-black text-white ring-4 ring-slate-900 shadow-lg">
+                  <span className="absolute top-0.5 right-0.5 md:top-1 md:right-1 flex h-3.5 w-3.5 md:h-4 md:w-4 items-center justify-center rounded-full bg-blue-500 text-[7px] md:text-[8px] font-black text-white ring-2 ring-slate-900 shadow-lg">
                     {unreadCount}
                   </span>
                 )}
