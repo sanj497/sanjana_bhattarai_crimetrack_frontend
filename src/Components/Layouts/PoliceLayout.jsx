@@ -1,7 +1,8 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Shield, AlertTriangle, FileText, MapPin, Siren, LogOut, LayoutDashboard, PhoneCall, Settings } from 'lucide-react';
+import { Shield, AlertTriangle, FileText, MapPin, Siren, LogOut, LayoutDashboard, PhoneCall, Settings, Bell } from 'lucide-react';
 import { useNavigate, Outlet, Link, useLocation } from 'react-router-dom';
 import { toast } from 'react-toastify';
+import NotificationDropdown from '../Dashboard/NotificationDropdown';
 
 const getUser = () => {
   try { return JSON.parse(localStorage.getItem("user")) || {}; } catch { return {}; }
@@ -11,6 +12,8 @@ export default function PoliceLayout() {
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [sosCount, setSosCount] = useState(0);
+  const [unreadCount, setUnreadCount] = useState(0);
+  const [notifOpen, setNotifOpen] = useState(false);
   const [uploadingPicture, setUploadingPicture] = useState(false);
   const fileInputRef = useRef(null);
   const navigate = useNavigate();
@@ -110,12 +113,34 @@ export default function PoliceLayout() {
     }
   };
 
+  const fetchUnreadCount = async () => {
+    try {
+      const token = localStorage.getItem("token");
+      const res = await fetch(`${import.meta.env.VITE_BACKEND_URL}/api/notifications`, {
+        headers: { "Authorization": `Bearer ${token}` }
+      });
+      const data = await res.json();
+      if (data.success) {
+        setUnreadCount(data.unreadCount || 0);
+      }
+    } catch (err) {
+      console.error("Failed to fetch unread count", err);
+    }
+  };
+
   React.useEffect(() => {
     fetchDataCounts();
+    fetchUnreadCount();
+    
     const handleSync = () => fetchDataCounts();
+    const handleNewNotification = () => fetchUnreadCount();
+    
     window.addEventListener("sos-alert-received", handleSync);
+    window.addEventListener("new-notification-received", handleNewNotification);
+    
     return () => {
       window.removeEventListener("sos-alert-received", handleSync);
+      window.removeEventListener("new-notification-received", handleNewNotification);
     };
   }, []);
 
@@ -233,7 +258,22 @@ export default function PoliceLayout() {
              </div>
           </div>
           
-          <div className="flex items-center gap-6 relative">
+          <div className="flex items-center gap-3 md:gap-6 relative">
+              {/* Notifications Bell */}
+              <div className="relative">
+                <button 
+                  onClick={() => setNotifOpen(!notifOpen)}
+                  className={`p-1.5 md:p-2 rounded-lg md:rounded-xl transition-all duration-300 ${notifOpen ? 'bg-blue-600 text-white' : 'text-slate-500 hover:text-white hover:bg-slate-800'}`}
+                >
+                  <Bell size={16} className="md:w-5 md:h-5" />
+                  {unreadCount > 0 && (
+                    <span className="absolute top-0.5 right-0.5 md:top-1 md:right-1 flex h-3.5 w-3.5 md:h-4 md:w-4 items-center justify-center rounded-full bg-blue-500 text-[7px] md:text-[8px] font-black text-white ring-2 ring-slate-900 shadow-lg">
+                      {unreadCount}
+                    </span>
+                  )}
+                </button>
+                <NotificationDropdown isOpen={notifOpen} onClose={() => setNotifOpen(false)} />
+              </div>
 
               {(() => {
                 const u = getUser();
