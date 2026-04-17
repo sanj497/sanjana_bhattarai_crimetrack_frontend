@@ -255,7 +255,7 @@ export default function CitizenDashboard() {
   const [feedbackCrime, setFeedbackCrime] = useState(null);
 
   return (
-    <div className="p-section md:p-section font-body min-h-full bg-primary-dark text-text-secondary">
+    <div className="p-4 md:p-6 lg:p-8 font-body min-h-full bg-primary-dark text-text-secondary">
       {feedbackCrime && (
          <FeedbackModal 
            crime={feedbackCrime} 
@@ -264,19 +264,19 @@ export default function CitizenDashboard() {
          />
       )}
       {/* Welcome Banner */}
-      <div className="mb-section p-section md:p-section rounded-card bg-secondary-dark text-text-primary relative overflow-hidden shadow-xl border border-border-subtle">
+      <div className="mb-6 md:mb-8 p-4 md:p-6 lg:p-8 rounded-card bg-secondary-dark text-text-primary relative overflow-hidden shadow-xl border border-border-subtle">
         <div className="absolute inset-0 z-0 opacity-10">
           <div className="w-full h-full bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-accent-gold via-primary-dark to-primary-dark" />
         </div>
-        <div className="relative z-10 flex justify-between items-center">
-          <div>
-            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-accent-gold/10 text-accent-gold font-semibold text-xs mb-default uppercase tracking-wide border border-accent-gold/20 backdrop-blur-sm">
+        <div className="relative z-10 flex flex-col lg:flex-row justify-between items-start lg:items-center gap-6">
+          <div className="flex-1">
+            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-accent-gold/10 text-accent-gold font-semibold text-xs mb-4 uppercase tracking-wide border border-accent-gold/20 backdrop-blur-sm">
               <ShieldCheck className="h-4 w-4" /> Secure Citizen Access
             </div>
-            <h1 className="text-3xl md:text-4xl font-bold mb-default leading-tight">
+            <h1 className="text-2xl md:text-3xl lg:text-4xl font-bold mb-4 leading-tight">
                Welcome back, {"\n"}<span className="text-accent-gold">{user.username || user.name || user.email || 'User'}</span>
             </h1>
-            <p className="text-text-secondary max-w-lg leading-relaxed text-sm mb-section">
+            <p className="text-text-secondary max-w-lg leading-relaxed text-sm mb-6">
                Your gateway to safety. Monitor your reported incidents and receive real-time updates from dispatch.
             </p>
             <div>
@@ -292,19 +292,19 @@ export default function CitizenDashboard() {
       </div>
 
       {/* Overview Stat Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-default mb-section">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6 mb-6 md:mb-8">
          {[
            { label: "Active Alerts", val: unreadCount > 0 ? unreadCount : "0 New", icon: <Bell />, color: "danger" },
            { label: "Reported Cases", val: myCrimes.length, icon: <FileText />, color: "accent-gold" },
            { label: "Assigned Units", val: myCrimes.filter(c => c.status !== 'Pending').length, icon: <Shield />, color: "success" },
          ].map((stat, i) => (
-           <div key={i} className="ct-card flex items-center gap-default group border border-border-subtle hover:border-accent-gold transition-all">
-              <div className={`p-default bg-${stat.color === 'accent-gold' ? 'accent-gold' : stat.color}/10 text-${stat.color === 'accent-gold' ? 'accent-gold' : stat.color} rounded-lg group-hover:bg-${stat.color === 'accent-gold' ? 'accent-gold' : stat.color} group-hover:text-primary-dark transition-all shadow-lg`}>
-                 {stat.icon}
+           <div key={i} className="ct-card flex items-center gap-4 md:gap-default group border border-border-subtle hover:border-accent-gold transition-all p-4 md:p-6">
+              <div className={`p-3 md:p-default bg-${stat.color === 'accent-gold' ? 'accent-gold' : stat.color}/10 text-${stat.color === 'accent-gold' ? 'accent-gold' : stat.color} rounded-lg group-hover:bg-${stat.color === 'accent-gold' ? 'accent-gold' : stat.color} group-hover:text-primary-dark transition-all shadow-lg`}>
+                 {React.cloneElement(stat.icon, { size: 20 })}
               </div>
               <div className="relative z-10">
-                 <p className="text-xs text-text-secondary mb-0.5 font-medium uppercase tracking-wider">{stat.label}</p>
-                 <h3 className="text-2xl font-bold text-text-primary leading-none">{stat.val}</h3>
+                 <p className="text-[10px] md:text-xs text-text-secondary mb-0.5 font-medium uppercase tracking-wider">{stat.label}</p>
+                 <h3 className="text-xl md:text-2xl font-bold text-text-primary leading-none">{stat.val}</h3>
               </div>
            </div>
          ))}

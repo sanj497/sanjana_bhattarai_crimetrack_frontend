@@ -122,25 +122,22 @@ export default function Dashboard() {
     };
 
     return (
-        <div className="min-h-screen bg-primary-dark p-section text-text-secondary font-body">
+        <div className="min-h-screen bg-primary-dark p-4 md:p-6 lg:p-8 text-text-secondary font-body">
             {/* Header */}
-            <div className="flex items-center justify-between mb-section">
+            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-6 md:mb-8 gap-4">
                 <div>
-                    <h1 className="text-text-primary mb-1">Welcome to the CrimeTrack Admin </h1>
-                   
+                    <h1 className="text-xl md:text-2xl lg:text-3xl text-text-primary mb-1 font-bold">Welcome to the CrimeTrack Admin</h1>
                 </div>
-
-
             </div>
 
             {/* Main Grid */}
-            <div className="grid grid-cols-1 lg:grid-cols-[1fr_360px] gap-section">
+            <div className="grid grid-cols-1 lg:grid-cols-[1fr_360px] gap-6 md:gap-8">
                 
                 {/* Left Side: Stats and Activity */}
-                <div className="flex flex-col gap-section">
+                <div className="flex flex-col gap-6 md:gap-8">
                     
                     {/* Stat Cards */}
-                    <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-default">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4 md:gap-6">
                         <StatCard 
                             title="Total Cases" 
                             value={stats.total} 
@@ -172,9 +169,9 @@ export default function Dashboard() {
                     </div>
 
                     {/* Live Intelligence Map & Dispatcher Queue */}
-                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-default w-full">
+                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-6 w-full">
                         {/* Live Tactical Map Preview */}
-                        <div className="bg-slate-900 rounded-[32px] overflow-hidden flex flex-col relative h-[250px] shadow-xl group border border-slate-800">
+                        <div className="bg-slate-900 rounded-2xl md:rounded-[32px] overflow-hidden flex flex-col relative h-[200px] md:h-[250px] shadow-xl group border border-slate-800">
                           <div className="absolute top-4 left-4 z-20 pointer-events-none flex items-center gap-2 bg-slate-900/80 backdrop-blur-md px-4 py-2 rounded-xl border border-slate-700/50">
                             <span className="w-2 h-2 rounded-full bg-blue-500 animate-pulse" />
                             <span className="text-[10px] font-black text-white uppercase tracking-widest">Tactical Overview</span>
@@ -210,16 +207,16 @@ export default function Dashboard() {
                         {/* Dispatch Queue Card */}
                         <div
                             onClick={() => navigate("/forward-admin")}
-                            className="bg-gradient-to-br from-accent-gold to-soft-gold rounded-card p-section flex items-center gap-6 cursor-pointer hover:-translate-y-1 transition-all shadow-xl h-[250px]"
+                            className="bg-gradient-to-br from-accent-gold to-soft-gold rounded-2xl md:rounded-card p-4 md:p-6 lg:p-8 flex flex-col sm:flex-row items-start sm:items-center gap-4 md:gap-6 cursor-pointer hover:-translate-y-1 transition-all shadow-xl min-h-[200px] md:min-h-[250px]"
                         >
-                            <div className="w-14 h-14 rounded-lg bg-primary-dark/20 flex flex-col items-center justify-center text-primary-dark shrink-0 shadow-inner">
-                                <Send size={24}/>
+                            <div className="w-12 h-12 md:w-14 md:h-14 rounded-lg bg-primary-dark/20 flex flex-col items-center justify-center text-primary-dark shrink-0 shadow-inner">
+                                <Send size={20} className="md:size-6"/>
                             </div>
-                            <div>
-                                <h3 className="text-primary-dark text-xl font-bold">Dispatcher Queue</h3>
-                                <p className="text-primary-dark/80 text-sm mt-2 leading-relaxed">{stats.verified} reports have been verified and are pending police assignment.</p>
+                            <div className="flex-1">
+                                <h3 className="text-primary-dark text-lg md:text-xl font-bold">Dispatcher Queue</h3>
+                                <p className="text-primary-dark/80 text-xs md:text-sm mt-2 leading-relaxed">{stats.verified} reports have been verified and are pending police assignment.</p>
                                 
-                                <button className="mt-4 px-6 py-2.5 bg-primary-dark text-accent-gold rounded-button text-xs font-semibold shadow-lg hover:shadow-xl hover:scale-105 transition-all">
+                                <button className="mt-3 md:mt-4 px-4 md:px-6 py-2 md:py-2.5 bg-primary-dark text-accent-gold rounded-lg md:rounded-button text-[10px] md:text-xs font-semibold shadow-lg hover:shadow-xl hover:scale-105 transition-all">
                                   Assign Units Now
                                 </button>
                             </div>
@@ -228,15 +225,15 @@ export default function Dashboard() {
 
                     {/* Chart Analytics Section */}
                     <div className="ct-card w-full">
-                        <div className="flex justify-between items-center mb-section">
+                        <div className="flex justify-between items-center mb-4 md:mb-6">
                             <div className="flex items-center gap-2">
                                 <div className="p-2 bg-accent-gold/10 rounded-lg text-accent-gold">
-                                    <BarChart3 size={20}/>
+                                    <BarChart3 size={18} className="md:size-5"/>
                                 </div>
-                                <h3 className="text-lg font-semibold text-text-primary">Crime Statistics</h3>
+                                <h3 className="text-base md:text-lg font-semibold text-text-primary">Crime Statistics</h3>
                             </div>
                         </div>
-                        <div className="h-[350px] w-full relative z-10">
+                        <div className="h-[250px] md:h-[300px] lg:h-[350px] w-full relative z-10">
                             <ResponsiveContainer width="100%" height="100%">
                                 <BarChart data={chartData} margin={{ top: 20, right: 30, left: 0, bottom: 5 }}>
                                     <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="rgba(255,255,255,0.05)" />
@@ -255,30 +252,30 @@ export default function Dashboard() {
                 </div>
 
                 {/* Right Side: Emergency Hub & Actions */}
-                <div className="flex flex-col gap-section">
+                <div className="flex flex-col gap-6 md:gap-8">
                     
 
                     {/* Quick Launch */}
-                    <div className="bg-slate-900 border border-slate-800 rounded-[48px] p-10 shadow-2xl">
-                        <h3 className="text-[10px] font-black text-slate-500 uppercase tracking-[4px] mb-8">Quick Actions</h3>
-                        <div className="flex flex-col gap-4">
+                    <div className="bg-slate-900 border border-slate-800 rounded-3xl md:rounded-[48px] p-6 md:p-8 lg:p-10 shadow-2xl">
+                        <h3 className="text-[10px] font-black text-slate-500 uppercase tracking-[2px] md:tracking-[4px] mb-6 md:mb-8">Quick Actions</h3>
+                        <div className="flex flex-col gap-3 md:gap-4">
                             {menu.slice(2).map((item, i) => (
                                 <button
                                     key={i}
                                     onClick={() => navigate(item.path)}
-                                    className="w-full p-5 bg-slate-950/50 border border-slate-800 rounded-3xl flex items-center gap-5 hover:bg-blue-600 hover:border-blue-500 transition-all text-slate-300 hover:text-white group shadow-inner"
+                                    className="w-full p-3 md:p-5 bg-slate-950/50 border border-slate-800 rounded-2xl md:rounded-3xl flex items-center gap-3 md:gap-5 hover:bg-blue-600 hover:border-blue-500 transition-all text-slate-300 hover:text-white group shadow-inner"
                                 >
                                     <div className="text-blue-500 group-hover:text-white transition-colors">{item.icon}</div>
-                                    <span className="text-[11px] font-black uppercase tracking-[2px]">{item.name}</span>
+                                    <span className="text-[10px] md:text-[11px] font-black uppercase tracking-[1px] md:tracking-[2px]">{item.name}</span>
                                 </button>
                             ))}
                         </div>
                     </div>
 
                     {/* Health Check */}
-                    <div className="bg-slate-900 border border-slate-800 rounded-[48px] p-10 shadow-2xl">
-                        <h3 className="text-[10px] font-black text-slate-500 uppercase tracking-[4px] mb-8">System Status</h3>
-                        <div className="flex flex-col gap-8">
+                    <div className="bg-slate-900 border border-slate-800 rounded-3xl md:rounded-[48px] p-6 md:p-8 lg:p-10 shadow-2xl">
+                        <h3 className="text-[10px] font-black text-slate-500 uppercase tracking-[2px] md:tracking-[4px] mb-6 md:mb-8">System Status</h3>
+                        <div className="flex flex-col gap-6 md:gap-8">
                             <div>
                               <div className="flex justify-between items-center mb-3">
                                   <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Solved Cases</span>

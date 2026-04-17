@@ -65,26 +65,26 @@ export default function NewBoard() {
   };
 
   return (
-    <div className="p-8 font-sans bg-slate-950 min-h-full">
-      <div className="flex justify-between items-center mb-10">
+    <div className="p-4 md:p-6 lg:p-8 font-sans bg-slate-950 min-h-full">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 md:mb-10 gap-4">
         <div>
-          <h2 className="text-3xl font-black text-white tracking-tight">Dashboard Overview</h2>
-          <p className="text-slate-500 text-sm font-medium mt-1">Monitor and manage all assigned cases</p>
+          <h2 className="text-2xl md:text-3xl font-black text-white tracking-tight">Dashboard Overview</h2>
+          <p className="text-slate-500 text-xs md:text-sm font-medium mt-1">Monitor and manage all assigned cases</p>
         </div>
       </div>
 
       {/* Stats Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-10">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6 mb-6 md:mb-10">
         {stats.map((stat, i) => (
-          <div key={i} className="bg-slate-900 border border-slate-800 rounded-[32px] p-8 hover:border-blue-500/30 transition-all group overflow-hidden relative shadow-lg">
+          <div key={i} className="bg-slate-900 border border-slate-800 rounded-2xl md:rounded-[32px] p-6 md:p-8 hover:border-blue-500/30 transition-all group overflow-hidden relative shadow-lg">
             <div className={`absolute top-0 right-0 h-24 w-24 ${stat.color} opacity-[0.03] rounded-full translate-x-8 -translate-y-8 group-hover:scale-125 transition-transform duration-500`} />
             <div className="flex items-center justify-between relative z-10">
               <div>
-                <p className="text-slate-500 text-[10px] font-black uppercase tracking-widest mb-2">{stat.label}</p>
-                <p className="text-4xl font-black text-white leading-none">{stat.value}</p>
+                <p className="text-slate-500 text-[9px] md:text-[10px] font-black uppercase tracking-widest mb-1 md:mb-2">{stat.label}</p>
+                <p className="text-3xl md:text-4xl font-black text-white leading-none">{stat.value}</p>
               </div>
-              <div className={`${stat.color} h-12 w-12 rounded-2xl flex items-center justify-center shadow-lg group-hover:rotate-6 transition-transform`}>
-                <stat.icon className="text-white" size={24} />
+              <div className={`${stat.color} h-10 w-10 md:h-12 md:w-12 rounded-xl md:rounded-2xl flex items-center justify-center shadow-lg group-hover:rotate-6 transition-transform`}>
+                <stat.icon className="text-white" size={20} />
               </div>
             </div>
           </div>
@@ -92,40 +92,40 @@ export default function NewBoard() {
       </div>
 
       {/* SOS Banner */}
-      <div className="bg-gradient-to-r from-red-600/20 to-transparent rounded-[32px] border border-red-500/20 p-8 mb-10 flex flex-col md:flex-row items-center justify-between gap-6 backdrop-blur-sm shadow-2xl">
-        <div className="flex items-center gap-6">
-          <div className="h-16 w-16 bg-red-600 rounded-[24px] flex items-center justify-center shadow-lg shadow-red-600/20">
-             <AlertTriangle className="text-white animate-pulse" size={32} />
+      <div className="bg-gradient-to-r from-red-600/20 to-transparent rounded-2xl md:rounded-[32px] border border-red-500/20 p-4 md:p-6 lg:p-8 mb-6 md:mb-10 flex flex-col md:flex-row items-center justify-between gap-4 md:gap-6 backdrop-blur-sm shadow-2xl">
+        <div className="flex items-center gap-4 md:gap-6">
+          <div className="h-12 w-12 md:h-16 md:w-16 bg-red-600 rounded-xl md:rounded-[24px] flex items-center justify-center shadow-lg shadow-red-600/20 shrink-0">
+             <AlertTriangle className="text-white animate-pulse" size={24} />
           </div>
           <div>
-            <h3 className="text-2xl font-black text-white uppercase tracking-tighter">Emergency SOS Alerts</h3>
-            <p className="text-red-200/60 text-sm font-medium">Respond to emergency alerts from citizens in your area.</p>
+            <h3 className="text-lg md:text-xl lg:text-2xl font-black text-white uppercase tracking-tighter">Emergency SOS Alerts</h3>
+            <p className="text-red-200/60 text-xs md:text-sm font-medium">Respond to emergency alerts from citizens in your area.</p>
           </div>
         </div>
         
         <Link
           to="/police/sos"
-          className="flex items-center gap-3 bg-red-600 hover:bg-red-700 text-white font-bold uppercase text-xs tracking-wide px-10 py-5 rounded-2xl transition-all shadow-xl shadow-red-600/20 active:scale-95"
+          className="w-full md:w-auto flex items-center justify-center gap-2 md:gap-3 bg-red-600 hover:bg-red-700 text-white font-bold uppercase text-[10px] md:text-xs tracking-wide px-6 md:px-10 py-3 md:py-5 rounded-xl md:rounded-2xl transition-all shadow-xl shadow-red-600/20 active:scale-95"
         >
-          <span className="relative flex h-2.5 w-2.5">
+          <span className="relative flex h-2 w-2 md:h-2.5 md:w-2.5">
             <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-white opacity-75"></span>
-            <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-white"></span>
+            <span className="relative inline-flex rounded-full h-2 w-2 md:h-2.5 md:w-2.5 bg-white"></span>
           </span>
           View SOS Alerts
         </Link>
       </div>
 
       {/* Chart Analytics Section */}
-      <div className="bg-slate-900 border border-slate-800 rounded-[32px] p-8 shadow-xl mb-10 w-full hover:border-blue-500/20 transition-all group">
-          <div className="flex justify-between items-center mb-8">
-              <div className="flex items-center gap-3">
-                  <div className="p-2 bg-blue-500/10 rounded-xl text-blue-500 group-hover:scale-110 transition-transform">
-                      <BarChart3 size={18}/>
+      <div className="bg-slate-900 border border-slate-800 rounded-2xl md:rounded-[32px] p-4 md:p-6 lg:p-8 shadow-xl mb-6 md:mb-10 w-full hover:border-blue-500/20 transition-all group">
+          <div className="flex justify-between items-center mb-4 md:mb-8">
+              <div className="flex items-center gap-2 md:gap-3">
+                  <div className="p-1.5 md:p-2 bg-blue-500/10 rounded-lg md:rounded-xl text-blue-500 group-hover:scale-110 transition-transform">
+                      <BarChart3 size={16} className="md:size-5"/>
                   </div>
-                  <h3 className="text-lg font-bold text-white">Case Status Overview</h3>
+                  <h3 className="text-base md:text-lg font-bold text-white">Case Status Overview</h3>
               </div>
           </div>
-          <div className="h-[300px] w-full">
+          <div className="h-[250px] md:h-[300px] w-full">
               <ResponsiveContainer width="100%" height="100%">
                   <BarChart data={chartData} margin={{ top: 20, right: 30, left: 0, bottom: 5 }}>
                       <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#1e293b" />

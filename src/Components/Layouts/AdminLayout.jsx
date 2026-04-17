@@ -31,6 +31,7 @@ export default function AdminLayout() {
     const navigate = useNavigate();
     const location = useLocation();
     const [sidebarOpen, setSidebarOpen] = useState(true);
+    const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
     const [unreadCount, setUnreadCount] = useState(0);
     const [notifOpen, setNotifOpen] = useState(false);
     const [uploadingPicture, setUploadingPicture] = useState(false);
@@ -144,9 +145,17 @@ export default function AdminLayout() {
 
     return (
         <div className="flex h-screen overflow-hidden bg-slate-950 font-sans text-slate-300">
+            {/* Mobile Menu Overlay */}
+            {mobileMenuOpen && (
+                <div 
+                    className="fixed inset-0 bg-black/50 z-30 lg:hidden"
+                    onClick={() => setMobileMenuOpen(false)}
+                />
+            )}
+            
             {/* SIDEBAR */}
             <aside 
-              className={`flex flex-col bg-[#050B18] text-gray-300 transition-all duration-500 ease-[cubic-bezier(0.4,0,0.2,1)] z-40 ${sidebarOpen ? "w-72" : "w-24"} shrink-0 border-r border-white/5 relative shadow-[20px_0_60px_-15px_rgba(0,0,0,0.3)]`}
+              className={`fixed lg:relative inset-y-0 left-0 flex flex-col bg-[#050B18] text-gray-300 transition-all duration-500 ease-[cubic-bezier(0.4,0,0.2,1)] z-40 ${sidebarOpen ? "w-72" : "w-24"} ${mobileMenuOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0"} shrink-0 border-r border-white/5 relative shadow-[20px_0_60px_-15px_rgba(0,0,0,0.3)]`}
             >
                 
                 {/* LOGO AREA */}
@@ -172,9 +181,17 @@ export default function AdminLayout() {
                 {/* Navigation Toggle - Floating Style */}
                 <button 
                     onClick={() => setSidebarOpen(!sidebarOpen)}
-                    className="absolute top-12 -right-4 h-8 w-8 bg-blue-600 text-white rounded-full flex items-center justify-center shadow-xl z-50 cursor-pointer hover:scale-110 active:scale-95 transition-all border-4 border-slate-950"
+                    className="absolute top-12 -right-4 h-8 w-8 bg-blue-600 text-white rounded-full flex items-center justify-center shadow-xl z-50 cursor-pointer hover:scale-110 active:scale-95 transition-all border-4 border-slate-950 hidden lg:flex"
                 >
                     {sidebarOpen ? <ChevronLeft size={16}/> : <ChevronRight size={16}/>}
+                </button>
+
+                {/* Close button for mobile */}
+                <button 
+                    onClick={() => setMobileMenuOpen(false)}
+                    className="absolute top-6 right-4 h-8 w-8 bg-slate-800 text-white rounded-full flex items-center justify-center shadow-xl z-50 cursor-pointer hover:scale-110 active:scale-95 transition-all lg:hidden"
+                >
+                    <ChevronLeft size={16}/>
                 </button>
 
                 {/* NAVIGATION */}
@@ -240,21 +257,32 @@ export default function AdminLayout() {
             {/* MAIN CONTENT */}
             <main className="flex-1 flex flex-col min-w-0 overflow-hidden relative text-left">
                 {/* HEADER */}
-                <header className="h-24 bg-slate-900 border-b border-slate-800 flex items-center justify-between px-10 shrink-0 z-30 sticky top-0 shadow-2xl backdrop-blur-md bg-opacity-80">
-                    <div>
-                        <div className="text-[10px] text-slate-600 font-black uppercase tracking-[3px] mb-1">Admin Control Center</div>
-                        <h2 className="text-2xl font-black text-white italic tracking-tight uppercase">{activeItem}</h2>
+                <header className="h-20 md:h-24 bg-slate-900 border-b border-slate-800 flex items-center justify-between px-4 md:px-10 shrink-0 z-30 sticky top-0 shadow-2xl backdrop-blur-md bg-opacity-80">
+                    <div className="flex items-center gap-4">
+                        {/* Mobile Menu Button */}
+                        <button 
+                            onClick={() => setMobileMenuOpen(true)}
+                            className="lg:hidden p-2 rounded-xl bg-slate-800 text-white hover:bg-slate-700 transition-all"
+                        >
+                            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+                            </svg>
+                        </button>
+                        <div>
+                            <div className="text-[9px] md:text-[10px] text-slate-600 font-black uppercase tracking-[2px] md:tracking-[3px] mb-1">Admin Control Center</div>
+                            <h2 className="text-lg md:text-2xl font-black text-white italic tracking-tight uppercase">{activeItem}</h2>
+                        </div>
                     </div>
 
-                    <div className="flex items-center gap-6 relative">
+                    <div className="flex items-center gap-3 md:gap-6 relative">
                         <div className="relative">
                             <button 
                               onClick={() => setNotifOpen(!notifOpen)}
-                              className={`p-3 rounded-2xl transition-all duration-300 ${notifOpen ? 'bg-blue-600 text-white' : 'text-slate-500 hover:text-white hover:bg-slate-800'}`}
+                              className={`p-2 md:p-3 rounded-xl md:rounded-2xl transition-all duration-300 ${notifOpen ? 'bg-blue-600 text-white' : 'text-slate-500 hover:text-white hover:bg-slate-800'}`}
                             >
-                                <Bell size={22} className={unreadCount > 0 && !notifOpen ? "animate-[swing_2s_ease-in-out_infinite] origin-top text-blue-500" : ""} />
+                                <Bell size={18} className="md:size-22" />
                                 {unreadCount > 0 && (
-                                    <span className="absolute top-2 right-2 flex h-5 w-5 items-center justify-center rounded-full bg-blue-500 text-[10px] font-black text-white ring-4 ring-slate-900 shadow-lg">
+                                    <span className="absolute top-1 right-1 md:top-2 md:right-2 flex h-4 w-4 md:h-5 md:w-5 items-center justify-center rounded-full bg-blue-500 text-[8px] md:text-[10px] font-black text-white ring-4 ring-slate-900 shadow-lg">
                                         {unreadCount}
                                     </span>
                                 )}
@@ -271,7 +299,7 @@ export default function AdminLayout() {
                           const u = getUser();
                           const initials = (u.username || u.name || "Admin").split(" ").map(w => w[0]).join("").toUpperCase().slice(0, 2);
                           return (
-                            <div className="flex items-center gap-4">
+                            <div className="flex items-center gap-2 md:gap-4">
                               <div className="hidden md:flex flex-col items-end">
                                 <div className="text-sm font-black text-white tracking-tight leading-none capitalize">
                                   {u.username || u.name || "Administrator"}
@@ -281,7 +309,7 @@ export default function AdminLayout() {
                                 </div>
                               </div>
                               <div 
-                                className="h-12 w-12 bg-blue-600 text-white flex items-center justify-center rounded-2xl font-black text-lg shadow-xl shadow-blue-900/40 relative group cursor-pointer border border-blue-500/50 overflow-hidden"
+                                className="h-10 w-10 md:h-12 md:w-12 bg-blue-600 text-white flex items-center justify-center rounded-xl md:rounded-2xl font-black text-sm md:text-lg shadow-xl shadow-blue-900/40 relative group cursor-pointer border border-blue-500/50 overflow-hidden"
                                 onClick={handleProfilePictureClick}
                                 title="Click to change profile picture"
                               >

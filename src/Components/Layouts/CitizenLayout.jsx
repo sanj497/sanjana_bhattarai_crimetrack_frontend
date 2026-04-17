@@ -21,6 +21,7 @@ const navItems = [
 
 export default function CitizenLayout() {
   const [sidebarOpen, setSidebarOpen] = useState(true);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [unreadCount, setUnreadCount] = useState(0);
   const [notifOpen, setNotifOpen] = useState(false);
   const [uploadingPicture, setUploadingPicture] = useState(false);
@@ -120,28 +121,45 @@ export default function CitizenLayout() {
 
   return (
     <div className="flex h-screen overflow-hidden bg-slate-950 font-sans text-slate-300">
+      {/* Mobile Menu Overlay */}
+      {mobileMenuOpen && (
+        <div 
+          className="fixed inset-0 bg-black/50 z-30 lg:hidden"
+          onClick={() => setMobileMenuOpen(false)}
+        />
+      )}
+      
       {/* SIDEBAR */}
-      <aside className={`flex flex-col bg-slate-900 border-r border-slate-800 transition-all duration-300 ease-in-out z-20 ${sidebarOpen ? "w-64" : "w-20"} shrink-0`}>
+      <aside className={`fixed lg:relative inset-y-0 left-0 flex flex-col bg-slate-900 border-r border-slate-800 transition-all duration-300 ease-in-out z-40 ${sidebarOpen ? "w-64" : "w-20"} ${mobileMenuOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0"} shrink-0`}>
         {/* LOGO AREA */}
-        <div className="h-24 flex items-center justify-between px-6 border-b border-slate-800/50">
+        <div className="h-20 md:h-24 flex items-center justify-between px-4 md:px-6 border-b border-slate-800/50">
           {sidebarOpen && (
-            <div className="flex items-center gap-3">
-              <div className="h-10 w-10 bg-white rounded-xl flex items-center justify-center shadow-lg overflow-hidden border border-blue-500/20">
+            <div className="flex items-center gap-2 md:gap-3">
+              <div className="h-8 w-8 md:h-10 md:w-10 bg-white rounded-lg md:rounded-xl flex items-center justify-center shadow-lg overflow-hidden border border-blue-500/20">
                 <img src="https://res.cloudinary.com/dvziqqu1j/image/upload/v1776324979/crimetrack_logo.jpg" alt="Logo" className="h-full w-full object-cover" />
               </div>
-              <span className="font-black text-white text-xl tracking-tight uppercase italic">CrimeTrack</span>
+              <span className="font-black text-white text-base md:text-xl tracking-tight uppercase italic">CrimeTrack</span>
             </div>
           )}
           {!sidebarOpen && (
-            <div className="h-10 w-10 bg-white rounded-xl flex items-center justify-center mx-auto shadow-lg overflow-hidden border border-blue-500/20">
+            <div className="h-8 w-8 md:h-10 md:w-10 bg-white rounded-lg md:rounded-xl flex items-center justify-center mx-auto shadow-lg overflow-hidden border border-blue-500/20">
               <img src="https://res.cloudinary.com/dvziqqu1j/image/upload/v1776324979/crimetrack_logo.jpg" alt="Logo" className="h-full w-full object-cover" />
             </div>
           )}
+          {/* Close button for mobile */}
+          <button
+            onClick={() => setMobileMenuOpen(false)}
+            className="lg:hidden p-2 rounded-lg bg-slate-800 text-white hover:bg-slate-700 transition-all"
+          >
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
         </div>
 
         <button
           onClick={() => setSidebarOpen(!sidebarOpen)}
-          className="absolute top-24 -right-3 h-6 w-6 bg-slate-800 border border-slate-700 rounded-full flex items-center justify-center text-slate-400 hover:text-white z-50 cursor-pointer shadow-xl transition"
+          className="absolute top-20 md:top-24 -right-3 h-6 w-6 bg-slate-800 border border-slate-700 rounded-full flex items-center justify-center text-slate-400 hover:text-white z-50 cursor-pointer shadow-xl transition hidden lg:flex"
         >
           {sidebarOpen ? <ChevronLeft size={14} /> : <ChevronRight size={14} />}
         </button>
@@ -197,20 +215,31 @@ export default function CitizenLayout() {
       {/* MAIN CONTENT AREA */}
       <main className="flex-1 flex flex-col min-w-0 overflow-hidden relative">
         {/* HEADER */}
-        <header className="h-24 bg-slate-900 border-b border-slate-800 flex items-center justify-between px-10 shrink-0 z-30 sticky top-0 shadow-2xl backdrop-blur-md bg-opacity-80">
-          <div>
-            <div className="text-[10px] text-slate-600 font-black uppercase tracking-[3px] mb-1">Citizen Protection Portal</div>
-            <h2 className="text-2xl font-black text-white uppercase tracking-tighter italic">{pageTitle}</h2>
+        <header className="h-20 md:h-24 bg-slate-900 border-b border-slate-800 flex items-center justify-between px-4 md:px-10 shrink-0 z-30 sticky top-0 shadow-2xl backdrop-blur-md bg-opacity-80">
+          <div className="flex items-center gap-3 md:gap-4">
+            {/* Mobile Menu Button */}
+            <button
+              onClick={() => setMobileMenuOpen(true)}
+              className="lg:hidden p-2 rounded-xl bg-slate-800 text-white hover:bg-slate-700 transition-all"
+            >
+              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+              </svg>
+            </button>
+            <div>
+              <div className="text-[8px] md:text-[10px] text-slate-600 font-black uppercase tracking-[2px] md:tracking-[3px] mb-1">Citizen Protection Portal</div>
+              <h2 className="text-lg md:text-2xl font-black text-white uppercase tracking-tighter italic">{pageTitle}</h2>
+            </div>
           </div>
-          <div className="flex items-center gap-6 relative">
+          <div className="flex items-center gap-3 md:gap-6 relative">
             <div className="relative">
               <button
                 onClick={() => setNotifOpen(!notifOpen)}
-                className={`p-3 rounded-2xl transition-all duration-300 ${notifOpen ? 'bg-blue-600 text-white' : 'text-slate-500 hover:text-white hover:bg-slate-800'}`}
+                className={`p-2 md:p-3 rounded-xl md:rounded-2xl transition-all duration-300 ${notifOpen ? 'bg-blue-600 text-white' : 'text-slate-500 hover:text-white hover:bg-slate-800'}`}
               >
-                <Bell size={22} className={unreadCount > 0 && !notifOpen ? "animate-[swing_2s_ease-in-out_infinite] origin-top text-blue-500" : ""} />
+                <Bell size={18} className="md:size-22" />
                 {unreadCount > 0 && (
-                  <span className="absolute top-2 right-2 flex h-5 w-5 items-center justify-center rounded-full bg-blue-500 text-[10px] font-black text-white ring-4 ring-slate-900 shadow-lg">
+                  <span className="absolute top-1 right-1 md:top-2 md:right-2 flex h-4 w-4 md:h-5 md:w-5 items-center justify-center rounded-full bg-blue-500 text-[8px] md:text-[10px] font-black text-white ring-4 ring-slate-900 shadow-lg">
                     {unreadCount}
                   </span>
                 )}
@@ -227,13 +256,13 @@ export default function CitizenLayout() {
               const u = getUser();
               const initials = (u.username || u.name || u.email || "User").split(" ").map(w => w[0]).join("").toUpperCase().slice(0, 2);
               return (
-                <div className="flex items-center gap-4">
+                <div className="flex items-center gap-2 md:gap-4">
                   <div className="hidden sm:flex flex-col items-end">
-                    <div className="text-sm font-black text-white tracking-tight leading-none capitalize">{u.username || u.name || u.email || "User"}</div>
-                    <div className="text-[10px] font-bold text-blue-400/80 lowercase tracking-wide mt-1.5">{u.email || "user@crimetrack.com"}</div>
+                    <div className="text-xs md:text-sm font-black text-white tracking-tight leading-none capitalize">{u.username || u.name || u.email || "User"}</div>
+                    <div className="text-[9px] md:text-[10px] font-bold text-blue-400/80 lowercase tracking-wide mt-1.5">{u.email || "user@crimetrack.com"}</div>
                   </div>
                   <div
-                    className="h-12 w-12 bg-blue-600 text-white flex items-center justify-center rounded-2xl font-black text-lg shadow-xl shadow-blue-900/40 relative group cursor-pointer border border-blue-500/50 overflow-hidden"
+                    className="h-10 w-10 md:h-12 md:w-12 bg-blue-600 text-white flex items-center justify-center rounded-xl md:rounded-2xl font-black text-sm md:text-lg shadow-xl shadow-blue-900/40 relative group cursor-pointer border border-blue-500/50 overflow-hidden"
                     onClick={handleProfilePictureClick}
                     title="Click to change profile picture"
                   >

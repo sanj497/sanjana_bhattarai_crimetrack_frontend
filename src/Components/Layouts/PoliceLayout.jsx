@@ -9,6 +9,7 @@ const getUser = () => {
 
 export default function PoliceLayout() {
   const [sidebarOpen, setSidebarOpen] = useState(true);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [sosCount, setSosCount] = useState(0);
   const [uploadingPicture, setUploadingPicture] = useState(false);
   const fileInputRef = useRef(null);
@@ -131,22 +132,39 @@ export default function PoliceLayout() {
 
   return (
     <div className="flex h-screen bg-slate-900 text-white font-sans overflow-hidden">
+      {/* Mobile Menu Overlay */}
+      {mobileMenuOpen && (
+        <div 
+          className="fixed inset-0 bg-black/50 z-30 lg:hidden"
+          onClick={() => setMobileMenuOpen(false)}
+        />
+      )}
+      
       {/* Sidebar */}
-      <aside className={`${sidebarOpen ? 'w-64' : 'w-24'} bg-slate-900 border-r border-slate-800 transition-all duration-300 flex flex-col z-20`}>
-        <div className="h-24 flex items-center justify-between px-6 border-b border-slate-800/50">
+      <aside className={`fixed lg:relative inset-y-0 left-0 ${sidebarOpen ? 'w-64' : 'w-24'} bg-slate-900 border-r border-slate-800 transition-all duration-300 flex flex-col z-40 ${mobileMenuOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}`}>
+        <div className="h-20 md:h-24 flex items-center justify-between px-4 md:px-6 border-b border-slate-800/50">
           {sidebarOpen && (
-            <div className="flex items-center gap-3">
-              <div className="h-10 w-10 bg-white rounded-xl flex items-center justify-center shadow-lg overflow-hidden border border-blue-500/20">
+            <div className="flex items-center gap-2 md:gap-3">
+              <div className="h-8 w-8 md:h-10 md:w-10 bg-white rounded-lg md:rounded-xl flex items-center justify-center shadow-lg overflow-hidden border border-blue-500/20">
                 <img src="https://res.cloudinary.com/dvziqqu1j/image/upload/v1776324979/crimetrack_logo.jpg" alt="Logo" className="h-full w-full object-cover" />
               </div>
-              <span className="font-black text-xl tracking-tight text-white uppercase italic">Police Dashboard</span>
+              <span className="font-black text-base md:text-xl tracking-tight text-white uppercase italic">Police Dashboard</span>
             </div>
           )}
           {!sidebarOpen && (
-              <div className="h-10 w-10 bg-white rounded-xl flex items-center justify-center mx-auto shadow-lg overflow-hidden border border-blue-500/20">
+              <div className="h-8 w-8 md:h-10 md:w-10 bg-white rounded-lg md:rounded-xl flex items-center justify-center mx-auto shadow-lg overflow-hidden border border-blue-500/20">
                 <img src="https://res.cloudinary.com/dvziqqu1j/image/upload/v1776324979/crimetrack_logo.jpg" alt="Logo" className="h-full w-full object-cover" />
               </div>
           )}
+          {/* Close button for mobile */}
+          <button 
+            onClick={() => setMobileMenuOpen(false)}
+            className="lg:hidden p-2 rounded-lg bg-slate-800 text-white hover:bg-slate-700 transition-all"
+          >
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
         </div>
 
         <nav className="flex-1 overflow-y-auto py-8 px-4 flex flex-col gap-2 relative scrollbar-hide">
@@ -198,11 +216,20 @@ export default function PoliceLayout() {
       {/* Main Content */}
       <div className="flex-1 flex flex-col overflow-hidden bg-slate-950">
         {/* Header */}
-        <header className="h-24 bg-slate-900 border-b border-slate-800 flex items-center justify-between px-10 shrink-0 z-30 sticky top-0 shadow-2xl backdrop-blur-md bg-opacity-80">
-          <div className="flex items-center gap-4">
+        <header className="h-20 md:h-24 bg-slate-900 border-b border-slate-800 flex items-center justify-between px-4 md:px-10 shrink-0 z-30 sticky top-0 shadow-2xl backdrop-blur-md bg-opacity-80">
+          <div className="flex items-center gap-3 md:gap-4">
+             {/* Mobile Menu Button */}
+             <button 
+               onClick={() => setMobileMenuOpen(true)}
+               className="lg:hidden p-2 rounded-xl bg-slate-800 text-white hover:bg-slate-700 transition-all"
+             >
+               <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+               </svg>
+             </button>
              <div>
-                <div className="text-[10px] text-slate-600 font-black uppercase tracking-[3px] mb-1">Operational Command Node</div>
-                <h1 className="text-2xl font-black text-white italic tracking-tighter uppercase leading-none">{currentPage}</h1>
+                <div className="text-[8px] md:text-[10px] text-slate-600 font-black uppercase tracking-[2px] md:tracking-[3px] mb-1">Operational Command Node</div>
+                <h1 className="text-lg md:text-2xl font-black text-white italic tracking-tighter uppercase leading-none">{currentPage}</h1>
              </div>
           </div>
           
@@ -212,13 +239,13 @@ export default function PoliceLayout() {
                 const u = getUser();
                 const initials = (u.username || u.name || "Police").split(" ").map(w => w[0]).join("").toUpperCase().slice(0, 2);
                 return (
-                  <div className="flex items-center gap-4">
+                  <div className="flex items-center gap-2 md:gap-4">
                     <div className="hidden sm:flex flex-col items-end">
-                      <div className="text-sm font-black text-white tracking-tight leading-none capitalize">{u.username || u.name || "Officer"}</div>
-                      <div className="text-[10px] font-bold text-blue-400/80 lowercase tracking-wide mt-1.5">{u.email || "officer@crimetrack.com"}</div>
+                      <div className="text-xs md:text-sm font-black text-white tracking-tight leading-none capitalize">{u.username || u.name || "Officer"}</div>
+                      <div className="text-[9px] md:text-[10px] font-bold text-blue-400/80 lowercase tracking-wide mt-1.5">{u.email || "officer@crimetrack.com"}</div>
                     </div>
                     <div 
-                      className="h-12 w-12 bg-blue-600 text-white flex items-center justify-center rounded-2xl font-black text-lg shadow-xl shadow-blue-900/40 relative group cursor-pointer border border-blue-500/50 overflow-hidden"
+                      className="h-10 w-10 md:h-12 md:w-12 bg-blue-600 text-white flex items-center justify-center rounded-xl md:rounded-2xl font-black text-sm md:text-lg shadow-xl shadow-blue-900/40 relative group cursor-pointer border border-blue-500/50 overflow-hidden"
                       onClick={handleProfilePictureClick}
                       title="Click to change profile picture"
                     >
