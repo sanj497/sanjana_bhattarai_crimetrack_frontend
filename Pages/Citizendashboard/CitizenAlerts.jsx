@@ -1,10 +1,12 @@
 import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { ShieldAlert, MapPin, Clock, MessageSquare, ShieldCheck, Activity } from "lucide-react";
+import { ShieldAlert, MapPin, Clock, MessageSquare, ShieldCheck, Activity, ChevronsLeft, ChevronLeft, ChevronRight, ChevronsRight } from "lucide-react";
 
 export default function CitizenAlerts() {
   const [adminAlerts, setAdminAlerts] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [alertsPerPage] = useState(5);
 
   const fetchAlerts = async () => {
     try {
@@ -35,6 +37,17 @@ export default function CitizenAlerts() {
     return () => window.removeEventListener("new-notification-received", handler);
   }, []);
 
+  // Pagination logic
+  const indexOfLastAlert = currentPage * alertsPerPage;
+  const indexOfFirstAlert = indexOfLastAlert - alertsPerPage;
+  const currentAlerts = adminAlerts.slice(indexOfFirstAlert, indexOfLastAlert);
+  const totalPages = Math.ceil(adminAlerts.length / alertsPerPage);
+
+  const paginate = (pageNumber) => setCurrentPage(pageNumber);
+
+  const goToFirstPage = () => setCurrentPage(1);
+  const goToLastPage = () => setCurrentPage(totalPages);
+
   return (
     <div className="p-6 md:p-10 font-body min-h-full bg-primary-dark text-text-primary">
       <div className="mb-10 animate-fade-in">
@@ -64,53 +77,133 @@ export default function CitizenAlerts() {
           </p>
         </div>
       ) : (
-        <div className="grid grid-cols-1 gap-6">
-          {adminAlerts.map((alert, idx) => (
-            <div 
-              key={alert._id} 
-              className={`bg-secondary-dark border-l-[6px] ${!alert.isRead ? 'border-l-danger bg-danger/5' : 'border-l-accent-gold'} border-y border-r border-border-subtle rounded-r-card rounded-l-[12px] p-8 shadow-xl hover:border-accent-gold/30 transition-all group animate-fade-in`}
-              style={{ animationDelay: `${idx * 0.1}s` }}
-            >
-              <div className="flex justify-between items-start mb-4">
-                 <div className="flex items-center gap-3">
-                    <div className={`p-2.5 rounded-[12px] ${!alert.isRead ? 'bg-danger/20 text-danger' : 'bg-accent-gold/20 text-accent-gold'}`}>
-                        <MessageSquare className="h-5 w-5" />
-                    </div>
-                    <div className="flex flex-col">
-                        <span className={`text-[10px] font-bold uppercase tracking-widest ${!alert.isRead ? 'text-danger' : 'text-accent-gold'}`}>
-                          {!alert.isRead ? 'Urgent Alert' : 'Archived Broadcast'}
-                        </span>
-                        {alert.crimeId && alert.crimeId.crimeType && (
-                          <span className="text-[12px] font-bold text-text-secondary uppercase tracking-widest mt-0.5">
-                             {alert.crimeId.crimeType}
+        <>
+          <div className="grid grid-cols-1 gap-6">
+            {currentAlerts.map((alert, idx) => (
+              <div 
+                key={alert._id} 
+                className={`bg-secondary-dark border-l-[6px] ${!alert.isRead ? 'border-l-danger bg-danger/5' : 'border-l-accent-gold'} border-y border-r border-border-subtle rounded-r-card rounded-l-[12px] p-8 shadow-xl hover:border-accent-gold/30 transition-all group animate-fade-in`}
+                style={{ animationDelay: `${idx * 0.1}s` }}
+              >
+                <div className="flex justify-between items-start mb-4">
+                   <div className="flex items-center gap-3">
+                      <div className={`p-2.5 rounded-[12px] ${!alert.isRead ? 'bg-danger/20 text-danger' : 'bg-accent-gold/20 text-accent-gold'}`}>
+                          <MessageSquare className="h-5 w-5" />
+                      </div>
+                      <div className="flex flex-col">
+                          <span className={`text-[10px] font-bold uppercase tracking-widest ${!alert.isRead ? 'text-danger' : 'text-accent-gold'}`}>
+                            {!alert.isRead ? 'Urgent Alert' : 'Archived Broadcast'}
                           </span>
-                        )}
-                    </div>
-                 </div>
-                 <span className="text-[10px] font-bold text-text-secondary flex items-center gap-1.5 uppercase tracking-wider bg-primary-dark px-3 py-1.5 rounded-full border border-border-subtle shadow-inner">
-                   <Clock size={12}/> {new Date(alert.createdAt).toLocaleString()}
-                 </span>
-              </div>
-              <p className="text-base font-medium text-text-primary leading-relaxed max-w-4xl mt-4 mb-2">
-                {alert.message}
-              </p>
-              {alert.crimeId && alert.crimeId.title && (
-                <div className="mt-8 p-5 bg-primary-dark/50 rounded-card border border-border-subtle flex flex-col md:flex-row justify-between md:items-center gap-4 group-hover:border-accent-gold/20 transition-colors">
-                  <div>
-                      <p className="text-[10px] font-bold uppercase tracking-widest text-accent-gold mb-1.5 flex items-center gap-1">
-                          <Activity size={10} /> Attached Intelligence Report
-                      </p>
-                      <p className="text-sm font-bold text-text-primary mb-1">{alert.crimeId.title}</p>
-                      <p className="text-xs text-text-secondary flex items-center gap-1 font-medium"><MapPin size={12}/> {alert.crimeId?.location?.address || "Location unavailable"}</p>
-                  </div>
-                  <Link to={`/citizen/tracking`} className="px-5 py-2.5 bg-secondary-dark border border-border-subtle text-text-secondary rounded-[12px] text-[10px] font-bold uppercase tracking-widest hover:bg-accent-gold hover:text-primary-dark transition-all shrink-0 shadow-lg group-hover:bg-accent-gold/10 group-hover:text-accent-gold group-hover:border-accent-gold/30">
-                     Track Incident
-                  </Link>
+                          {alert.crimeId && alert.crimeId.crimeType && (
+                            <span className="text-[12px] font-bold text-text-secondary uppercase tracking-widest mt-0.5">
+                               {alert.crimeId.crimeType}
+                            </span>
+                          )}
+                      </div>
+                   </div>
+                   <span className="text-[10px] font-bold text-text-secondary flex items-center gap-1.5 uppercase tracking-wider bg-primary-dark px-3 py-1.5 rounded-full border border-border-subtle shadow-inner">
+                     <Clock size={12}/> {new Date(alert.createdAt).toLocaleString()}
+                   </span>
                 </div>
-              )}
+                <p className="text-base font-medium text-text-primary leading-relaxed max-w-4xl mt-4 mb-2">
+                  {alert.message}
+                </p>
+                {alert.crimeId && alert.crimeId.title && (
+                  <div className="mt-8 p-5 bg-primary-dark/50 rounded-card border border-border-subtle group-hover:border-accent-gold/20 transition-colors">
+                    <div>
+                        <p className="text-[10px] font-bold uppercase tracking-widest text-accent-gold mb-1.5 flex items-center gap-1">
+                            <Activity size={10} /> Attached Intelligence Report
+                        </p>
+                        <p className="text-sm font-bold text-text-primary mb-1">{alert.crimeId.title}</p>
+                        <p className="text-xs text-text-secondary flex items-center gap-1 font-medium"><MapPin size={12}/> {alert.crimeId?.location?.address || "Location unavailable"}</p>
+                    </div>
+                  </div>
+                )}
+              </div>
+            ))}
+          </div>
+
+          {/* Professional Pagination */}
+          {totalPages > 1 && (
+            <div className="mt-10 flex items-center justify-between px-2">
+              <div className="text-sm text-text-secondary">
+                Showing <span className="font-bold text-accent-gold">{indexOfFirstAlert + 1}</span> to{' '}
+                <span className="font-bold text-accent-gold">{Math.min(indexOfLastAlert, adminAlerts.length)}</span> of{' '}
+                <span className="font-bold text-accent-gold">{adminAlerts.length}</span> alerts
+              </div>
+              
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={goToFirstPage}
+                  disabled={currentPage === 1}
+                  className={`p-2.5 rounded-xl transition-all duration-200 ${
+                    currentPage === 1 
+                      ? 'opacity-30 cursor-not-allowed bg-secondary-dark/30 text-text-secondary' 
+                      : 'bg-secondary-dark border border-border-subtle text-text-secondary hover:border-accent-gold hover:text-accent-gold hover:shadow-lg'
+                  }`}
+                  title="First Page"
+                >
+                  <ChevronsLeft size={18} />
+                </button>
+                
+                <button
+                  onClick={() => paginate(currentPage - 1)}
+                  disabled={currentPage === 1}
+                  className={`p-2.5 rounded-xl transition-all duration-200 ${
+                    currentPage === 1 
+                      ? 'opacity-30 cursor-not-allowed bg-secondary-dark/30 text-text-secondary' 
+                      : 'bg-secondary-dark border border-border-subtle text-text-secondary hover:border-accent-gold hover:text-accent-gold hover:shadow-lg'
+                  }`}
+                  title="Previous Page"
+                >
+                  <ChevronLeft size={18} />
+                </button>
+                
+                <div className="flex items-center gap-1.5 mx-2">
+                  {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+                    <button
+                      key={page}
+                      onClick={() => paginate(page)}
+                      className={`min-w-[40px] h-10 rounded-xl text-sm font-bold transition-all duration-200 ${
+                        currentPage === page
+                          ? 'bg-accent-gold text-primary-dark shadow-lg shadow-accent-gold/30'
+                          : 'bg-secondary-dark border border-border-subtle text-text-secondary hover:border-accent-gold hover:text-accent-gold'
+                      }`}
+                    >
+                      {page}
+                    </button>
+                  ))}
+                </div>
+                
+                <button
+                  onClick={() => paginate(currentPage + 1)}
+                  disabled={currentPage === totalPages}
+                  className={`p-2.5 rounded-xl transition-all duration-200 ${
+                    currentPage === totalPages 
+                      ? 'opacity-30 cursor-not-allowed bg-secondary-dark/30 text-text-secondary' 
+                      : 'bg-secondary-dark border border-border-subtle text-text-secondary hover:border-accent-gold hover:text-accent-gold hover:shadow-lg'
+                  }`}
+                  title="Next Page"
+                >
+                  <ChevronRight size={18} />
+                </button>
+                
+                <button
+                  onClick={goToLastPage}
+                  disabled={currentPage === totalPages}
+                  className={`p-2.5 rounded-xl transition-all duration-200 ${
+                    currentPage === totalPages 
+                      ? 'opacity-30 cursor-not-allowed bg-secondary-dark/30 text-text-secondary' 
+                      : 'bg-secondary-dark border border-border-subtle text-text-secondary hover:border-accent-gold hover:text-accent-gold hover:shadow-lg'
+                  }`}
+                  title="Last Page"
+                >
+                  <ChevronsRight size={18} />
+                </button>
+              </div>
             </div>
-          ))}
-        </div>
+          )}
+        </>
       )}
     </div>
   );

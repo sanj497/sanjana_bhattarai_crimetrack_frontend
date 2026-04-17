@@ -11,7 +11,7 @@ const getUser = () => {
 
 const navItems = [
   { icon: <LayoutDashboard size={20} />, label: "Overview", path: "/citizen" },
-  { icon: <Activity size={20} />, label: "Incident Tracker", path: "/citizen/tracking" },
+  { icon: <Activity size={20} />, label: "Report Tracking", path: "/citizen/tracking" },
   { icon: <ShieldAlert size={20} />, label: "Admin Alerts", path: "/citizen/alerts" },
   { icon: <MessageSquare size={20} />, label: "Feedback", path: "/feedback" },
   { icon: <AlertTriangle size={20} />, label: "Emergency", path: "/emergency", badge: "SOS" },

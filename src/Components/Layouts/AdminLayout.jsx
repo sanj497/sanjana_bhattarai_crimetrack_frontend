@@ -130,8 +130,7 @@ export default function AdminLayout() {
             { name: "Reports", icon: <FileText size={20} />,        path: "/adReport"  },
             { name: "Users",  icon: <Users size={20} />,           path: "/user"      },
             {name: "Verify",   icon: <ShieldAlert size={20} />,     path: "/forward-admin" },
-            { name: "Feedback",    icon: <MessageSquare size={20} />,   path: "/admin/feedback" },
-            { name: "Performance",    icon: <BarChart3 size={20} />,       path: "/admin/performance" },
+            
             { name: "Emergency",      icon: <AlertTriangle size={20} />,   path: "/admin/emergency" },
             { name: "Settings",          icon: <Settings size={20} />,        path: "/admin/settings" },
         ],

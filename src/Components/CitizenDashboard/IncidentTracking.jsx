@@ -18,7 +18,11 @@ import {
   Navigation,
   ExternalLink,
   ShieldCheck,
-  Radio
+  Radio,
+  ChevronsLeft,
+  ChevronLeft,
+  ChevronRight as ChevronRightIcon,
+  ChevronsRight
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
@@ -47,6 +51,8 @@ export default function IncidentTracking() {
   const [reports, setReports] = useState([]);
   const [loading, setLoading] = useState(true);
   const [selectedReport, setSelectedReport] = useState(null);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [reportsPerPage] = useState(5);
 
   useEffect(() => {
     fetchMyReports();
@@ -68,6 +74,32 @@ export default function IncidentTracking() {
     } finally {
       setLoading(false);
     }
+  };
+
+  // Pagination logic
+  const indexOfLastReport = currentPage * reportsPerPage;
+  const indexOfFirstReport = indexOfLastReport - reportsPerPage;
+  const currentReports = reports.slice(indexOfFirstReport, indexOfLastReport);
+  const totalPages = Math.ceil(reports.length / reportsPerPage);
+
+  const paginate = (pageNumber) => {
+    setCurrentPage(pageNumber);
+    // Select first report on the new page
+    const pageStartIndex = (pageNumber - 1) * reportsPerPage;
+    if (reports.length > pageStartIndex) {
+      setSelectedReport(reports[pageStartIndex]);
+    }
+  };
+
+  const goToFirstPage = () => {
+    setCurrentPage(1);
+    if (reports.length > 0) setSelectedReport(reports[0]);
+  };
+
+  const goToLastPage = () => {
+    setCurrentPage(totalPages);
+    const lastIndex = Math.min(totalPages * reportsPerPage, reports.length) - 1;
+    if (lastIndex >= 0) setSelectedReport(reports[lastIndex]);
   };
 
   const getTimeline = (report) => {
@@ -146,10 +178,10 @@ export default function IncidentTracking() {
                   </div>
                   <div>
                     <h1 className="text-4xl md:text-5xl font-bold tracking-tighter uppercase leading-none font-heading">
-                      Incident <span className="text-accent-gold">Tracker</span>
+                      Live Report  <span className="text-accent-gold">Tracking</span>
                     </h1>
                     <p className="text-text-secondary font-bold text-[10px] mt-2 uppercase tracking-[3px] flex items-center gap-2">
-                       <ShieldCheck size={12} className="text-accent-gold" /> Professional Intelligence Monitoring
+                       <ShieldCheck size={12} className="text-accent-gold" /> Track Your Reports
                     </p>
                   </div>
                 </div>
@@ -159,10 +191,6 @@ export default function IncidentTracking() {
                  <div className="text-right hidden sm:block">
                     <p className="text-[10px] font-bold text-text-secondary uppercase tracking-widest mb-1">Authenticated Records</p>
                     <p className="text-2xl font-bold tabular-nums text-text-primary">{reports.length} Case Logs</p>
-                 </div>
-                 <div className="h-16 w-px bg-border-subtle" />
-                 <div className="h-16 w-16 bg-primary-dark/50 backdrop-blur-md rounded-2xl border border-border-subtle flex items-center justify-center text-accent-gold">
-                    <Shield size={28} />
                  </div>
               </div>
             </div>
@@ -176,7 +204,7 @@ export default function IncidentTracking() {
           {/* ── INCIDENT HISTORY LOG ── */}
           <div className="lg:col-span-4 space-y-6">
             <div className="flex items-center justify-between mb-2 px-4">
-               <h2 className="text-[11px] font-bold text-text-secondary uppercase tracking-[4px]">Audit History</h2>
+               <h2 className="text-[11px] font-bold text-text-secondary uppercase tracking-[4px]">Reported History</h2>
                <Archive size={16} className="text-text-secondary" />
             </div>
 
@@ -191,40 +219,115 @@ export default function IncidentTracking() {
                     <p className="text-text-secondary text-sm font-bold uppercase tracking-widest">No Active Logs</p>
                  </div>
               ) : (
-                reports.map(report => (
-                  <button 
-                    key={report._id}
-                    onClick={() => setSelectedReport(report)}
-                    className={`w-full p-8 rounded-[36px] transition-all text-left relative overflow-hidden group border ${
-                      selectedReport?._id === report._id 
-                      ? "bg-secondary-dark text-text-primary shadow-2xl border-l-8 border-l-accent-gold border-accent-gold/20" 
-                      : "bg-secondary-dark/40 text-text-primary border-border-subtle hover:border-accent-gold/50 hover:bg-secondary-dark/60"
-                    }`}
-                  >
-                    <div className="flex justify-between items-start mb-6">
-                       <span className={`text-[9px] font-bold uppercase tracking-[2px] ${selectedReport?._id === report._id ? 'text-accent-gold' : 'text-text-secondary'}`}>
-                         {report.crimeType}
-                       </span>
-                       <div className={selectedReport?._id === report._id ? "opacity-100 text-accent-gold" : "opacity-0 group-hover:opacity-100 transition-opacity text-text-secondary"}>
-                          <ChevronRight size={18} />
-                       </div>
-                    </div>
-                    
-                    <h3 className={`text-lg font-bold uppercase leading-tight mb-4 tracking-tight font-heading ${selectedReport?._id === report._id ? 'text-text-primary' : 'text-text-secondary hover:text-text-primary'}`}>
-                      {report.title}
-                    </h3>
-                    
-                    <div className="flex items-center gap-4 text-text-secondary">
-                      <div className="flex items-center gap-1.5 text-[10px] font-bold">
-                          <MapPin size={12} className={selectedReport?._id === report._id ? "text-accent-gold" : "text-border-subtle"} /> 
-                          {report.location?.address?.split(',')[0]}
+                <>
+                  {currentReports.map(report => (
+                    <button 
+                      key={report._id}
+                      onClick={() => setSelectedReport(report)}
+                      className={`w-full p-8 rounded-[36px] transition-all text-left relative overflow-hidden group border ${
+                        selectedReport?._id === report._id 
+                        ? "bg-secondary-dark text-text-primary shadow-2xl border-l-8 border-l-accent-gold border-accent-gold/20" 
+                        : "bg-secondary-dark/40 text-text-primary border-border-subtle hover:border-accent-gold/50 hover:bg-secondary-dark/60"
+                      }`}
+                    >
+                      <div className="flex justify-between items-start mb-6">
+                         <span className={`text-[9px] font-bold uppercase tracking-[2px] ${selectedReport?._id === report._id ? 'text-accent-gold' : 'text-text-secondary'}`}>
+                           {report.crimeType}
+                         </span>
+                         <div className={selectedReport?._id === report._id ? "opacity-100 text-accent-gold" : "opacity-0 group-hover:opacity-100 transition-opacity text-text-secondary"}>
+                            <ChevronRightIcon size={18} />
+                         </div>
                       </div>
-                      <div className="flex items-center gap-1.5 text-[10px] font-bold">
-                          <Clock size={12} /> {new Date(report.createdAt).toLocaleDateString()}
+                      
+                      <h3 className={`text-lg font-bold uppercase leading-tight mb-4 tracking-tight font-heading ${selectedReport?._id === report._id ? 'text-text-primary' : 'text-text-secondary hover:text-text-primary'}`}>
+                        {report.title}
+                      </h3>
+                      
+                      <div className="flex items-center gap-4 text-text-secondary">
+                        <div className="flex items-center gap-1.5 text-[10px] font-bold">
+                            <MapPin size={12} className={selectedReport?._id === report._id ? "text-accent-gold" : "text-border-subtle"} /> 
+                            {report.location?.address?.split(',')[0]}
+                        </div>
+                        <div className="flex items-center gap-1.5 text-[10px] font-bold">
+                            <Clock size={12} /> {new Date(report.createdAt).toLocaleDateString()}
+                        </div>
                       </div>
+                    </button>
+                  ))}
+                  
+                  {/* Pagination Controls */}
+                  {totalPages > 1 && (
+                    <div className="flex items-center justify-between gap-2 pt-4 px-2">
+                      <button
+                        onClick={goToFirstPage}
+                        disabled={currentPage === 1}
+                        className={`p-2 rounded-lg transition-all ${
+                          currentPage === 1 
+                            ? 'opacity-30 cursor-not-allowed' 
+                            : 'hover:bg-secondary-dark text-text-secondary hover:text-accent-gold'
+                        }`}
+                        title="First Page"
+                      >
+                        <ChevronsLeft size={16} />
+                      </button>
+                      
+                      <button
+                        onClick={() => paginate(currentPage - 1)}
+                        disabled={currentPage === 1}
+                        className={`p-2 rounded-lg transition-all ${
+                          currentPage === 1 
+                            ? 'opacity-30 cursor-not-allowed' 
+                            : 'hover:bg-secondary-dark text-text-secondary hover:text-accent-gold'
+                        }`}
+                        title="Previous Page"
+                      >
+                        <ChevronLeft size={16} />
+                      </button>
+                      
+                      <div className="flex items-center gap-1">
+                        {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+                          <button
+                            key={page}
+                            onClick={() => paginate(page)}
+                            className={`w-8 h-8 rounded-lg text-xs font-bold transition-all ${
+                              currentPage === page
+                                ? 'bg-accent-gold text-primary-dark'
+                                : 'text-text-secondary hover:bg-secondary-dark hover:text-accent-gold'
+                            }`}
+                          >
+                            {page}
+                          </button>
+                        ))}
+                      </div>
+                      
+                      <button
+                        onClick={() => paginate(currentPage + 1)}
+                        disabled={currentPage === totalPages}
+                        className={`p-2 rounded-lg transition-all ${
+                          currentPage === totalPages 
+                            ? 'opacity-30 cursor-not-allowed' 
+                            : 'hover:bg-secondary-dark text-text-secondary hover:text-accent-gold'
+                        }`}
+                        title="Next Page"
+                      >
+                        <ChevronRightIcon size={16} />
+                      </button>
+                      
+                      <button
+                        onClick={goToLastPage}
+                        disabled={currentPage === totalPages}
+                        className={`p-2 rounded-lg transition-all ${
+                          currentPage === totalPages 
+                            ? 'opacity-30 cursor-not-allowed' 
+                            : 'hover:bg-secondary-dark text-text-secondary hover:text-accent-gold'
+                        }`}
+                        title="Last Page"
+                      >
+                        <ChevronsRight size={16} />
+                      </button>
                     </div>
-                  </button>
-                ))
+                  )}
+                </>
               )}
             </div>
           </div>
@@ -258,7 +361,7 @@ export default function IncidentTracking() {
                    
                    <div className="p-12 relative z-10">
                       <h3 className="text-sm font-bold text-text-primary uppercase tracking-[4px] mb-12 flex items-center gap-3 font-heading">
-                        <Radio size={18} className="text-accent-gold animate-pulse" /> Live Telemetry Timeline
+                        <Radio size={18} className="text-accent-gold animate-pulse" /> Timeline of {selectedReport.title}
                       </h3>
                       
                       <div className="space-y-16 pl-4">
@@ -292,55 +395,6 @@ export default function IncidentTracking() {
                              </div>
                           </div>
                         ))}
-                      </div>
-                   </div>
-                </div>
-
-                {/* ADDITIONAL ASSETS */}
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                   <div className="bg-secondary-dark rounded-[40px] p-10 border border-border-subtle shadow-lg relative overflow-hidden">
-                      <div className="flex items-center gap-4 mb-8">
-                        <div className="h-12 w-12 bg-accent-gold/10 rounded-2xl flex items-center justify-center text-accent-gold">
-                           <User size={22} />
-                        </div>
-                        <div>
-                           <p className="text-[10px] font-bold text-text-secondary uppercase tracking-widest leading-none">Investigation Staff</p>
-                           <h4 className="text-base font-bold text-text-primary mt-1 uppercase tracking-tight font-heading">Assigned Personnel</h4>
-                        </div>
-                      </div>
-                      
-                      <div className="flex items-center gap-5 p-4 bg-primary-dark/50 rounded-[28px] border border-border-subtle">
-                         <div className="h-14 w-14 bg-accent-gold text-primary-dark rounded-2xl flex items-center justify-center text-xl font-bold shadow-lg">
-                            {selectedReport.workflow?.assignedToOfficer?.username?.[0] || 'D'}
-                         </div>
-                         <div>
-                            <p className="text-lg font-bold text-text-primary leading-none">
-                              {selectedReport.workflow?.assignedToOfficer?.username || "Dispatch Queue"}
-                            </p>
-                            <p className="text-[10px] font-bold text-accent-gold uppercase tracking-[2px] mt-2">Certified Operative</p>
-                         </div>
-                      </div>
-                   </div>
-
-                   <div className="bg-primary-dark rounded-[40px] p-10 border border-border-subtle shadow-2xl text-text-primary group overflow-hidden">
-                      <div className="relative z-10">
-                        <div className="flex items-center gap-4 mb-8">
-                          <div className="h-12 w-12 bg-secondary-dark rounded-2xl border border-border-subtle flex items-center justify-center text-accent-gold">
-                             <MessageSquare size={22} />
-                          </div>
-                          <div>
-                             <p className="text-[10px] font-bold text-text-secondary uppercase tracking-widest leading-none">Operational Support</p>
-                             <h4 className="text-base font-bold text-text-primary mt-1 uppercase tracking-tight font-heading">Direct Comms</h4>
-                          </div>
-                        </div>
-                        
-                        <p className="text-xs text-text-secondary font-medium mb-8 leading-relaxed">
-                          Secure end-to-end encrypted channel with your investigating officer. Authorized use only.
-                        </p>
-                        
-                        <button className="ct-btn-primary w-full flex items-center justify-center gap-2">
-                          <Shield size={14}/> Initiate Feedback
-                        </button>
                       </div>
                    </div>
                 </div>

@@ -281,7 +281,7 @@ export default function CitizenDashboard() {
             </p>
             <div>
                 <Link to="/report" className="ct-btn-primary inline-flex items-center justify-center gap-2">
-                   File Intelligence Report <ChevronRight className="h-4 w-4" />
+                   File Crime Report <ChevronRight className="h-4 w-4" />
                 </Link>
             </div>
           </div>
