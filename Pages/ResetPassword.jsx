@@ -16,8 +16,9 @@ const ResetPassword = () => {
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    if (location.state && location.state.email) {
-      setEmail(location.state.email);
+    if (location.state) {
+      if (location.state.email) setEmail(location.state.email);
+      if (location.state.otp) setOtp(location.state.otp.toString());
     }
   }, [location.state]);
 

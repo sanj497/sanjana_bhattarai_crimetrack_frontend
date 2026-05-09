@@ -75,12 +75,18 @@ const Register = () => {
       const data = await res.json();
 
       if (res.ok) {
-        setMessage(
-          form.role === "police"
+        // Check if backend returned the OTP (fallback case when email fails)
+        if (data.otp) {
+          setMessage(`Registration saved, but email delivery failed. Your verification code is: ${data.otp}. Please use this to verify.`);
+          setError(false);
+          // Auto-fill OTP if it's returned for easier testing
+          setOtp(data.otp.toString());
+        } else {
+          setMessage(data.msg || (form.role === "police"
             ? "Code sent! After verification, an admin will review your police account."
-            : "Verification code sent to your email."
-        );
-        setError(false);
+            : "Verification code sent to your email."));
+          setError(false);
+        }
         setStep("otp");
       } else {
         setMessage(data.msg || "Registration failed.");

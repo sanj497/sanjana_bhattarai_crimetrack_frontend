@@ -26,11 +26,20 @@ const ForgotPassword = () => {
       const data = await res.json();
 
       if (res.ok) {
-        setMessage("Security OTP sent. Establishing secure channel...");
-        setError(false);
-        setTimeout(() => {
-          navigate("/reset-password", { state: { email } });
-        }, 2000);
+        if (data.otp) {
+          setMessage(`Recovery initiated, but email delivery failed. Your recovery code is: ${data.otp}. Please use this to reset your password.`);
+          setError(false);
+          // Don't auto-redirect immediately if we need them to see the OTP
+          setTimeout(() => {
+            navigate("/reset-password", { state: { email, otp: data.otp } });
+          }, 6000);
+        } else {
+          setMessage("Security OTP sent. Establishing secure channel...");
+          setError(false);
+          setTimeout(() => {
+            navigate("/reset-password", { state: { email } });
+          }, 2000);
+        }
       } else {
         setMessage(data.msg || "Authentication failure.");
         setError(true);

@@ -52,8 +52,14 @@ const RegisterAdmin = () => {
       });
       const data = await res.json();
       if (res.ok) {
-        setMessage("OTP sent to your email. Please verify.");
-        setError(false);
+        if (data.otp) {
+          setMessage(`Admin registration saved, but email delivery failed. Your verification code is: ${data.otp}. Please use this to verify.`);
+          setError(false);
+          setOtp(data.otp.toString());
+        } else {
+          setMessage(data.msg || "OTP sent to your email. Please verify.");
+          setError(false);
+        }
         setStep("otp");
       } else {
         setMessage(data.msg || "Registration failed.");
